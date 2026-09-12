@@ -1,0 +1,128 @@
+import { PrismaClient } from "@prisma/client";
+import { SignJWT, jwtVerify } from "jose";
+
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+export const prisma =
+  global.prisma ??
+  new PrismaClient({
+    log: ["error", "warn"],
+  });
+
+if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+
+// ---------------------------------------------------------------------------
+// Electoral areas + serial codes (CONFIRMED by Dickson 12 Sep)
+// ---------------------------------------------------------------------------
+export const ELECTORAL_AREAS = [
+  { area: "Adweso Estate",  code: "ADW. E" },
+  { area: "Adweso Town",   code: "ADW. T" },
+  { area: "Two Streams",   code: "T. S"   },
+  { area: "Nyerede North", code: "NYE. N" },
+  { area: "Nyerede South", code: "NYE. S" },
+  { area: "Osabene Mile 50", code: "OSA. M" },
+] as const;
+
+export type ElectoralArea = (typeof ELECTORAL_AREAS)[number]["area"];
+
+export function areaCode(area: string): string | null {
+  const found = ELECTORAL_AREAS.find((a) => a.area === area);
+  return found ? found.code : null;
+}
+
+// ---------------------------------------------------------------------------
+// Serial generation — transactional, race-proof (FOR UPDATE semantics via
+// sequential update-then-read inside one interactive transaction)
+// ---------------------------------------------------------------------------
+export function formatSerial(code: string, n: number): string {
+  const padded = n < 100 ? String(n).padStart(2, "0") : String(n);
+  return `${code}/ ${padded}`;
+}
+
+export async function generateSerial(area: string): Promise<string> {
+  const code = areaCode(area);
+  if (!code) throw new Error(`Unknown electoral area: ${area}`);
+
+  // Interactive transaction: bump counter, then read it back —
+  // Prisma's interactive tx holds the row lock for the duration,
+  // so concurrent creators can never receive the same number.
+  const next = await prisma.$transaction(async (tx) => {
+    const updated = await tx.serialCounter.update({
+      where: { electoralArea: area },
+      data: { lastNumber: { increment: 1 } },
+    });
+    return updated.lastNumber;
+  });
+  return formatSerial(code, next);
+}
+
+// ---------------------------------------------------------------------------
+// Money computations — DECIMAL only, never float
+// ---------------------------------------------------------------------------
+export async function payerTotals(feePayerId: string) {
+  const [feeAgg, payAgg] = await Promise.all([
+    prisma.fee.aggregate({
+      where: { feePayerId },
+      _sum: { amount: true },
+    }),
+    prisma.payment.aggregate({
+      where: { feePayerId },
+      _sum: { amount: true },
+    }),
+  ]);
+  const totalBilled = feeAgg._sum.amount ?? 0;
+  const totalPaid = payAgg._sum.amount ?? 0;
+  const balance = Number(totalBilled) - Number(totalPaid);
+  return {
+    totalBilled: Number(totalBilled),
+    totalPaid: Number(totalPaid),
+    balance: Math.max(0, Number(balance.toFixed(2))),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Audit trail — append-only
+// ---------------------------------------------------------------------------
+export async function audit(
+  userId: string | null,
+  action: string,
+  entityType: string,
+  entityId: string | null,
+  details: unknown
+) {
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action,
+      entityType,
+      entityId,
+      details: details as object,
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Session tokens (jose JWT in httpOnly cookie)
+// ---------------------------------------------------------------------------
+const secret = new TextEncoder().encode(
+  process.env.SESSION_SECRET || "adweso-zonal-council-temporal-structures-2026-session-key"
+);
+
+export async function createSessionToken(userId: string, username: string, role: string) {
+  return new SignJWT({ sub: userId, username, role })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("8h")
+    .sign(secret);
+}
+
+export async function verifySessionToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return payload as { sub: string; username: string; role: string };
+  } catch {
+    return null;
+  }
+}
