@@ -1,10 +1,12 @@
 // PATCH /api/records/[id] — edit identity fields, or select status PAID.
+// Admin (FULL/EDITOR) only — staff use the edit-request workflow.
 // Marking PAID auto-writes a settlement payment for the outstanding remainder,
 // so Balance AND Total both read GH₵ 0.00 (Dickson's confirmed behaviour)
 // while the cash ledger stays truthful.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, payerTotals, audit } from "@/lib/db";
+import { prisma, payerTotals, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { permsFor } from "@/lib/perms";
 
 const PHONE_RE = /^0\d{9}$/;
 
@@ -14,6 +16,13 @@ export async function PATCH(
 ) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const me = await getFullUser(session);
+  if (!me || !permsFor(me.role, me.adminLevel).canEditRecords)
+    return NextResponse.json(
+      { error: "Your account cannot edit records directly" },
+      { status: 403 }
+    );
 
   const { id } = await params;
   try {

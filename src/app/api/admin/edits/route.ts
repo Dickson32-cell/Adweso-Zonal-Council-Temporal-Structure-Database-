@@ -1,8 +1,9 @@
 // GET   /api/admin/edits — list edit requests (admin sees all; staff see own)
 // PATCH /api/admin/edits — approve (apply 'after' to the record) or reject
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit } from "@/lib/db";
+import { prisma, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { permsFor } from "@/lib/perms";
 
 type EditRow = {
   id: string;
@@ -43,8 +44,9 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (session.role !== "ADMIN")
-    return NextResponse.json({ error: "Administrators only" }, { status: 403 });
+  const me = await getFullUser(session);
+  if (!me || !permsFor(me.role, me.adminLevel).canReviewEdits)
+    return NextResponse.json({ error: "Not permitted to review edits" }, { status: 403 });
 
   try {
     const { editId, decision } = await req.json(); // decision: approve | reject

@@ -7,8 +7,10 @@ import {
   ELECTORAL_AREAS,
   areaCode,
   formatSerial,
+  getFullUser,
 } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { permsFor } from "@/lib/perms";
 
 const PHONE_RE = /^0\d{9}$/;
 
@@ -28,6 +30,13 @@ async function generateSerialInTx(tx: Tx, area: string): Promise<string> {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const me = await getFullUser(session);
+  if (!me || !permsFor(me.role, me.adminLevel).canCreateRecords)
+    return NextResponse.json(
+      { error: "Your account does not have permission to create records" },
+      { status: 403 }
+    );
 
   try {
     const body = await req.json();

@@ -23,7 +23,19 @@ type Row = {
 type Grand = { records: number; billed: number; collected: number; outstanding: number };
 type AreaSum = { count: number; billed: number; collected: number; outstanding: number };
 
-export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }) {
+export default function RegisterTable({
+  isAdmin = false,
+  canDelete = true,
+  canEditDirect = true,
+  canCreate = true,
+  canPay = true,
+}: {
+  isAdmin?: boolean;
+  canDelete?: boolean;
+  canEditDirect?: boolean;
+  canCreate?: boolean;
+  canPay?: boolean;
+}) {
   const [rows, setRows] = useState<Row[]>([]);
   const [byArea, setByArea] = useState<Record<string, AreaSum>>({});
   const [grand, setGrand] = useState<Grand>({ records: 0, billed: 0, collected: 0, outstanding: 0 });
@@ -138,8 +150,8 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
     if (!editFor) return;
     setEditErr([]); setEditMsg(""); setEditBusy(true);
 
-    if (isAdmin) {
-      // Admin edits apply immediately (admin is trusted; still audit-logged)
+    if (canEditDirect) {
+      // Admin (FULL/EDITOR) edits apply immediately (audit-logged)
       const res = await fetch(`/api/records/${editFor.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -226,7 +238,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
               <input type="text" placeholder="Name, business, serial or street..." value={q} onChange={(e) => setQ(e.target.value)} />
             </label>
           </div>
-          <button className="btn btn-primary" onClick={() => { setShowForm((s) => !s); setFormOk(""); }}>New Record</button>
+          {canCreate && <button className="btn btn-primary" onClick={() => { setShowForm((s) => !s); setFormOk(""); }}>New Record</button>}
           <button className="btn btn-ghost" onClick={exportExcel}>Export Excel</button>
           <button className="btn btn-ghost" onClick={() => window.print()}>Print</button>
         </div>
@@ -309,7 +321,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
                   <td><span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span></td>
                   <td className="no-print" style={{ whiteSpace: "nowrap" }}>
                     <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
-                    {r.status !== "PAID" && (
+                    {r.status !== "PAID" && canPay && (
                       <>
                         {" "}
                         <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
@@ -318,7 +330,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
                       </>
                     )}
                     {" "}
-                    {isAdmin && (
+                    {isAdmin && canDelete && (
                       <button className="btn btn-danger btn-sm" onClick={() => deleteRecord(r)}>Delete</button>
                     )}
                   </td>
@@ -354,13 +366,13 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
               </div>
               <div className="row-actions">
                 <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
-                {r.status !== "PAID" && (
+                {r.status !== "PAID" && canPay && (
                   <>
                     <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
                     <button className="btn btn-green btn-sm" onClick={() => markPaid(r)}>Mark Paid</button>
                   </>
                 )}
-                {isAdmin && (
+                {isAdmin && canDelete && (
                   <button className="btn btn-danger btn-sm" onClick={() => deleteRecord(r)}>Delete</button>
                 )}
               </div>
@@ -400,7 +412,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
           <form className="card modal-card" style={{ width: 460, margin: "20px 0" }} onClick={(e) => e.stopPropagation()} onSubmit={saveEdit}>
             <h2>Edit Record — {editFor.serialNumber}</h2>
             <p className="sub">
-              {isAdmin
+              {canEditDirect
                 ? "Your changes apply immediately (audit-logged)."
                 : "Your changes will be submitted for administrator approval. The record stays unchanged until approved."}
             </p>
@@ -421,7 +433,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
 
             <div style={{ display: "flex", gap: 10 }}>
               <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }} disabled={editBusy}>
-                {editBusy ? "Submitting..." : isAdmin ? "Save Changes" : "Submit for Approval"}
+                {editBusy ? "Submitting..." : canEditDirect ? "Save Changes" : "Submit for Approval"}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => setEditFor(null)}>Cancel</button>
             </div>

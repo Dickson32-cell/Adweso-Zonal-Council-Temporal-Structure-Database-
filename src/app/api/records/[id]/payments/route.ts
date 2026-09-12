@@ -1,8 +1,9 @@
 // POST /api/records/[id]/payments — record a cash payment (partial or full)
 // PATCH semantics kept simple: this endpoint only ADDS cash received.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, payerTotals, audit } from "@/lib/db";
+import { prisma, payerTotals, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { permsFor } from "@/lib/perms";
 
 export async function POST(
   req: NextRequest,
@@ -10,6 +11,13 @@ export async function POST(
 ) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const me = await getFullUser(session);
+  if (!me || !permsFor(me.role, me.adminLevel).canRecordPayments)
+    return NextResponse.json(
+      { error: "Your account cannot record payments" },
+      { status: 403 }
+    );
 
   const { id } = await params;
   try {

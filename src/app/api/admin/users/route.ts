@@ -1,8 +1,9 @@
 // GET  /api/admin/users — list all users (admin only)
-// PATCH /api/admin/users — approve/reject/deactivate/reactivate a user (admin only)
+// PATCH /api/admin/users — approve/reject/deactivate/reactivate/makeAdmin/setAdminLevel/delete
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit } from "@/lib/db";
+import { prisma, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { ADMIN_LEVELS, AdminLevel, permsFor } from "@/lib/perms";
 
 export async function GET() {
   const session = await getSession();
@@ -14,7 +15,7 @@ export async function GET() {
     orderBy: { createdAt: "asc" },
     select: {
       id: true, username: true, fullName: true,
-      role: true, active: true, createdAt: true,
+      role: true, adminLevel: true, active: true, createdAt: true,
     },
   });
 
@@ -34,11 +35,14 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (session.role !== "ADMIN")
-    return NextResponse.json({ error: "Administrators only" }, { status: 403 });
+
+  const me = await getFullUser(session);
+  if (!me || !permsFor(me.role, me.adminLevel).canManageUsers)
+    return NextResponse.json({ error: "Not permitted to manage staff" }, { status: 403 });
 
   try {
-    const { userId, action } = await req.json(); // action: approve|reject|deactivate|reactivate|makeAdmin
+    const body = await req.json();
+    const { userId, action } = body;
     if (!userId || !action)
       return NextResponse.json({ error: "userId and action required" }, { status: 400 });
 
@@ -57,17 +61,31 @@ export async function PATCH(req: NextRequest) {
 
     let data: Record<string, unknown> = {};
     switch (action) {
-      case "approve": data = { active: true, role: "STAFF" }; break;
-      case "makeAdmin": data = { active: true, role: "ADMIN" }; break;
+      case "approve": data = { active: true, role: "STAFF", adminLevel: null }; break;
+      case "makeAdmin":
+        data = {
+          active: true,
+          role: "ADMIN",
+          adminLevel: ADMIN_LEVELS.includes(body.adminLevel as AdminLevel)
+            ? body.adminLevel
+            : "EDITOR", // default to EDITOR when not specified
+        };
+        break;
+      case "setAdminLevel":
+        if (!ADMIN_LEVELS.includes(body.adminLevel as AdminLevel))
+          return NextResponse.json({ error: "Invalid admin level" }, { status: 400 });
+        if (target.username === "admin")
+          return NextResponse.json({ error: "The primary admin is always FULL" }, { status: 400 });
+        data = { adminLevel: body.adminLevel };
+        break;
       case "reject":
       case "deactivate": data = { active: false }; break;
       case "reactivate": data = { active: true }; break;
       case "delete":
         // Real deletion — admin only, never self, never primary admin.
-        // Their audit history stays (append-only) but the account is gone.
         if (target.username === "admin")
           return NextResponse.json({ error: "The primary admin account cannot be deleted" }, { status: 400 });
-        if (target.id === session.sub)
+        if (target.id === me.id)
           return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
         await prisma.$transaction(async (tx) => {
           await tx.auditLog.updateMany({ where: { userId: target.id }, data: { userId: null } });
@@ -76,7 +94,7 @@ export async function PATCH(req: NextRequest) {
           await tx.appUser.delete({ where: { id: target.id } });
           await tx.auditLog.create({
             data: {
-              userId: session.sub,
+              userId: me.id,
               action: "USER_DELETED",
               entityType: "app_user",
               entityId: null,
@@ -85,6 +103,11 @@ export async function PATCH(req: NextRequest) {
           });
         });
         return NextResponse.json({ ok: true, deleted: target.username });
+      case "demoteToStaff":
+        if (target.username === "admin")
+          return NextResponse.json({ error: "The primary admin cannot be demoted" }, { status: 400 });
+        data = { role: "STAFF", adminLevel: null };
+        break;
       default:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }

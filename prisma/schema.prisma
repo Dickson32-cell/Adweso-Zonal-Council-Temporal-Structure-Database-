@@ -78,10 +78,28 @@ model AppUser {
   passwordHash String   @map("password_hash")
   fullName     String   @map("full_name") @db.VarChar(120)
   role         String   @default("STAFF") @db.VarChar(10) // ADMIN | STAFF
+  adminLevel   String?  @map("admin_level") @db.VarChar(10) // for ADMINs: FULL | EDITOR | VIEWER (primary admin = FULL)
   active       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
+  passwordRequests PasswordChangeRequest[]
+
   @@map("app_user")
+}
+
+// Password change requests — applied only after admin approval
+model PasswordChangeRequest {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  newHash     String    @map("new_hash")
+  status      String    @default("PENDING") @db.VarChar(10) // PENDING | APPROVED | REJECTED
+  requestedAt DateTime  @default(now()) @map("requested_at") @db.Timestamptz(3)
+  reviewedBy  String?   @map("reviewed_by") @db.Uuid
+  reviewedAt  DateTime? @map("reviewed_at") @db.Timestamptz(3)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_change_request")
 }
 
 // Staff edit requests — identity-field changes awaiting admin approval

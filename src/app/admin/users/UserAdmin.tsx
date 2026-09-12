@@ -6,12 +6,15 @@ import Link from "next/link";
 
 type U = {
   id: string; username: string; fullName: string;
-  role: string; active: boolean; createdAt: string;
+  role: string; adminLevel: string | null; active: boolean; createdAt: string;
   recordsCreated: number;
 };
 
-function fmtDate(s: string) {
-  return new Date(s).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+function RoleLabel({ u }: { u: U }) {
+  if (u.role !== "ADMIN") return <>Staff</>;
+  if (u.username === "admin") return <>Admin (Primary)</>;
+  const lv = u.adminLevel || "EDITOR";
+  return <>{lv === "VIEWER" ? "Viewer Admin" : lv === "EDITOR" ? "Editor Admin" : "Full Admin"}</>;
 }
 
 export default function UserAdmin() {
@@ -33,7 +36,7 @@ export default function UserAdmin() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function act(u: U, action: string, label: string) {
+  async function act(u: U, action: string, label: string, extra?: Record<string, unknown>) {
     const needsConfirm: Record<string, string> = {
       reject: `Reject and disable ${u.username}'s registration?`,
       deactivate: `Deactivate ${u.username}? They will not be able to sign in.`,
@@ -44,13 +47,45 @@ export default function UserAdmin() {
     const res = await fetch("/api/admin/users", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: u.id, action }),
+      body: JSON.stringify({ userId: u.id, action, ...extra }),
     });
     const data = await res.json();
     setBusyId("");
     if (!res.ok) { setErr(data.error || "Operation failed"); return; }
     setMsg(data.deleted ? `Account "${data.deleted}" deleted permanently` : label);
     load();
+  }
+
+  async function makeAdminFlow(u: U) {
+    // Dickson's requirement: primary admin SELECTS the level when promoting
+    const level = prompt(
+      `Promote ${u.username} (${u.fullName}) to administrator.\n\n` +
+      `Choose the access level — type one of:\n` +
+      `VIEWER — can only view records and export reports (read-only)\n` +
+      `EDITOR — full register powers: create, edit, pay, delete records\n` +
+      `FULL — everything including staff management\n\n` +
+      `Enter VIEWER, EDITOR or FULL:`
+    );
+    if (!level) return;
+    const normalized = level.trim().toUpperCase();
+    if (!["VIEWER", "EDITOR", "FULL"].includes(normalized)) {
+      setErr("Invalid level — enter VIEWER, EDITOR or FULL");
+      return;
+    }
+    await act(u, "makeAdmin", `${u.username} promoted to ${normalized} administrator`, { adminLevel: normalized });
+  }
+
+  async function changeLevelFlow(u: U) {
+    const level = prompt(
+      `Change admin level for ${u.username}.\n\nEnter VIEWER, EDITOR or FULL:`
+    );
+    if (!level) return;
+    const normalized = level.trim().toUpperCase();
+    if (!["VIEWER", "EDITOR", "FULL"].includes(normalized)) {
+      setErr("Invalid level — enter VIEWER, EDITOR or FULL");
+      return;
+    }
+    await act(u, "setAdminLevel", `${u.username} is now a ${normalized} administrator`, { adminLevel: normalized });
   }
 
   const pending = users.filter((u) => !u.active);
@@ -64,7 +99,7 @@ export default function UserAdmin() {
 
   function Buttons({ u }: { u: U }) {
     if (u.username === "admin")
-      return <span style={{ color: "var(--muted)", fontSize: 12 }}>(primary admin)</span>;
+      return <span style={{ color: "var(--muted)", fontSize: 12 }}>(primary admin — full access)</span>;
     return (
       <div className="row-actions">
         {!u.active && (
@@ -79,13 +114,25 @@ export default function UserAdmin() {
             </button>
           </>
         )}
-        {u.active && u.role !== "ADMIN" && (
+        {u.active && u.role === "STAFF" && (
           <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
-            onClick={() => act(u, "makeAdmin", `${u.username} promoted to administrator`)}>
+            onClick={() => makeAdminFlow(u)}>
             Make Admin
           </button>
         )}
-        {u.active && (
+        {u.active && u.role === "ADMIN" && (
+          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+            onClick={() => changeLevelFlow(u)}>
+            Change Level
+          </button>
+        )}
+        {u.active && u.role === "ADMIN" && (
+          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+            onClick={() => act(u, "demoteToStaff", `${u.username} returned to staff`)}>
+            Demote to Staff
+          </button>
+        )}
+        {u.active && u.role !== "ADMIN" && (
           <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
             onClick={() => act(u, "deactivate", `${u.username} deactivated`)}>
             Deactivate
@@ -144,10 +191,10 @@ export default function UserAdmin() {
                 <tr key={u.id} style={!u.active ? { background: "#fffbeb" } : undefined}>
                   <td className="serial">{u.username}</td>
                   <td>{u.fullName}</td>
-                  <td>{u.role === "ADMIN" ? "Administrator" : "Staff"}</td>
+                  <td><RoleLabel u={u} /></td>
                   <td><StatusBadge u={u} /></td>
                   <td className="num">{u.recordsCreated}</td>
-                  <td>{fmtDate(u.createdAt)}</td>
+                  <td>{new Date(u.createdAt).toLocaleDateString("en-GB")}</td>
                   <td className="no-print"><Buttons u={u} /></td>
                 </tr>
               ))}
@@ -167,7 +214,7 @@ export default function UserAdmin() {
                 <StatusBadge u={u} />
               </div>
               <div className="user-card-meta">
-                {u.role === "ADMIN" ? "Administrator" : "Staff"} · {u.recordsCreated} record{u.recordsCreated === 1 ? "" : "s"} created · joined {fmtDate(u.createdAt)}
+                {u.role === "ADMIN" ? (u.adminLevel === "VIEWER" ? "Viewer Admin" : u.adminLevel === "EDITOR" ? "Editor Admin" : "Full Admin") : "Staff"} · {u.recordsCreated} record{u.recordsCreated === 1 ? "" : "s"} created · joined {new Date(u.createdAt).toLocaleDateString("en-GB")}
               </div>
               <Buttons u={u} />
             </div>

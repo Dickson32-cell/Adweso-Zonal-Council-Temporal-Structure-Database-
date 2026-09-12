@@ -1,9 +1,11 @@
 // DELETE /api/records/[id] — soft-delete (record_status -> INACTIVE).
-// Admin only. Serial number is retired forever (counter never decrements);
-// the row is retained for audit integrity but hidden from all lists.
+// Admin (FULL/EDITOR) only. Serial number is retired forever; the row is
+// retained for audit integrity but hidden from all lists. VIEWER admins and
+// staff are blocked.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit } from "@/lib/db";
+import { prisma, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { permsFor } from "@/lib/perms";
 
 export async function DELETE(
   req: NextRequest,
@@ -11,9 +13,11 @@ export async function DELETE(
 ) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (session.role !== "ADMIN")
+
+  const me = await getFullUser(session);
+  if (!me || !permsFor(me.role, me.adminLevel).canDeleteRecords)
     return NextResponse.json(
-      { error: "Only administrators can delete records" },
+      { error: "Only administrators with editor rights can delete records" },
       { status: 403 }
     );
 
