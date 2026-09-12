@@ -43,6 +43,12 @@ html, body {
   box-shadow: var(--shadow-md);
 }
 .topbar .brand { display: flex; align-items: center; gap: 12px; }
+.topbar .brand .brand-logo {
+  width: 44px; height: 44px; border-radius: 50%;
+  object-fit: cover; background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: var(--shadow-sm);
+}
 .topbar .brand .mark {
   width: 36px; height: 36px; border-radius: 8px;
   background: var(--white); color: var(--navy);
@@ -153,11 +159,10 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 /* ---------- Login ---------- */
 .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); }
 .login-card { background: var(--white); border-radius: 14px; box-shadow: var(--shadow-md); padding: 34px; width: 380px; }
-.login-card .mark-lg {
-  width: 46px; height: 46px; border-radius: 10px;
-  background: var(--navy); color: var(--white);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 18px; margin-bottom: 14px;
+.login-card .logo-lg {
+  width: 84px; height: 84px; border-radius: 50%;
+  object-fit: cover; border: 3px solid var(--blue-soft);
+  box-shadow: var(--shadow-sm); margin-bottom: 14px; display: block;
 }
 .login-card h1 { font-size: 17px; color: var(--navy); margin: 0 0 2px; }
 .login-card p { font-size: 13px; color: var(--muted); margin: 0 0 20px; }

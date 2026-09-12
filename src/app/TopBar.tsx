@@ -1,5 +1,5 @@
 "use client";
-// TopBar — brand + user + logout
+// TopBar — logo + brand + user + logout
 import { useRouter } from "next/navigation";
 
 export default function TopBar({ username, role }: { username: string; role: string }) {
@@ -13,7 +13,8 @@ export default function TopBar({ username, role }: { username: string; role: str
   return (
     <header className="topbar">
       <div className="brand">
-        <div className="mark">AZ</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.jpg" alt="Adweso Zonal Council logo" className="brand-logo" />
         <div>
           <div className="t1">Adweso Zonal Council</div>
           <div className="t2">Temporal Structures Fee Register</div>

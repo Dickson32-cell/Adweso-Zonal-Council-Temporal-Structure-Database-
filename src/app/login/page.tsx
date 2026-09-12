@@ -37,7 +37,8 @@ export default function LoginPage() {
   return (
     <div className="login-wrap">
       <form className="login-card" onSubmit={submit}>
-        <div className="mark-lg">AZ</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.jpg" alt="Adweso Zonal Council logo" className="logo-lg" />
         <h1>Adweso Zonal Council</h1>
         <p>Temporal Structures Fee Register — staff sign in</p>
 
