@@ -117,6 +117,55 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
     load();
   }
 
+  // Edit modal state
+  const [editFor, setEditFor] = useState<Row | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "" });
+  const [editErr, setEditErr] = useState<string[]>([]);
+  const [editMsg, setEditMsg] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
+
+  function openEdit(row: Row) {
+    setEditFor(row);
+    setEditForm({
+      name: row.name, businessName: row.businessName, telephone: row.telephone,
+      streetName: row.streetName, electoralArea: row.electoralArea,
+    });
+    setEditErr([]); setEditMsg("");
+  }
+
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editFor) return;
+    setEditErr([]); setEditMsg(""); setEditBusy(true);
+
+    if (isAdmin) {
+      // Admin edits apply immediately (admin is trusted; still audit-logged)
+      const res = await fetch(`/api/records/${editFor.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      setEditBusy(false);
+      if (!res.ok) { setEditErr(data.errors || [data.error]); return; }
+      setEditFor(null);
+      setFormOk(`Record ${editFor.serialNumber} updated`);
+      load();
+    } else {
+      // Staff edits go to the approval queue
+      const res = await fetch(`/api/records/${editFor.id}/edit-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      setEditBusy(false);
+      if (!res.ok) { setEditErr(data.errors || [data.error]); return; }
+      setEditMsg(data.message || "Edit submitted for administrator approval.");
+      setEditFor(null);
+      setFormOk("Edit submitted for administrator approval — the record changes after the administrator approves it.");
+    }
+  }
   function exportExcel() {
     // Download the filtered view as a real .xlsx (3 sheets incl. grand totals)
     const p = new URLSearchParams();
@@ -259,8 +308,10 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
                   <td className="num">{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</td>
                   <td><span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span></td>
                   <td className="no-print" style={{ whiteSpace: "nowrap" }}>
+                    <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
                     {r.status !== "PAID" && (
                       <>
+                        {" "}
                         <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
                         {" "}
                         <button className="btn btn-green btn-sm" onClick={() => markPaid(r)}>Mark Paid</button>
@@ -302,6 +353,41 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
           ))}
         </div>
       </div>
+
+      {/* Edit modal */}
+      {editFor && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(13,44,84,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 12, overflowY: "auto" }} onClick={() => setEditFor(null)}>
+          <form className="card" style={{ width: 460, margin: "20px 0" }} onClick={(e) => e.stopPropagation()} onSubmit={saveEdit}>
+            <h2>Edit Record — {editFor.serialNumber}</h2>
+            <p className="sub">
+              {isAdmin
+                ? "Your changes apply immediately (audit-logged)."
+                : "Your changes will be submitted for administrator approval. The record stays unchanged until approved."}
+            </p>
+            {editErr.length > 0 && <div className="err">{editErr.map((x, i) => <div key={i}>{x}</div>)}</div>}
+
+            <label className="fld"><span className="cap">Name</span>
+              <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} /></label>
+            <label className="fld"><span className="cap">Business Name</span>
+              <input type="text" value={editForm.businessName} onChange={(e) => setEditForm({ ...editForm, businessName: e.target.value })} /></label>
+            <label className="fld"><span className="cap">Telephone</span>
+              <input type="tel" value={editForm.telephone} onChange={(e) => setEditForm({ ...editForm, telephone: e.target.value })} /></label>
+            <label className="fld"><span className="cap">Electoral Area</span>
+              <select value={editForm.electoralArea} onChange={(e) => setEditForm({ ...editForm, electoralArea: e.target.value })}>
+                {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
+              </select></label>
+            <label className="fld"><span className="cap">Street Name</span>
+              <input type="text" value={editForm.streetName} onChange={(e) => setEditForm({ ...editForm, streetName: e.target.value })} /></label>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }} disabled={editBusy}>
+                {editBusy ? "Submitting..." : isAdmin ? "Save Changes" : "Submit for Approval"}
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => setEditFor(null)}>Cancel</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Payment modal */}
       {payFor && (

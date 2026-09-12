@@ -27,6 +27,7 @@ model FeePayer {
 
   fees     Fee[]
   payments Payment[]
+  pendingEdits PendingEdit[]
 
   @@map("fee_payer")
 }
@@ -81,6 +82,23 @@ model AppUser {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@map("app_user")
+}
+
+// Staff edit requests — identity-field changes awaiting admin approval
+model PendingEdit {
+  id          String    @id @default(uuid()) @db.Uuid
+  feePayerId  String    @map("fee_payer_id") @db.Uuid
+  before      Json      // snapshot of the fields being changed
+  after       Json      // requested new values
+  status      String    @default("PENDING") @db.VarChar(10) // PENDING | APPROVED | REJECTED
+  requestedBy String    @map("requested_by") @db.Uuid
+  reviewedBy  String?   @map("reviewed_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  reviewedAt  DateTime? @map("reviewed_at") @db.Timestamptz(3)
+
+  feePayer FeePayer @relation(fields: [feePayerId], references: [id], onDelete: Cascade)
+
+  @@map("pending_edit")
 }
 
 // Immutable audit trail

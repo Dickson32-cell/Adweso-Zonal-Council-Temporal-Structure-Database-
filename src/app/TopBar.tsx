@@ -23,9 +23,14 @@ export default function TopBar({ username, role }: { username: string; role: str
       <div className="who">
         <b>{username}</b> · {role === "ADMIN" ? "Administrator" : "Staff"} &nbsp;{" "}
         {role === "ADMIN" && (
-          <a href="/admin/users" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }}>
-            Staff
-          </a>
+          <>
+            <a href="/admin/users" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }}>
+              Staff
+            </a>{" "}
+            <a href="/admin/edits" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }}>
+              Edits
+            </a>
+          </>
         )}{" "}
         <button className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }} onClick={logout}>
           Log out
