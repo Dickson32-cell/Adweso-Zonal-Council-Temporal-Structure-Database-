@@ -12,7 +12,7 @@ export default async function HomePage() {
     <div className="shell">
       <TopBar username={session.username} role={session.role} />
       <main className="main">
-        <RegisterTable />
+        <RegisterTable isAdmin={session.role === "ADMIN"} />
       </main>
     </div>
   );

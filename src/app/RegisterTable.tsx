@@ -23,7 +23,7 @@ type Row = {
 type Grand = { records: number; billed: number; collected: number; outstanding: number };
 type AreaSum = { count: number; billed: number; collected: number; outstanding: number };
 
-export default function RegisterTable() {
+export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [byArea, setByArea] = useState<Record<string, AreaSum>>({});
   const [grand, setGrand] = useState<Grand>({ records: 0, billed: 0, collected: 0, outstanding: 0 });
@@ -117,18 +117,32 @@ export default function RegisterTable() {
     load();
   }
 
-  function exportCsv() {
-    const head = ["Serial No", "Name", "Business Name", "Telephone", "Electoral Area", "Street Name", "Fee (GHS)", "Balance (GHS)", "Total (GHS)", "Status"];
-    const lines = rows.map((r) =>
-      [r.serialNumber, r.name, r.businessName, r.telephone, r.electoralArea, r.streetName, r.fee.toFixed(2), r.balance.toFixed(2), r.total.toFixed(2), r.status]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")
-    );
-    const csv = [head.join(","), ...lines].join("\r\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `adweso-register-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+  function exportExcel() {
+    // Download the filtered view as a real .xlsx (3 sheets incl. grand totals)
+    const p = new URLSearchParams();
+    if (area) p.set("area", area);
+    if (q) p.set("q", q);
+    if (status) p.set("status", status);
+    window.location.href = `/api/export?${p.toString()}`;
+  }
+
+  async function deleteRecord(row: Row) {
+    if (
+      !confirm(
+        `Delete ${row.name} (${row.serialNumber})?\n\n` +
+          `This removes the record from the register. The serial number is retired ` +
+          `and will NOT be reused. This action is audit-logged.`
+      )
+    )
+      return;
+    const res = await fetch(`/api/records/${row.id}/delete`, { method: "DELETE" });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || "Delete failed");
+      return;
+    }
+    setFormOk(`Deleted ${row.serialNumber} (${row.name})`);
+    load();
   }
 
   return (
@@ -164,7 +178,7 @@ export default function RegisterTable() {
             </label>
           </div>
           <button className="btn btn-primary" onClick={() => { setShowForm((s) => !s); setFormOk(""); }}>New Record</button>
-          <button className="btn btn-ghost" onClick={exportCsv}>Export CSV</button>
+          <button className="btn btn-ghost" onClick={exportExcel}>Export Excel</button>
           <button className="btn btn-ghost" onClick={() => window.print()}>Print</button>
         </div>
 
@@ -251,6 +265,10 @@ export default function RegisterTable() {
                         {" "}
                         <button className="btn btn-green btn-sm" onClick={() => markPaid(r)}>Mark Paid</button>
                       </>
+                    )}
+                    {" "}
+                    {isAdmin && (
+                      <button className="btn btn-danger btn-sm" onClick={() => deleteRecord(r)}>Delete</button>
                     )}
                   </td>
                 </tr>
