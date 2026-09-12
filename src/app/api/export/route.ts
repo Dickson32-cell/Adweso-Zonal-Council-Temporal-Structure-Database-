@@ -42,6 +42,8 @@ export async function GET(req: NextRequest) {
     const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0);
     const paid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
     const balance = Math.max(0, Number((billed - paid).toFixed(2)));
+    const lat = r.latitude ? Number(r.latitude) : null;
+    const lng = r.longitude ? Number(r.longitude) : null;
     return {
       "Serial No": r.serialNumber,
       Name: r.name,
@@ -49,6 +51,9 @@ export async function GET(req: NextRequest) {
       Telephone: r.telephone,
       "Electoral Area": r.electoralArea,
       "Street Name": r.streetName,
+      "GPS Latitude": lat,
+      "GPS Longitude": lng,
+      "Google Maps Link": lat != null && lng != null ? `https://www.google.com/maps?q=${lat},${lng}` : "",
       "Fee (GHS)": Number(r.fee),
       "Balance (GHS)": r.status === "PAID" ? 0 : balance,
       "Total (GHS)": r.status === "PAID" ? 0 : Number(billed.toFixed(2)),

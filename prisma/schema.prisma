@@ -19,6 +19,8 @@ model FeePayer {
   businessName  String   @map("business_name") @db.VarChar(150)
   telephone     String   @db.VarChar(10)
   streetName    String   @map("street_name") @db.VarChar(150)
+  latitude      Decimal?  @db.Decimal(10, 7)  // GPS of the structure
+  longitude     Decimal?  @db.Decimal(10, 7)  // GPS of the structure
   fee           Decimal  @db.Decimal(12, 2)
   status        String   @default("UNPAID") @db.VarChar(10) // UNPAID | PAID
   recordStatus  String   @default("ACTIVE") @map("record_status") @db.VarChar(10) // ACTIVE | INACTIVE

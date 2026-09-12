@@ -38,6 +38,8 @@ export async function GET(req: NextRequest) {
     const totalBilled = r.fees.reduce((s, f) => s + Number(f.amount), 0);
     const totalPaid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
     const balance = Math.max(0, Number((totalBilled - totalPaid).toFixed(2)));
+    const lat = r.latitude ? Number(r.latitude) : null;
+    const lng = r.longitude ? Number(r.longitude) : null;
     return {
       id: r.id,
       serialNumber: r.serialNumber,
@@ -46,6 +48,13 @@ export async function GET(req: NextRequest) {
       telephone: r.telephone,
       electoralArea: r.electoralArea,
       streetName: r.streetName,
+      latitude: lat,
+      longitude: lng,
+      hasGps: lat != null && lng != null,
+      mapsUrl:
+        lat != null && lng != null
+          ? `https://www.google.com/maps?q=${lat},${lng}`
+          : null,
       fee: Number(r.fee),
       total: Number(totalBilled.toFixed(2)),
       paid: Number(totalPaid.toFixed(2)),

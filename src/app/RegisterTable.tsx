@@ -18,6 +18,8 @@ const GHS = (n: number) =>
 type Row = {
   id: string; serialNumber: string; name: string; businessName: string;
   telephone: string; electoralArea: string; streetName: string;
+  latitude: number | null; longitude: number | null; hasGps: boolean;
+  mapsUrl: string | null;
   fee: number; total: number; paid: number; balance: number; status: string;
 };
 type Grand = { records: number; billed: number; collected: number; outstanding: number };
@@ -48,9 +50,41 @@ export default function RegisterTable({
   const [showForm, setShowForm] = useState(false);
   const [serialPreview, setSerialPreview] = useState("");
   const [form, setForm] = useState({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "" });
+  const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsBusy, setGpsBusy] = useState(false);
+  const [gpsErr, setGpsErr] = useState("");
   const [formErr, setFormErr] = useState<string[]>([]);
   const [formOk, setFormOk] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Pick GPS location — uses the phone/browser geolocation while standing
+  // at the structure. Requires HTTPS (Vercel) or localhost; user permission
+  // is requested by the browser on first use.
+  function pickGps() {
+    setGpsErr("");
+    if (!("geolocation" in navigator)) {
+      setGpsErr("This device does not support GPS");
+      return;
+    }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGps({ lat: Number(pos.coords.latitude.toFixed(7)), lng: Number(pos.coords.longitude.toFixed(7)) });
+        setGpsBusy(false);
+      },
+      (err) => {
+        setGpsBusy(false);
+        setGpsErr(
+          err.code === 1
+            ? "GPS permission denied — allow location access in your browser"
+            : err.code === 3
+              ? "GPS timed out — step outside and try again"
+              : "GPS unavailable right now — try again"
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
 
   // Payment modal state
   const [payFor, setPayFor] = useState<Row | null>(null);
@@ -93,14 +127,18 @@ export default function RegisterTable({
     const res = await fetch("/api/records", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        ...(gps ? { latitude: gps.lat, longitude: gps.lng } : {}),
+      }),
     });
     const data = await res.json();
     setBusy(false);
     if (!res.ok) { setFormErr(data.errors || [data.error]); return; }
-    setFormOk(`Saved — ${data.record.serialNumber} (${data.record.name})`);
+    setFormOk(`Saved — ${data.record.serialNumber} (${data.record.name})` + (gps ? " with GPS location" : ""));
     setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "" });
     setSerialPreview("");
+    setGps(null);
     load();
   }
 
@@ -274,6 +312,25 @@ export default function RegisterTable({
                 </select></label>
               <label className="fld"><span className="cap">Street Name <span className="req">*</span></span>
                 <input type="text" value={form.streetName} onChange={(e) => setForm({ ...form, streetName: e.target.value })} required /></label>
+
+              <label className="fld">
+                <span className="cap">GPS Location <span style={{ fontWeight: 400, color: "var(--muted)" }}>(optional — stand at the structure and pick)</span></span>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  {gps ? (
+                    <>
+                      <span className="serial-preview" style={{ fontSize: 13 }}>
+                        {gps.lat.toFixed(5)}, {gps.lng.toFixed(5)}
+                      </span>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => setGps(null)}>Clear</button>
+                    </>
+                  ) : (
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={pickGps} disabled={gpsBusy}>
+                      {gpsBusy ? "Locating..." : "Pick GPS Location"}
+                    </button>
+                  )}
+                </div>
+                {gpsErr && <span className="err" style={{ marginTop: 6, display: "block", fontSize: 12 }}>{gpsErr}</span>}
+              </label>
               <label className="fld"><span className="cap">Fee (GH\u20B5) <span className="req">*</span></span>
                 <input type="number" step="0.01" min="0.01" placeholder="e.g. 50" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} required /></label>
             </div>
@@ -295,6 +352,7 @@ export default function RegisterTable({
                 <th>Telephone</th>
                 <th>Electoral Area</th>
                 <th>Street Name</th>
+                <th>GPS</th>
                 <th style={{ textAlign: "right" }}>Fee (GH\u20B5)</th>
                 <th style={{ textAlign: "right" }}>Balance (GH\u20B5)</th>
                 <th style={{ textAlign: "right" }}>Total (GH\u20B5)</th>
@@ -315,6 +373,15 @@ export default function RegisterTable({
                   <td>{r.telephone}</td>
                   <td>{r.electoralArea}</td>
                   <td>{r.streetName}</td>
+                  <td>
+                    {r.hasGps ? (
+                      <a href={r.mapsUrl || "#"} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ padding: "3px 8px", fontSize: 12 }}>
+                        Map
+                      </a>
+                    ) : (
+                      <span style={{ color: "var(--muted)", fontSize: 11 }}>-</span>
+                    )}
+                  </td>
                   <td className="num">{r.fee.toFixed(2)}</td>
                   <td className="num"><b>{r.status === "PAID" ? "0.00" : r.balance.toFixed(2)}</b></td>
                   <td className="num">{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</td>
@@ -365,6 +432,11 @@ export default function RegisterTable({
                 <div>Total <b>{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</b></div>
               </div>
               <div className="row-actions">
+                {r.hasGps && (
+                  <a href={r.mapsUrl || "#"} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
+                    Map
+                  </a>
+                )}
                 <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
                 {r.status !== "PAID" && canPay && (
                   <>

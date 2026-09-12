@@ -70,6 +70,18 @@ export async function POST(req: NextRequest) {
     const feeNum = Number(fee);
     if (!Number.isFinite(feeNum) || feeNum <= 0)
       errors.push("Fee must be a positive amount in GH\u20B5");
+
+    // GPS (optional) — Ghana bounding box keeps typos/garbage out
+    let lat: number | null = null;
+    let lng: number | null = null;
+    if (body.latitude != null && body.longitude != null) {
+      lat = Number(body.latitude);
+      lng = Number(body.longitude);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+          lat < 4.4 || lat > 11.5 || lng < -3.6 || lng > 1.8) {
+        errors.push("GPS coordinates look invalid (must be within Ghana)");
+      }
+    }
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
 
     // Concurrency-safe create:
@@ -91,6 +103,8 @@ export async function POST(req: NextRequest) {
               businessName: businessName.trim(),
               telephone,
               streetName: streetName.trim(),
+              latitude: lat != null ? lat.toFixed(7) : null,
+              longitude: lng != null ? lng.toFixed(7) : null,
               fee: feeNum.toFixed(2),
               status: "UNPAID",
             },
@@ -131,6 +145,8 @@ export async function POST(req: NextRequest) {
         telephone: record.telephone,
         electoralArea: record.electoralArea,
         streetName: record.streetName,
+        latitude: record.latitude ? Number(record.latitude) : null,
+        longitude: record.longitude ? Number(record.longitude) : null,
         fee: Number(record.fee),
         status: record.status,
         balance: Number(record.fee),
