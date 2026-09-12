@@ -1,12 +1,18 @@
 "use client";
-// UserAdmin — the admin's staff management table + pending-approval badges.
+// UserAdmin — admin's staff management: approve, reject, deactivate, promote, delete.
+// Responsive: card layout on phones, table on larger screens.
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 type U = {
   id: string; username: string; fullName: string;
   role: string; active: boolean; createdAt: string;
+  recordsCreated: number;
 };
+
+function fmtDate(s: string) {
+  return new Date(s).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
 
 export default function UserAdmin() {
   const [users, setUsers] = useState<U[]>([]);
@@ -27,24 +33,77 @@ export default function UserAdmin() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function act(userId: string, action: string, label: string) {
-    if (action === "reject" && !confirm("Reject and disable this registration?")) return;
-    if (action === "deactivate" && !confirm("Deactivate this user? They will not be able to sign in.")) return;
-    setBusyId(userId); setMsg(""); setErr("");
+  async function act(u: U, action: string, label: string) {
+    const needsConfirm: Record<string, string> = {
+      reject: `Reject and disable ${u.username}'s registration?`,
+      deactivate: `Deactivate ${u.username}? They will not be able to sign in.`,
+      delete: `Permanently DELETE the account "${u.username}" (${u.fullName})?\n\nThey will lose all access and cannot be recovered. Their past records and audit history remain in the register.`,
+    };
+    if (needsConfirm[action] && !confirm(needsConfirm[action])) return;
+    setBusyId(u.id); setMsg(""); setErr("");
     const res = await fetch("/api/admin/users", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, action }),
+      body: JSON.stringify({ userId: u.id, action }),
     });
     const data = await res.json();
     setBusyId("");
     if (!res.ok) { setErr(data.error || "Operation failed"); return; }
-    setMsg(label);
+    setMsg(data.deleted ? `Account "${data.deleted}" deleted permanently` : label);
     load();
   }
 
   const pending = users.filter((u) => !u.active);
   const active = users.filter((u) => u.active);
+
+  function StatusBadge({ u }: { u: U }) {
+    return u.active
+      ? <span className="badge paid">ACTIVE</span>
+      : <span className="badge unpaid">AWAITING APPROVAL</span>;
+  }
+
+  function Buttons({ u }: { u: U }) {
+    if (u.username === "admin")
+      return <span style={{ color: "var(--muted)", fontSize: 12 }}>(primary admin)</span>;
+    return (
+      <div className="row-actions">
+        {!u.active && (
+          <>
+            <button className="btn btn-green btn-sm" disabled={busyId === u.id}
+              onClick={() => act(u, "approve", `${u.username} approved — they can now sign in`)}>
+              Approve
+            </button>
+            <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+              onClick={() => act(u, "reject", `${u.username} rejected and disabled`)}>
+              Reject
+            </button>
+          </>
+        )}
+        {u.active && u.role !== "ADMIN" && (
+          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+            onClick={() => act(u, "makeAdmin", `${u.username} promoted to administrator`)}>
+            Make Admin
+          </button>
+        )}
+        {u.active && (
+          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+            onClick={() => act(u, "deactivate", `${u.username} deactivated`)}>
+            Deactivate
+          </button>
+        )}
+        {!u.active && u.role === "STAFF" && users.length > 1 && (
+          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+            onClick={() => act(u, "reactivate", `${u.username} reactivated`)}>
+            Reactivate
+          </button>
+        )}
+        <button className="btn btn-danger btn-sm" disabled={busyId === u.id}
+          onClick={() => act(u, "delete", `${u.username} deleted`)}>
+          Delete
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -52,6 +111,7 @@ export default function UserAdmin() {
         <h2>Staff Accounts</h2>
         <p className="sub">
           Staff register themselves at <code>/register</code>; you approve them here before they can sign in and enter data.
+          All accounts: {users.length} · Pending: {pending.length}
         </p>
 
         {msg && <div className="ok-msg">{msg}</div>}
@@ -63,7 +123,10 @@ export default function UserAdmin() {
           </div>
         )}
 
-        <div className="tbl-wrap">
+        {loading && <p style={{ color: "var(--muted)" }}>Loading…</p>}
+
+        {/* Desktop/tablet: table view */}
+        <div className="tbl-wrap only-desktop">
           <table className="tbl">
             <thead>
               <tr>
@@ -71,67 +134,44 @@ export default function UserAdmin() {
                 <th>Full Name</th>
                 <th>Role</th>
                 <th>Status</th>
+                <th>Records</th>
                 <th>Registered</th>
                 <th className="no-print">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {loading && <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--muted)" }}>Loading…</td></tr>}
-              {pending.map((u) => (
-                <tr key={u.id} style={{ background: "#fffbeb" }}>
+              {[...pending, ...active].map((u) => (
+                <tr key={u.id} style={!u.active ? { background: "#fffbeb" } : undefined}>
                   <td className="serial">{u.username}</td>
                   <td>{u.fullName}</td>
                   <td>{u.role === "ADMIN" ? "Administrator" : "Staff"}</td>
-                  <td><span className="badge unpaid">AWAITING APPROVAL</span></td>
-                  <td>{new Date(u.createdAt).toLocaleString("en-GB")}</td>
-                  <td className="no-print" style={{ whiteSpace: "nowrap" }}>
-                    <button className="btn btn-green btn-sm" disabled={busyId === u.id}
-                      onClick={() => act(u.id, "approve", `${u.username} approved — they can now sign in`)}>
-                      Approve
-                    </button>{" "}
-                    <button className="btn btn-danger btn-sm" disabled={busyId === u.id}
-                      onClick={() => act(u.id, "reject", `${u.username} rejected and disabled`)}>
-                      Reject
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {active.map((u) => (
-                <tr key={u.id}>
-                  <td className="serial">{u.username}</td>
-                  <td>{u.fullName}</td>
-                  <td>{u.role === "ADMIN" ? "Administrator" : "Staff"}</td>
-                  <td><span className="badge paid">{u.active ? "ACTIVE" : "DISABLED"}</span></td>
-                  <td>{new Date(u.createdAt).toLocaleString("en-GB")}</td>
-                  <td className="no-print" style={{ whiteSpace: "nowrap" }}>
-                    {u.username === "admin" ? (
-                      <span style={{ color: "var(--muted)", fontSize: 12 }}>(primary admin)</span>
-                    ) : (
-                      <>
-                        {u.role !== "ADMIN" && (
-                          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
-                            onClick={() => act(u.id, "makeAdmin", `${u.username} promoted to administrator`)}>
-                            Make Admin
-                          </button>
-                        )}
-                        {u.active ? (
-                          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
-                            onClick={() => act(u.id, "deactivate", `${u.username} deactivated`)}>
-                            Deactivate
-                          </button>
-                        ) : (
-                          <button className="btn btn-green btn-sm" disabled={busyId === u.id}
-                            onClick={() => act(u.id, "reactivate", `${u.username} reactivated`)}>
-                            Reactivate
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </td>
+                  <td><StatusBadge u={u} /></td>
+                  <td className="num">{u.recordsCreated}</td>
+                  <td>{fmtDate(u.createdAt)}</td>
+                  <td className="no-print"><Buttons u={u} /></td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Phones: stacked cards */}
+        <div className="only-mobile">
+          {[...pending, ...active].map((u) => (
+            <div key={u.id} className="user-card" style={!u.active ? { background: "#fffbeb" } : undefined}>
+              <div className="user-card-head">
+                <div>
+                  <div className="serial" style={{ fontSize: 14 }}>{u.username}</div>
+                  <div style={{ fontWeight: 600 }}>{u.fullName}</div>
+                </div>
+                <StatusBadge u={u} />
+              </div>
+              <div className="user-card-meta">
+                {u.role === "ADMIN" ? "Administrator" : "Staff"} · {u.recordsCreated} record{u.recordsCreated === 1 ? "" : "s"} created · joined {fmtDate(u.createdAt)}
+              </div>
+              <Buttons u={u} />
+            </div>
+          ))}
         </div>
 
         <div style={{ marginTop: 14 }}>

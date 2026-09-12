@@ -10,14 +10,25 @@ export async function GET() {
   if (session.role !== "ADMIN")
     return NextResponse.json({ error: "Administrators only" }, { status: 403 });
 
-  const users = await prisma.appUser.findMany({
+    const users = await prisma.appUser.findMany({
     orderBy: { createdAt: "asc" },
     select: {
       id: true, username: true, fullName: true,
       role: true, active: true, createdAt: true,
     },
   });
-  return NextResponse.json({ users });
+
+  // Records created per user (from the audit trail)
+  const counts = await prisma.auditLog.groupBy({
+    by: ["userId"],
+    where: { action: "CREATE_RECORD", userId: { not: null } },
+    _count: { _all: true },
+  });
+  const countMap = new Map(counts.map((c) => [c.userId, c._count._all]));
+
+  return NextResponse.json({
+    users: users.map((u) => ({ ...u, recordsCreated: countMap.get(u.id) ?? 0 })),
+  });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -51,6 +62,29 @@ export async function PATCH(req: NextRequest) {
       case "reject":
       case "deactivate": data = { active: false }; break;
       case "reactivate": data = { active: true }; break;
+      case "delete":
+        // Real deletion — admin only, never self, never primary admin.
+        // Their audit history stays (append-only) but the account is gone.
+        if (target.username === "admin")
+          return NextResponse.json({ error: "The primary admin account cannot be deleted" }, { status: 400 });
+        if (target.id === session.sub)
+          return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
+        await prisma.$transaction(async (tx) => {
+          await tx.auditLog.updateMany({ where: { userId: target.id }, data: { userId: null } });
+          await tx.auditLog.updateMany({ where: { entityId: target.id }, data: { entityId: null } });
+          await tx.pendingEdit.updateMany({ where: { requestedBy: target.id }, data: { status: "REJECTED" } });
+          await tx.appUser.delete({ where: { id: target.id } });
+          await tx.auditLog.create({
+            data: {
+              userId: session.sub,
+              action: "USER_DELETED",
+              entityType: "app_user",
+              entityId: null,
+              details: { deletedUsername: target.username, deletedFullName: target.fullName },
+            },
+          });
+        });
+        return NextResponse.json({ ok: true, deleted: target.username });
       default:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }

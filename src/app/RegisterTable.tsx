@@ -273,7 +273,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
           </form>
         )}
 
-        <div className="tbl-wrap">
+        <div className="tbl-wrap only-desktop">
           <table className="tbl">
             <thead>
               <tr>
@@ -328,6 +328,46 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
           </table>
         </div>
 
+        {/* Phones: stacked record cards */}
+        <div className="only-mobile">
+          {loading && <p style={{ color: "var(--muted)", textAlign: "center" }}>Loading…</p>}
+          {!loading && rows.length === 0 && (
+            <p style={{ color: "var(--muted)", textAlign: "center" }}>No records match the current filters.</p>
+          )}
+          {rows.map((r) => (
+            <div key={r.id} className="user-card">
+              <div className="user-card-head">
+                <div>
+                  <div className="serial" style={{ fontSize: 14 }}>{r.serialNumber}</div>
+                  <div style={{ fontWeight: 700 }}>{r.name}</div>
+                  <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{r.businessName}</div>
+                </div>
+                <span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span>
+              </div>
+              <div className="user-card-meta">
+                {r.telephone} · {r.electoralArea} · {r.streetName}
+              </div>
+              <div style={{ display: "flex", gap: 14, marginBottom: 10, fontSize: 13 }}>
+                <div>Fee <b>{r.fee.toFixed(2)}</b></div>
+                <div>Balance <b>{r.status === "PAID" ? "0.00" : r.balance.toFixed(2)}</b></div>
+                <div>Total <b>{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</b></div>
+              </div>
+              <div className="row-actions">
+                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
+                {r.status !== "PAID" && (
+                  <>
+                    <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
+                    <button className="btn btn-green btn-sm" onClick={() => markPaid(r)}>Mark Paid</button>
+                  </>
+                )}
+                {isAdmin && (
+                  <button className="btn btn-danger btn-sm" onClick={() => deleteRecord(r)}>Delete</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Grand totals — system-computed */}
         <div className="grand">
           <div className="tag">GRAND TOTALS</div>
@@ -357,7 +397,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
       {/* Edit modal */}
       {editFor && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(13,44,84,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 12, overflowY: "auto" }} onClick={() => setEditFor(null)}>
-          <form className="card" style={{ width: 460, margin: "20px 0" }} onClick={(e) => e.stopPropagation()} onSubmit={saveEdit}>
+          <form className="card modal-card" style={{ width: 460, margin: "20px 0" }} onClick={(e) => e.stopPropagation()} onSubmit={saveEdit}>
             <h2>Edit Record — {editFor.serialNumber}</h2>
             <p className="sub">
               {isAdmin
@@ -392,7 +432,7 @@ export default function RegisterTable({ isAdmin = false }: { isAdmin?: boolean }
       {/* Payment modal */}
       {payFor && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(13,44,84,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }} onClick={() => setPayFor(null)}>
-          <form className="card" style={{ width: 380, margin: 0 }} onClick={(e) => e.stopPropagation()} onSubmit={savePayment}>
+          <form className="card modal-card" style={{ width: 380, margin: 0 }} onClick={(e) => e.stopPropagation()} onSubmit={savePayment}>
             <h2>Record Cash Payment</h2>
             <p className="sub">{payFor.serialNumber} — {payFor.name} ({payFor.businessName})<br />Outstanding balance: <b>{GHS(payFor.balance)}</b></p>
             {payErr && <div className="err">{payErr}</div>}
