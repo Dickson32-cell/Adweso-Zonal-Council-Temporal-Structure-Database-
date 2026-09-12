@@ -408,7 +408,7 @@ export default function RegisterTable({
 
       {/* Edit modal */}
       {editFor && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(13,44,84,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 12, overflowY: "auto" }} onClick={() => setEditFor(null)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(3,70,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 12, overflowY: "auto" }} onClick={() => setEditFor(null)}>
           <form className="card modal-card" style={{ width: 460, margin: "20px 0" }} onClick={(e) => e.stopPropagation()} onSubmit={saveEdit}>
             <h2>Edit Record — {editFor.serialNumber}</h2>
             <p className="sub">
@@ -443,7 +443,7 @@ export default function RegisterTable({
 
       {/* Payment modal */}
       {payFor && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(13,44,84,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }} onClick={() => setPayFor(null)}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(3,70,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }} onClick={() => setPayFor(null)}>
           <form className="card modal-card" style={{ width: 380, margin: 0 }} onClick={(e) => e.stopPropagation()} onSubmit={savePayment}>
             <h2>Record Cash Payment</h2>
             <p className="sub">{payFor.serialNumber} — {payFor.name} ({payFor.businessName})<br />Outstanding balance: <b>{GHS(payFor.balance)}</b></p>

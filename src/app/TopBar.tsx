@@ -46,23 +46,23 @@ export default function TopBar({ username, role, canReviewPasswords }: { usernam
         <b>{username}</b> · {role === "ADMIN" ? "Administrator" : "Staff"} &nbsp;{" "}
         {role === "ADMIN" && (
           <>
-            <a href="/admin/users" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }}>
+            <a href="/admin/users" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
               Staff
             </a>{" "}
-            <a href="/admin/edits" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }}>
+            <a href="/admin/edits" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
               Edits
             </a>{" "}
             {canReviewPasswords && (
-              <a href="/admin/passwords" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }}>
+              <a href="/admin/passwords" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
                 Passwords
               </a>
             )}
           </>
         )}{" "}
-        <button className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }} onClick={() => { setPwOpen((s) => !s); setPwMsg(""); setPwErr(""); }}>
+        <button className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }} onClick={() => { setPwOpen((s) => !s); setPwMsg(""); setPwErr(""); }}>
           Change Password
         </button>{" "}
-        <button className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#3b5c8a" }} onClick={logout}>
+        <button className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }} onClick={logout}>
           Log out
         </button>
       </div>
