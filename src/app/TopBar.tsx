@@ -33,7 +33,7 @@ export default function TopBar({ username, role, canReviewPasswords }: { usernam
   }
 
   return (
-    <header className="topbar" style={{ position: "relative" }}>
+    <header className="topbar" style={{ position: "relative", paddingBottom: pwOpen ? 290 : undefined }}>
       <div className="brand">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.jpg" alt="Adweso Zonal Council logo" className="brand-logo" />
@@ -67,22 +67,23 @@ export default function TopBar({ username, role, canReviewPasswords }: { usernam
         </button>
       </div>
 
+      {/* Change Password panel — flows BELOW the topbar (no overlay, no overlap on any device) */}
       {pwOpen && (
-        <form className="card" style={{ position: "absolute", right: 20, top: 70, width: 320, zIndex: 60, boxShadow: "0 10px 30px rgba(0,0,0,0.25)" }} onSubmit={submitPwChange}>
-          <h2 style={{ fontSize: 14 }}>Change Password</h2>
-          <p className="sub" style={{ fontSize: 12 }}>Your new password takes effect after an administrator approves it.</p>
+        <form className="card pw-panel" onSubmit={submitPwChange}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ fontSize: 14, margin: 0 }}>Change Password</h2>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPwOpen(false)}>Close</button>
+          </div>
+          <p className="sub" style={{ fontSize: 12, marginTop: 4 }}>Your new password takes effect after an administrator approves it.</p>
           {pwErr && <div className="err" style={{ fontSize: 12 }}>{pwErr}</div>}
           {pwMsg && <div className="ok-msg" style={{ fontSize: 12 }}>{pwMsg}</div>}
           <label className="fld"><span className="cap">Current Password</span>
             <input type="password" value={curPw} onChange={(e) => setCurPw(e.target.value)} required /></label>
           <label className="fld"><span className="cap">New Password (min 8 chars)</span>
             <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} required minLength={8} /></label>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-primary btn-sm" disabled={pwBusy} style={{ flex: 1, justifyContent: "center" }}>
-              {pwBusy ? "Submitting..." : "Request Change"}
-            </button>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPwOpen(false)}>Close</button>
-          </div>
+          <button className="btn btn-primary btn-sm" disabled={pwBusy} style={{ width: "100%", justifyContent: "center" }}>
+            {pwBusy ? "Submitting..." : "Request Change"}
+          </button>
         </form>
       )}
     </header>
