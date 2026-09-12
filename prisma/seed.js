@@ -27,8 +27,9 @@ async function main() {
   console.log("serial_counter rows:", counters.length);
   counters.forEach((c) => console.log("  ", c.electoralArea, "-> next:", c.lastNumber + 1));
 
-  // First admin (Dickson). Password set on first-run prompt OR env.
-  const adminPassword = process.env.ADMIN_PASSWORD || "Adweso@2026";
+  // First admin (Dickson). Password comes ONLY from ADMIN_PASSWORD env var.
+  // If not set, a random one is generated and printed ONCE to the console.
+  const adminPassword = process.env.ADMIN_PASSWORD || require("crypto").randomBytes(9).toString("base64url");
   const hash = await bcrypt.hash(adminPassword, 10);
   const admin = await prisma.appUser.upsert({
     where: { username: "admin" },
@@ -42,6 +43,8 @@ async function main() {
     },
   });
   console.log("admin user ready:", admin.username, "(" + admin.role + ")");
+  console.log("ADMIN_PASSWORD was:", adminPassword ? "[set via env]" : "[random — copy from below]");
+  if (!process.env.ADMIN_PASSWORD) console.log(">>> ADMIN PASSWORD (SAVE NOW, shown once):", adminPassword);
 }
 
 main()

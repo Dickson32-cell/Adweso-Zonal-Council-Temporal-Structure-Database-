@@ -7,9 +7,10 @@ under the **Adweso Zonal Council**, New Juaben South Municipal Assembly.
 
 | Role | Username | Password | Access |
 |---|---|---|---|
-| Administrator | `admin` | `Adweso@2026` | Everything (change after first login) |
+| Administrator | `admin` | *Set via ADMIN_PASSWORD env at seed time — ask the council administrator* | Everything |
 
-*(Additional staff accounts are created by the admin inside the system.)*
+*(Additional staff accounts are created by the admin inside the system.
+Never commit real passwords to this repository.)*
 
 ## What it does
 
@@ -36,7 +37,8 @@ does not free its serial (council-registers integrity).
 
 ## Walkthrough (end to end)
 
-1. Open the site → login page appears → enter `admin` / `Adweso@2026`
+1. Open the site → login page appears → sign in with the admin credentials
+   issued by the council administrator
 2. You land on the **Register** — the official list with grand totals at the bottom
 3. Click **New Record**:
    - Serial Number box reads "Select an Electoral Area to generate"
