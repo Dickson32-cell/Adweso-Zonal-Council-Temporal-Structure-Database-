@@ -4,16 +4,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, audit } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
+type EditRow = {
+  id: string;
+  feePayerId: string;
+  before: Record<string, string>;
+  after: Record<string, string>;
+  status: string;
+  createdAt: Date;
+  feePayer: { serialNumber: string; name: string; businessName: string };
+};
+
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const edits = await prisma.pendingEdit.findMany({
+  const edits: EditRow[] = (await prisma.pendingEdit.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       feePayer: { select: { serialNumber: true, name: true, businessName: true } },
     },
-  });
+  })) as unknown as EditRow[];
 
   const shaped = edits.map((e) => ({
     id: e.id,
