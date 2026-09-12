@@ -11,12 +11,28 @@ import {
 } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
+import { withRetry } from "@/lib/retry";
 
 const PHONE_RE = /^0\d{9}$/;
 
 type Tx = Prisma.TransactionClient;
 
-// Transactional serial generator (shares the same tx as record creation)
+// ATOMIC serial allocation — one single UPDATE statement, auto-committed.
+// PostgreSQL serializes concurrent updates to the same row internally;
+// no long-held transaction lock, so 5+ staff saving simultaneously all
+// succeed. If the record insert afterwards fails, the serial is skipped
+// (never reused — council register integrity).
+async function allocateSerialAtomic(area: string): Promise<string> {
+  const code = areaCode(area);
+  if (!code) throw new Error("Unknown area");
+  const updated = await prisma.serialCounter.update({
+    where: { electoralArea: area },
+    data: { lastNumber: { increment: 1 } },
+  });
+  return formatSerial(code, updated.lastNumber);
+}
+
+// Kept for reference/rollback: transactional version (causes P2028 under load)
 async function generateSerialInTx(tx: Tx, area: string): Promise<string> {
   const code = areaCode(area);
   if (!code) throw new Error("Unknown area");
@@ -56,45 +72,54 @@ export async function POST(req: NextRequest) {
       errors.push("Fee must be a positive amount in GH\u20B5");
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
 
-    // Transaction: allocate serial + create record + opening fee row + audit
-    const record = await prisma.$transaction(async (tx) => {
-      const serial = await generateSerialInTx(tx, electoralArea);
+    // Concurrency-safe create:
+    // 1. ATOMIC serial allocation (single UPDATE — row lock held for
+    //    microseconds, so 5+ staff at once never block each other into
+    //    transaction timeouts)
+    // 2. Short transaction for record + fee + audit (withRetry absorbs
+    //    Neon transient connection errors)
+    const serial = await withRetry(() => allocateSerialAtomic(electoralArea), "allocate-serial");
 
-      const created = await tx.feePayer.create({
-        data: {
-          serialNumber: serial,
-          electoralArea,
-          name: name.trim(),
-          businessName: businessName.trim(),
-          telephone,
-          streetName: streetName.trim(),
-          fee: feeNum.toFixed(2),
-          status: "UNPAID",
-        },
-      });
+    const record = await withRetry(
+      () =>
+        prisma.$transaction(async (tx) => {
+          const created = await tx.feePayer.create({
+            data: {
+              serialNumber: serial,
+              electoralArea,
+              name: name.trim(),
+              businessName: businessName.trim(),
+              telephone,
+              streetName: streetName.trim(),
+              fee: feeNum.toFixed(2),
+              status: "UNPAID",
+            },
+          });
 
-      // Opening billing entry (the typed fee) — keeps the ledger truthful
-      await tx.fee.create({
-        data: {
-          feePayerId: created.id,
-          amount: feeNum.toFixed(2),
-          description: "Opening fee (temporal structure)",
-          createdBy: session.sub,
-        },
-      });
+          // Opening billing entry (the typed fee) — keeps the ledger truthful
+          await tx.fee.create({
+            data: {
+              feePayerId: created.id,
+              amount: feeNum.toFixed(2),
+              description: "Opening fee (temporal structure)",
+              createdBy: session.sub,
+            },
+          });
 
-      await tx.auditLog.create({
-        data: {
-          userId: session.sub,
-          action: "CREATE_RECORD",
-          entityType: "fee_payer",
-          entityId: created.id,
-          details: { serial, name, businessName, electoralArea, fee: feeNum },
-        },
-      });
+          await tx.auditLog.create({
+            data: {
+              userId: session.sub,
+              action: "CREATE_RECORD",
+              entityType: "fee_payer",
+              entityId: created.id,
+              details: { serial, name, businessName, electoralArea, fee: feeNum },
+            },
+          });
 
-      return created;
-    });
+          return created;
+        }),
+      "create-record"
+    );
 
     return NextResponse.json({
       ok: true,
