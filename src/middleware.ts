@@ -9,7 +9,7 @@ const secret = new TextEncoder().encode(
   process.env.SESSION_SECRET || "adweso-zonal-council-temporal-structures-2026-session-key"
 );
 
-const PUBLIC = ["/api/auth/login", "/login"];
+const PUBLIC = ["/api/auth/login", "/api/auth/register", "/login", "/register"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

@@ -75,6 +75,16 @@ export default function LoginPage() {
           </div>
         </label>
 
+        <div style={{ marginTop: 14, fontSize: 13, color: "var(--muted)" }}>
+          New staff member?{" "}
+          <a
+            href="/register"
+            style={{ color: "var(--blue)", fontWeight: 600 }}
+          >
+            Register for approval
+          </a>
+        </div>
+
         <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} disabled={busy}>
           {busy ? "Signing in..." : "Sign in"}
         </button>
