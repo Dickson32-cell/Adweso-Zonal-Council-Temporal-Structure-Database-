@@ -1,6 +1,6 @@
 // GET /api/records/[id] — single record with full money detail + ledger history
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, payerTotals } from "@/lib/db";
+import { prisma, councilId, payerTotals } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 export async function GET(
@@ -11,8 +11,8 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const payer = await prisma.feePayer.findUnique({
-    where: { id },
+  const payer = await prisma.feePayer.findFirst({
+    where: { id, councilId: councilId() },
     include: {
       fees: { orderBy: { createdAt: "asc" } },
       payments: {

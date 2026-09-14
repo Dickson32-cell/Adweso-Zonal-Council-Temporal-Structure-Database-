@@ -1,7 +1,7 @@
 // GET  /api/admin/users — list all users (admin only)
 // PATCH /api/admin/users — approve/reject/deactivate/reactivate/makeAdmin/setAdminLevel/delete
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit, getFullUser } from "@/lib/db";
+import { prisma, councilId, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { ADMIN_LEVELS, AdminLevel, permsFor } from "@/lib/perms";
 
@@ -12,6 +12,7 @@ export async function GET() {
     return NextResponse.json({ error: "Administrators only" }, { status: 403 });
 
     const users = await prisma.appUser.findMany({
+    where: { councilId: councilId() },
     orderBy: { createdAt: "asc" },
     select: {
       id: true, username: true, fullName: true,
@@ -22,7 +23,7 @@ export async function GET() {
   // Records created per user (from the audit trail)
   const counts = await prisma.auditLog.groupBy({
     by: ["userId"],
-    where: { action: "CREATE_RECORD", userId: { not: null } },
+    where: { action: "CREATE_RECORD", councilId: councilId(), userId: { not: null } },
     _count: { _all: true },
   });
   const countMap = new Map(counts.map((c) => [c.userId, c._count._all]));
@@ -46,7 +47,7 @@ export async function PATCH(req: NextRequest) {
     if (!userId || !action)
       return NextResponse.json({ error: "userId and action required" }, { status: 400 });
 
-    const target = await prisma.appUser.findUnique({ where: { id: userId } });
+    const target = await prisma.appUser.findFirst({ where: { id: userId, councilId: councilId() } });
     if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
     if (target.username === "admin" && action !== "deactivate" && action !== "reactivate")
       return NextResponse.json(

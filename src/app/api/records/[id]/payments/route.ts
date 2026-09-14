@@ -1,7 +1,7 @@
 // POST /api/records/[id]/payments — record a cash payment (partial or full)
 // PATCH semantics kept simple: this endpoint only ADDS cash received.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, payerTotals, audit, getFullUser } from "@/lib/db";
+import { prisma, councilId, payerTotals, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
 
@@ -26,7 +26,7 @@ export async function POST(
     if (!Number.isFinite(amount) || amount <= 0)
       return NextResponse.json({ errors: ["Amount must be a positive number"] }, { status: 400 });
 
-    const payer = await prisma.feePayer.findUnique({ where: { id } });
+    const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
 
@@ -66,7 +66,7 @@ export async function POST(
     });
 
     const after = await payerTotals(id);
-    const updated = await prisma.feePayer.findUnique({ where: { id } });
+    const updated = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     return NextResponse.json({
       ok: true,
       payment: { id: payment.id, amount: Number(payment.amount) },

@@ -1,0 +1,1658 @@
+{
+  "fee_payer": [
+    {
+      "id": "a70c6af6-f5fc-4d2f-89a2-276a4822a570",
+      "serial_number": "ADW. E/ 01",
+      "electoral_area": "Adweso Estate",
+      "name": "Joseph Anyetei Sowah",
+      "business_name": "Tunchee graphics",
+      "telephone": "0551855708",
+      "street_name": "Two streams road",
+      "fee": "250.00",
+      "status": "PAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-12T07:24:18.281Z",
+      "updated_at": "2026-09-12T07:31:34.427Z",
+      "latitude": "6.0696749",
+      "longitude": "-0.2680851"
+    },
+    {
+      "id": "0243afe4-981b-46e4-9d94-e801765a9388",
+      "serial_number": "T. S/ 01",
+      "electoral_area": "Two Streams",
+      "name": "Kojo",
+      "business_name": "Eggs",
+      "telephone": "0245888698",
+      "street_name": "Two streams",
+      "fee": "300.00",
+      "status": "PAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-12T07:27:56.455Z",
+      "updated_at": "2026-09-12T07:31:38.868Z",
+      "latitude": "6.0896442",
+      "longitude": "-0.2725665"
+    },
+    {
+      "id": "7426b010-edf8-4fe3-85bc-8a8f8fa3a630",
+      "serial_number": "T. S/ 02",
+      "electoral_area": "Two Streams",
+      "name": "Emefa",
+      "business_name": "Ranedic",
+      "telephone": "0255555668",
+      "street_name": "Two street",
+      "fee": "310.00",
+      "status": "UNPAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-13T19:47:24.678Z",
+      "updated_at": "2026-09-13T19:48:54.173Z",
+      "latitude": "6.0897536",
+      "longitude": "-0.2723293"
+    },
+    {
+      "id": "b9dd8b71-dd5b-41f9-912c-fd018bb82f10",
+      "serial_number": "OSA. M/ 01",
+      "electoral_area": "Osabene Mile 50",
+      "name": "John",
+      "business_name": "Mobile money",
+      "telephone": "0208562548",
+      "street_name": "Mile 50",
+      "fee": "300.00",
+      "status": "UNPAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-13T20:24:55.148Z",
+      "updated_at": "2026-09-13T20:26:51.959Z",
+      "latitude": "6.0897520",
+      "longitude": "-0.2723228"
+    },
+    {
+      "id": "b4180974-9917-4a8d-8e8f-de0a845564d4",
+      "serial_number": "ADW. T/ 01",
+      "electoral_area": "Adweso Town",
+      "name": "TEST Detail View",
+      "business_name": "Emefa Verification",
+      "telephone": "0240000000",
+      "street_name": "Test Street",
+      "fee": "300.00",
+      "status": "UNPAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-13T21:06:54.992Z",
+      "updated_at": "2026-09-13T21:28:02.276Z",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "08d14e29-65b1-4e9b-97c9-02f2d202649b",
+      "serial_number": "NYE. S/ 01",
+      "electoral_area": "Nyerede South",
+      "name": "Ama",
+      "business_name": "Cash",
+      "telephone": "0258845565",
+      "street_name": "South",
+      "fee": "600.00",
+      "status": "UNPAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-13T21:33:56.039Z",
+      "updated_at": "2026-09-13T21:35:48.118Z",
+      "latitude": "6.0897536",
+      "longitude": "-0.2723293"
+    },
+    {
+      "id": "0c7cd701-3989-450d-bcb8-2564f21ce541",
+      "serial_number": "ADW. T/ 02",
+      "electoral_area": "Adweso Town",
+      "name": "Lock Test",
+      "business_name": "LT",
+      "telephone": "0240000001",
+      "street_name": "Test",
+      "fee": "50.00",
+      "status": "UNPAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-14T06:40:50.473Z",
+      "updated_at": "2026-09-14T06:41:12.864Z",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "30113a7c-a5ed-48e0-872f-e0c74838b734",
+      "serial_number": "ADW. T/ 03",
+      "electoral_area": "Adweso Town",
+      "name": "XL Test",
+      "business_name": "XBT",
+      "telephone": "0240000002",
+      "street_name": "Test St",
+      "fee": "300.00",
+      "status": "UNPAID",
+      "record_status": "INACTIVE",
+      "created_at": "2026-09-14T07:34:38.520Z",
+      "updated_at": "2026-09-14T07:35:10.435Z",
+      "latitude": null,
+      "longitude": null
+    }
+  ],
+  "fee": [
+    {
+      "id": "d909a4f0-4bf6-4582-b558-f9bf88dd40b8",
+      "fee_payer_id": "a70c6af6-f5fc-4d2f-89a2-276a4822a570",
+      "amount": "250.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-12T07:24:18.310Z",
+      "created_by": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "created_at": "2026-09-12T07:24:18.310Z"
+    },
+    {
+      "id": "9b34fbd1-036f-4b5c-9e43-d488d8896f38",
+      "fee_payer_id": "0243afe4-981b-46e4-9d94-e801765a9388",
+      "amount": "300.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-12T07:27:56.468Z",
+      "created_by": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "created_at": "2026-09-12T07:27:56.468Z"
+    },
+    {
+      "id": "8740db20-9987-46fc-bfec-5fec77a90231",
+      "fee_payer_id": "7426b010-edf8-4fe3-85bc-8a8f8fa3a630",
+      "amount": "310.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-13T19:47:24.710Z",
+      "created_by": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "created_at": "2026-09-13T19:47:24.710Z"
+    },
+    {
+      "id": "a2b95899-a59e-46da-8e88-b05d2b2b8c3b",
+      "fee_payer_id": "b9dd8b71-dd5b-41f9-912c-fd018bb82f10",
+      "amount": "300.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-13T20:24:55.180Z",
+      "created_by": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "created_at": "2026-09-13T20:24:55.180Z"
+    },
+    {
+      "id": "4966e7aa-7dfe-407f-881b-3fd01d517905",
+      "fee_payer_id": "b4180974-9917-4a8d-8e8f-de0a845564d4",
+      "amount": "300.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-13T21:06:55.020Z",
+      "created_by": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "created_at": "2026-09-13T21:06:55.020Z"
+    },
+    {
+      "id": "c20266ff-0218-4197-b5cd-0e721c9aa27a",
+      "fee_payer_id": "08d14e29-65b1-4e9b-97c9-02f2d202649b",
+      "amount": "600.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-13T21:33:56.080Z",
+      "created_by": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "created_at": "2026-09-13T21:33:56.080Z"
+    },
+    {
+      "id": "9cac00f9-3baf-4b35-adb3-d50fc82b495f",
+      "fee_payer_id": "0c7cd701-3989-450d-bcb8-2564f21ce541",
+      "amount": "50.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-14T06:40:50.975Z",
+      "created_by": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "created_at": "2026-09-14T06:40:50.975Z"
+    },
+    {
+      "id": "eb6670b8-a302-476f-a638-e00837760af1",
+      "fee_payer_id": "30113a7c-a5ed-48e0-872f-e0c74838b734",
+      "amount": "300.00",
+      "description": "Opening fee (temporal structure)",
+      "billed_at": "2026-09-14T07:34:39.073Z",
+      "created_by": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "created_at": "2026-09-14T07:34:39.073Z"
+    }
+  ],
+  "payment": [
+    {
+      "id": "00312c01-ad43-42b0-a773-6d4b581c8ea4",
+      "fee_payer_id": "a70c6af6-f5fc-4d2f-89a2-276a4822a570",
+      "amount": "250.00",
+      "method": "CASH",
+      "receipt_no": null,
+      "received_at": "2026-09-12T07:27:27.658Z",
+      "received_by": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "created_at": "2026-09-12T07:27:27.658Z"
+    },
+    {
+      "id": "134c4e06-1f8e-4abf-872f-6d65b39d553f",
+      "fee_payer_id": "0243afe4-981b-46e4-9d94-e801765a9388",
+      "amount": "300.00",
+      "method": "CASH",
+      "receipt_no": null,
+      "received_at": "2026-09-12T07:28:28.993Z",
+      "received_by": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "created_at": "2026-09-12T07:28:28.993Z"
+    },
+    {
+      "id": "6ac1616f-09a9-47c2-aa8f-2677312c995a",
+      "fee_payer_id": "b9dd8b71-dd5b-41f9-912c-fd018bb82f10",
+      "amount": "100.00",
+      "method": "CASH",
+      "receipt_no": null,
+      "received_at": "2026-09-13T20:25:36.325Z",
+      "received_by": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "created_at": "2026-09-13T20:25:36.325Z"
+    },
+    {
+      "id": "481077c3-068e-45bb-914e-0630af14ed07",
+      "fee_payer_id": "b4180974-9917-4a8d-8e8f-de0a845564d4",
+      "amount": "50.00",
+      "method": "CASH",
+      "receipt_no": null,
+      "received_at": "2026-09-13T21:26:50.598Z",
+      "received_by": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "created_at": "2026-09-13T21:26:50.598Z"
+    }
+  ],
+  "serial_counter": [
+    {
+      "electoralArea": "Nyerede North",
+      "last_number": 0
+    },
+    {
+      "electoralArea": "Adweso Estate",
+      "last_number": 1
+    },
+    {
+      "electoralArea": "Two Streams",
+      "last_number": 2
+    },
+    {
+      "electoralArea": "Osabene Mile 50",
+      "last_number": 1
+    },
+    {
+      "electoralArea": "Nyerede South",
+      "last_number": 1
+    },
+    {
+      "electoralArea": "Adweso Town",
+      "last_number": 3
+    }
+  ],
+  "app_user": [
+    {
+      "id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "username": "admin",
+      "password_hash": "$2b$10$GE8KE.unsO20PFIfSVUoAeST1rvst9b6xYL/4.CbLVv6aBEpfzQFi",
+      "full_name": "Abdul Rashid Dickson",
+      "role": "ADMIN",
+      "active": true,
+      "created_at": "2026-09-12T02:36:23.683Z",
+      "admin_level": "FULL"
+    },
+    {
+      "id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "username": "Dickson32",
+      "password_hash": "$2b$10$l..F2.M1li0WDockZTK4TObNRDsI0ExoZAfM81rqoZUqu6ypx26V2",
+      "full_name": "Dickson",
+      "role": "STAFF",
+      "active": true,
+      "created_at": "2026-09-11T23:10:06.209Z",
+      "admin_level": null
+    },
+    {
+      "id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "username": "Joseph",
+      "password_hash": "$2b$10$RwCmQkALKQCIKmqZrsIHqeRiEu/BA49tV7LPURVlgau2MiFhAjdxC",
+      "full_name": "Joseph Anyetei Sowah",
+      "role": "STAFF",
+      "active": true,
+      "created_at": "2026-09-12T07:21:28.290Z",
+      "admin_level": null
+    },
+    {
+      "id": "55b461f2-d6ac-451a-834c-c3542b2bca6b",
+      "username": "Manuel",
+      "password_hash": "$2b$10$xI1wJlsTCYuUjaX43nlmReLw.g3WQokUgMAgbe.ptkVylLwx/cwv6",
+      "full_name": "Siaw Emmanuel",
+      "role": "STAFF",
+      "active": true,
+      "created_at": "2026-09-12T19:20:45.644Z",
+      "admin_level": null
+    }
+  ],
+  "password_change_request": [],
+  "pending_edit": [],
+  "audit_log": [
+    {
+      "id": "1",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T02:52:04.729Z"
+    },
+    {
+      "id": "126",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T22:04:04.958Z"
+    },
+    {
+      "id": "3",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T03:22:45.328Z"
+    },
+    {
+      "id": "4",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T03:22:45.978Z"
+    },
+    {
+      "id": "127",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T22:04:55.150Z"
+    },
+    {
+      "id": "128",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "07159ec5-6499-431f-9259-3f8433c8e847",
+      "details": {
+        "fee": 5,
+        "name": "Live Smoke 1",
+        "serial": "OSA. M/ 01",
+        "businessName": "Smoke Biz",
+        "electoralArea": "Osabene Mile 50"
+      },
+      "created_at": "2026-09-11T22:04:57.518Z"
+    },
+    {
+      "id": "129",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "17c276f1-80a6-43dd-bdc9-a15884cd582c",
+      "details": {
+        "fee": 5,
+        "name": "Live Smoke 3",
+        "serial": "OSA. M/ 02",
+        "businessName": "Smoke Biz",
+        "electoralArea": "Osabene Mile 50"
+      },
+      "created_at": "2026-09-11T22:04:57.670Z"
+    },
+    {
+      "id": "135",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T06:34:00.213Z"
+    },
+    {
+      "id": "9",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T19:24:31.237Z"
+    },
+    {
+      "id": "136",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "34e46924-e205-4f45-8c44-9ec646100c31",
+      "details": {
+        "fee": 18,
+        "name": "GPS Test Payer",
+        "serial": "ADW. T/ 01",
+        "businessName": "GPS Biz",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-12T06:34:03.012Z"
+    },
+    {
+      "id": "137",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "1ff279ad-e740-4658-b9e6-e1e4dd92f4e0",
+      "details": {
+        "fee": 10,
+        "name": "No GPS Payer",
+        "serial": "ADW. T/ 02",
+        "businessName": "NG",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-12T06:34:06.772Z"
+    },
+    {
+      "id": "12",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T19:25:19.849Z"
+    },
+    {
+      "id": "13",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "7b9a8f93-18c2-47df-9d05-5a196487dd5a",
+      "details": {
+        "fee": 10,
+        "name": "Live Verify",
+        "serial": "ADW. T/ 01",
+        "businessName": "Live Test Biz",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-11T19:25:20.822Z"
+    },
+    {
+      "id": "14",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T19:28:46.645Z"
+    },
+    {
+      "id": "15",
+      "user_id": null,
+      "action": "PASSWORD_CHANGED",
+      "entity_type": "app_user",
+      "entity_id": null,
+      "details": {
+        "note": "admin password rotated by Dickson"
+      },
+      "created_at": "2026-09-12T03:41:12.580Z"
+    },
+    {
+      "id": "16",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T19:40:20.683Z"
+    },
+    {
+      "id": "17",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T19:42:01.457Z"
+    },
+    {
+      "id": "138",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T22:35:20.640Z"
+    },
+    {
+      "id": "139",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "87aa6921-3af8-4182-b32d-85665fadb4b0",
+      "details": {
+        "fee": 7,
+        "name": "Live GPS Check",
+        "serial": "T. S/ 01",
+        "businessName": "LG",
+        "electoralArea": "Two Streams"
+      },
+      "created_at": "2026-09-11T22:35:22.039Z"
+    },
+    {
+      "id": "140",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T22:51:37.907Z"
+    },
+    {
+      "id": "21",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T03:53:58.816Z"
+    },
+    {
+      "id": "141",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "cd48fdfd-8f59-47d5-a263-8d468dba409d",
+      "details": {
+        "fee": 25,
+        "name": "Overlap Test",
+        "serial": "ADW. T/ 01",
+        "businessName": "Overlap Biz",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-11T22:52:51.190Z"
+    },
+    {
+      "id": "142",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T06:59:53.221Z"
+    },
+    {
+      "id": "143",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T07:02:01.659Z"
+    },
+    {
+      "id": "25",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "7fa1a482-13ae-4c99-9163-512372beac4c",
+      "details": {
+        "fee": 5,
+        "name": "Del Test",
+        "serial": "NYE. N/ 01",
+        "businessName": "Del Biz",
+        "electoralArea": "Nyerede North"
+      },
+      "created_at": "2026-09-12T03:54:07.032Z"
+    },
+    {
+      "id": "26",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "7fa1a482-13ae-4c99-9163-512372beac4c",
+      "details": {
+        "name": "Del Test",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "NYE. N/ 01",
+        "businessName": "Del Biz"
+      },
+      "created_at": "2026-09-12T03:54:09.195Z"
+    },
+    {
+      "id": "27",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T19:54:06.773Z"
+    },
+    {
+      "id": "144",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T07:10:18.208Z"
+    },
+    {
+      "id": "145",
+      "user_id": null,
+      "action": "STAFF_REGISTERED",
+      "entity_type": "app_user",
+      "entity_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "details": {
+        "ip": "41.215.169.159",
+        "fullName": "Dickson",
+        "username": "Dickson32"
+      },
+      "created_at": "2026-09-11T23:10:06.243Z"
+    },
+    {
+      "id": "31",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T04:08:03.866Z"
+    },
+    {
+      "id": "36",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "UPDATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "9cb8f52e-be66-4bfd-9d47-c70e5e05f1ae",
+      "details": {
+        "after": {
+          "id": "9cb8f52e-be66-4bfd-9d47-c70e5e05f1ae",
+          "fee": 25,
+          "name": "Ama Original",
+          "status": "UNPAID",
+          "createdAt": "2026-09-12T04:08:16.531Z",
+          "telephone": "0245550001",
+          "updatedAt": "2026-09-12T04:08:24.553Z",
+          "streetName": "Old Street",
+          "businessName": "Admin Direct Biz",
+          "recordStatus": "ACTIVE",
+          "serialNumber": "ADW. T/ 01",
+          "electoralArea": "Adweso Town"
+        },
+        "before": {
+          "id": "9cb8f52e-be66-4bfd-9d47-c70e5e05f1ae",
+          "fee": 25,
+          "name": "Ama Original",
+          "status": "UNPAID",
+          "createdAt": "2026-09-12T04:08:16.531Z",
+          "telephone": "0245550001",
+          "updatedAt": "2026-09-12T04:08:16.531Z",
+          "streetName": "Old Street",
+          "businessName": "Original Biz",
+          "recordStatus": "ACTIVE",
+          "serialNumber": "ADW. T/ 01",
+          "electoralArea": "Adweso Town"
+        }
+      },
+      "created_at": "2026-09-12T04:08:25.025Z"
+    },
+    {
+      "id": "37",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T04:09:36.600Z"
+    },
+    {
+      "id": "40",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "EDIT_APPROVED",
+      "entity_type": "pending_edit",
+      "entity_id": "5f489459-8d27-4cd0-9025-c2206c64e137",
+      "details": {
+        "after": {
+          "name": "Ama Corrected",
+          "streetName": "New Street"
+        },
+        "before": {
+          "name": "Ama Original",
+          "streetName": "Old Street"
+        },
+        "serial": "ADW. T/ 01",
+        "feePayerId": "9cb8f52e-be66-4bfd-9d47-c70e5e05f1ae"
+      },
+      "created_at": "2026-09-12T04:09:45.753Z"
+    },
+    {
+      "id": "42",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "EDIT_REJECTED",
+      "entity_type": "pending_edit",
+      "entity_id": "2ce720b0-49e2-4b13-b149-1274cbfb3c41",
+      "details": {
+        "after": {
+          "name": "Should Not Apply"
+        },
+        "before": {
+          "name": "Ama Corrected"
+        },
+        "serial": "ADW. T/ 01",
+        "feePayerId": "9cb8f52e-be66-4bfd-9d47-c70e5e05f1ae"
+      },
+      "created_at": "2026-09-12T04:09:51.250Z"
+    },
+    {
+      "id": "43",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T20:10:58.908Z"
+    },
+    {
+      "id": "44",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T04:24:16.267Z"
+    },
+    {
+      "id": "50",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T20:23:47.652Z"
+    },
+    {
+      "id": "48",
+      "user_id": null,
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "26636b1a-f877-4b66-ab56-e1b239d417bb",
+      "details": {
+        "fee": 12,
+        "name": "Count Test",
+        "serial": "NYE. S/ 01",
+        "businessName": "Count Biz",
+        "electoralArea": "Nyerede South"
+      },
+      "created_at": "2026-09-12T04:24:24.014Z"
+    },
+    {
+      "id": "45",
+      "user_id": null,
+      "action": "STAFF_REGISTERED",
+      "entity_type": "app_user",
+      "entity_id": null,
+      "details": {
+        "ip": "::1",
+        "fullName": "Delete Test",
+        "username": "d.test"
+      },
+      "created_at": "2026-09-12T04:24:17.643Z"
+    },
+    {
+      "id": "46",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "USER_APPROVE",
+      "entity_type": "app_user",
+      "entity_id": null,
+      "details": {
+        "before": {
+          "role": "STAFF",
+          "active": false
+        },
+        "targetUsername": "d.test"
+      },
+      "created_at": "2026-09-12T04:24:20.959Z"
+    },
+    {
+      "id": "47",
+      "user_id": null,
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": null,
+      "details": {
+        "username": "d.test"
+      },
+      "created_at": "2026-09-12T04:24:21.827Z"
+    },
+    {
+      "id": "49",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "USER_DELETED",
+      "entity_type": "app_user",
+      "entity_id": null,
+      "details": {
+        "deletedFullName": "Delete Test",
+        "deletedUsername": "d.test"
+      },
+      "created_at": "2026-09-12T04:24:27.600Z"
+    },
+    {
+      "id": "54",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T05:44:04.846Z"
+    },
+    {
+      "id": "66",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T21:44:39.101Z"
+    },
+    {
+      "id": "67",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T05:49:01.331Z"
+    },
+    {
+      "id": "130",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "afd9027f-545d-4b9e-99e6-8d20c6c31137",
+      "details": {
+        "fee": 5,
+        "name": "Live Smoke 2",
+        "serial": "OSA. M/ 03",
+        "businessName": "Smoke Biz",
+        "electoralArea": "Osabene Mile 50"
+      },
+      "created_at": "2026-09-11T22:04:57.718Z"
+    },
+    {
+      "id": "131",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T06:14:30.013Z"
+    },
+    {
+      "id": "132",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "08adb0a7-8974-47f0-80d2-c47f3e08c252",
+      "details": {
+        "fee": 30,
+        "name": "Admin Entry Test",
+        "serial": "NYE. N/ 01",
+        "businessName": "Admin Biz",
+        "electoralArea": "Nyerede North"
+      },
+      "created_at": "2026-09-12T06:14:32.929Z"
+    },
+    {
+      "id": "133",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "RECORD_PAYMENT",
+      "entity_type": "payment",
+      "entity_id": "844bb5d9-e114-4db1-9dc2-f6891757029d",
+      "details": {
+        "amount": 10,
+        "feePayerId": "08adb0a7-8974-47f0-80d2-c47f3e08c252",
+        "newBalance": 20
+      },
+      "created_at": "2026-09-12T06:14:37.302Z"
+    },
+    {
+      "id": "134",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "MARK_PAID",
+      "entity_type": "fee_payer",
+      "entity_id": "08adb0a7-8974-47f0-80d2-c47f3e08c252",
+      "details": {
+        "settled": 20
+      },
+      "created_at": "2026-09-12T06:14:41.248Z"
+    },
+    {
+      "id": "146",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "USER_APPROVE",
+      "entity_type": "app_user",
+      "entity_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "details": {
+        "before": {
+          "role": "STAFF",
+          "active": false
+        },
+        "targetUsername": "Dickson32"
+      },
+      "created_at": "2026-09-11T23:10:23.122Z"
+    },
+    {
+      "id": "147",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "details": {
+        "username": "Dickson32"
+      },
+      "created_at": "2026-09-11T23:10:28.393Z"
+    },
+    {
+      "id": "148",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-11T23:16:43.114Z"
+    },
+    {
+      "id": "149",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T04:46:42.844Z"
+    },
+    {
+      "id": "150",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T04:50:13.385Z"
+    },
+    {
+      "id": "151",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T12:56:16.990Z"
+    },
+    {
+      "id": "152",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T04:56:37.304Z"
+    },
+    {
+      "id": "153",
+      "user_id": null,
+      "action": "STAFF_REGISTERED",
+      "entity_type": "app_user",
+      "entity_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "details": {
+        "ip": "41.204.44.168",
+        "fullName": "Joseph Anyetei Sowah",
+        "username": "Joseph"
+      },
+      "created_at": "2026-09-12T07:21:28.324Z"
+    },
+    {
+      "id": "154",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "USER_APPROVE",
+      "entity_type": "app_user",
+      "entity_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "details": {
+        "before": {
+          "role": "STAFF",
+          "active": false
+        },
+        "targetUsername": "Joseph"
+      },
+      "created_at": "2026-09-12T07:22:30.647Z"
+    },
+    {
+      "id": "155",
+      "user_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "details": {
+        "username": "Joseph"
+      },
+      "created_at": "2026-09-12T07:22:30.921Z"
+    },
+    {
+      "id": "156",
+      "user_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "a70c6af6-f5fc-4d2f-89a2-276a4822a570",
+      "details": {
+        "fee": 250,
+        "name": "Joseph Anyetei Sowah ",
+        "serial": "ADW. E/ 01",
+        "businessName": "Tunchee graphics ",
+        "electoralArea": "Adweso Estate"
+      },
+      "created_at": "2026-09-12T07:24:18.340Z"
+    },
+    {
+      "id": "157",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "details": {
+        "username": "Dickson32"
+      },
+      "created_at": "2026-09-12T07:25:35.945Z"
+    },
+    {
+      "id": "158",
+      "user_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "action": "RECORD_PAYMENT",
+      "entity_type": "payment",
+      "entity_id": "00312c01-ad43-42b0-a773-6d4b581c8ea4",
+      "details": {
+        "amount": 250,
+        "feePayerId": "a70c6af6-f5fc-4d2f-89a2-276a4822a570",
+        "newBalance": 0
+      },
+      "created_at": "2026-09-12T07:27:27.739Z"
+    },
+    {
+      "id": "159",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "0243afe4-981b-46e4-9d94-e801765a9388",
+      "details": {
+        "fee": 300,
+        "name": "Kojo",
+        "serial": "T. S/ 01",
+        "businessName": "Eggs",
+        "electoralArea": "Two Streams"
+      },
+      "created_at": "2026-09-12T07:27:56.481Z"
+    },
+    {
+      "id": "160",
+      "user_id": "c8cb7d9b-8ed2-40c9-a0ec-e026bda5f65f",
+      "action": "RECORD_PAYMENT",
+      "entity_type": "payment",
+      "entity_id": "134c4e06-1f8e-4abf-872f-6d65b39d553f",
+      "details": {
+        "amount": 300,
+        "feePayerId": "0243afe4-981b-46e4-9d94-e801765a9388",
+        "newBalance": 0
+      },
+      "created_at": "2026-09-12T07:28:29.037Z"
+    },
+    {
+      "id": "161",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "a70c6af6-f5fc-4d2f-89a2-276a4822a570",
+      "details": {
+        "name": "Joseph Anyetei Sowah",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "ADW. E/ 01",
+        "businessName": "Tunchee graphics"
+      },
+      "created_at": "2026-09-12T07:31:34.455Z"
+    },
+    {
+      "id": "162",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "0243afe4-981b-46e4-9d94-e801765a9388",
+      "details": {
+        "name": "Kojo",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "T. S/ 01",
+        "businessName": "Eggs"
+      },
+      "created_at": "2026-09-12T07:31:38.881Z"
+    },
+    {
+      "id": "163",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T13:36:55.949Z"
+    },
+    {
+      "id": "164",
+      "user_id": null,
+      "action": "STAFF_REGISTERED",
+      "entity_type": "app_user",
+      "entity_id": "55b461f2-d6ac-451a-834c-c3542b2bca6b",
+      "details": {
+        "ip": "154.161.87.95",
+        "fullName": "Siaw Emmanuel ",
+        "username": "Manuel"
+      },
+      "created_at": "2026-09-12T19:20:45.683Z"
+    },
+    {
+      "id": "165",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "USER_APPROVE",
+      "entity_type": "app_user",
+      "entity_id": "55b461f2-d6ac-451a-834c-c3542b2bca6b",
+      "details": {
+        "before": {
+          "role": "STAFF",
+          "active": false
+        },
+        "targetUsername": "Manuel"
+      },
+      "created_at": "2026-09-12T19:22:28.589Z"
+    },
+    {
+      "id": "166",
+      "user_id": "55b461f2-d6ac-451a-834c-c3542b2bca6b",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "55b461f2-d6ac-451a-834c-c3542b2bca6b",
+      "details": {
+        "username": "Manuel"
+      },
+      "created_at": "2026-09-12T19:22:48.566Z"
+    },
+    {
+      "id": "167",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T22:10:11.992Z"
+    },
+    {
+      "id": "168",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T10:56:59.417Z"
+    },
+    {
+      "id": "169",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T19:45:27.077Z"
+    },
+    {
+      "id": "170",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "details": {
+        "username": "Dickson32"
+      },
+      "created_at": "2026-09-13T19:46:00.494Z"
+    },
+    {
+      "id": "171",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "details": {
+        "username": "Dickson32"
+      },
+      "created_at": "2026-09-13T19:46:06.136Z"
+    },
+    {
+      "id": "172",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "7426b010-edf8-4fe3-85bc-8a8f8fa3a630",
+      "details": {
+        "fee": 310,
+        "name": "Emefa",
+        "serial": "T. S/ 02",
+        "businessName": "Ranedic",
+        "electoralArea": "Two Streams"
+      },
+      "created_at": "2026-09-13T19:47:24.742Z"
+    },
+    {
+      "id": "173",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "7426b010-edf8-4fe3-85bc-8a8f8fa3a630",
+      "details": {
+        "name": "Emefa",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "T. S/ 02",
+        "businessName": "Ranedic"
+      },
+      "created_at": "2026-09-13T19:48:54.201Z"
+    },
+    {
+      "id": "174",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T20:02:35.496Z"
+    },
+    {
+      "id": "175",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "b9dd8b71-dd5b-41f9-912c-fd018bb82f10",
+      "details": {
+        "fee": 300,
+        "name": "John",
+        "serial": "OSA. M/ 01",
+        "businessName": "Mobile money ",
+        "electoralArea": "Osabene Mile 50"
+      },
+      "created_at": "2026-09-13T20:24:55.211Z"
+    },
+    {
+      "id": "176",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "RECORD_PAYMENT",
+      "entity_type": "payment",
+      "entity_id": "6ac1616f-09a9-47c2-aa8f-2677312c995a",
+      "details": {
+        "amount": 100,
+        "feePayerId": "b9dd8b71-dd5b-41f9-912c-fd018bb82f10",
+        "newBalance": 200
+      },
+      "created_at": "2026-09-13T20:25:36.355Z"
+    },
+    {
+      "id": "177",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "b9dd8b71-dd5b-41f9-912c-fd018bb82f10",
+      "details": {
+        "name": "John",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "OSA. M/ 01",
+        "businessName": "Mobile money"
+      },
+      "created_at": "2026-09-13T20:26:51.988Z"
+    },
+    {
+      "id": "178",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T20:34:23.468Z"
+    },
+    {
+      "id": "179",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T20:48:26.298Z"
+    },
+    {
+      "id": "180",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T21:03:05.203Z"
+    },
+    {
+      "id": "181",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "b4180974-9917-4a8d-8e8f-de0a845564d4",
+      "details": {
+        "fee": 300,
+        "name": "TEST Detail View",
+        "serial": "ADW. T/ 01",
+        "businessName": "Emefa Verification",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-13T21:06:55.050Z"
+    },
+    {
+      "id": "182",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T21:22:42.188Z"
+    },
+    {
+      "id": "183",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "RECORD_PAYMENT",
+      "entity_type": "payment",
+      "entity_id": "481077c3-068e-45bb-914e-0630af14ed07",
+      "details": {
+        "amount": 50,
+        "feePayerId": "b4180974-9917-4a8d-8e8f-de0a845564d4",
+        "newBalance": 250
+      },
+      "created_at": "2026-09-13T21:26:50.654Z"
+    },
+    {
+      "id": "184",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "b4180974-9917-4a8d-8e8f-de0a845564d4",
+      "details": {
+        "name": "TEST Detail View",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "ADW. T/ 01",
+        "businessName": "Emefa Verification"
+      },
+      "created_at": "2026-09-13T21:28:02.306Z"
+    },
+    {
+      "id": "185",
+      "user_id": "e761bf31-591d-4197-945f-c6741fad13bc",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "08d14e29-65b1-4e9b-97c9-02f2d202649b",
+      "details": {
+        "fee": 600,
+        "name": "Ama ",
+        "serial": "NYE. S/ 01",
+        "businessName": "Cash ",
+        "electoralArea": "Nyerede South"
+      },
+      "created_at": "2026-09-13T21:33:56.114Z"
+    },
+    {
+      "id": "186",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "DELETE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "08d14e29-65b1-4e9b-97c9-02f2d202649b",
+      "details": {
+        "name": "Ama",
+        "note": "soft-deleted; serial retired, hidden from register",
+        "serial": "NYE. S/ 01",
+        "businessName": "Cash"
+      },
+      "created_at": "2026-09-13T21:35:48.146Z"
+    },
+    {
+      "id": "187",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T21:51:37.397Z"
+    },
+    {
+      "id": "188",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T06:28:17.396Z"
+    },
+    {
+      "id": "189",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T06:28:48.426Z"
+    },
+    {
+      "id": "190",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T06:32:29.397Z"
+    },
+    {
+      "id": "191",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T06:34:05.473Z"
+    },
+    {
+      "id": "192",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T06:40:35.060Z"
+    },
+    {
+      "id": "193",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "0c7cd701-3989-450d-bcb8-2564f21ce541",
+      "details": {
+        "fee": 50,
+        "name": "Lock Test",
+        "serial": "ADW. T/ 02",
+        "businessName": "LT",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-14T06:40:51.538Z"
+    },
+    {
+      "id": "194",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T07:24:34.065Z"
+    },
+    {
+      "id": "195",
+      "user_id": "9b3165fa-259c-466b-b30f-397533b1ad6b",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "9b3165fa-259c-466b-b30f-397533b1ad6b",
+      "details": {
+        "username": "tempfulladmin"
+      },
+      "created_at": "2026-09-14T07:24:58.825Z"
+    },
+    {
+      "id": "196",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T23:25:31.584Z"
+    },
+    {
+      "id": "197",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-14T07:33:47.187Z"
+    },
+    {
+      "id": "198",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "CREATE_RECORD",
+      "entity_type": "fee_payer",
+      "entity_id": "30113a7c-a5ed-48e0-872f-e0c74838b734",
+      "details": {
+        "fee": 300,
+        "name": "XL Test",
+        "serial": "ADW. T/ 03",
+        "businessName": "XBT",
+        "electoralArea": "Adweso Town"
+      },
+      "created_at": "2026-09-14T07:34:39.592Z"
+    },
+    {
+      "id": "199",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-13T23:34:29.692Z"
+    },
+    {
+      "id": "125",
+      "user_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "action": "LOGIN",
+      "entity_type": "app_user",
+      "entity_id": "706faced-184e-4b76-9396-6ee4cbff4170",
+      "details": {
+        "username": "admin"
+      },
+      "created_at": "2026-09-12T06:00:33.451Z"
+    }
+  ],
+  "license_state": [
+    {
+      "id": 1,
+      "paid_through": 0,
+      "license_key": "F5AE-8C00-4EF8-41F3",
+      "last_payment_at": "2026-09-14T14:40:42.138Z"
+    }
+  ]
+}

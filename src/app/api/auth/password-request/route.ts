@@ -2,7 +2,7 @@
 // The new password is stored HASHED and applied only after admin approval.
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma, audit } from "@/lib/db";
+import { prisma, councilId, audit } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         data: { status: "REJECTED" },
       });
       await tx.passwordChangeRequest.create({
-        data: { userId: user.id, newHash: hash, status: "PENDING" },
+        data: { councilId: councilId(), userId: user.id, newHash: hash, status: "PENDING" },
       });
       await tx.auditLog.create({
         data: {

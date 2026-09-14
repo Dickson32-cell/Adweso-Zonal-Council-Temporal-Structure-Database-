@@ -6,6 +6,7 @@ import {
   prisma,
   ELECTORAL_AREAS,
   areaCode,
+  councilId,
   formatSerial,
   getFullUser,
 } from "@/lib/db";
@@ -27,7 +28,7 @@ async function allocateSerialAtomic(area: string): Promise<string> {
   const code = areaCode(area);
   if (!code) throw new Error("Unknown area");
   const updated = await prisma.serialCounter.update({
-    where: { electoralArea: area },
+    where: { councilId_electoralArea: { councilId: councilId(), electoralArea: area } },
     data: { lastNumber: { increment: 1 } },
   });
   return formatSerial(code, updated.lastNumber);
@@ -38,7 +39,7 @@ async function generateSerialInTx(tx: Tx, area: string): Promise<string> {
   const code = areaCode(area);
   if (!code) throw new Error("Unknown area");
   const updated = await tx.serialCounter.update({
-    where: { electoralArea: area },
+    where: { councilId_electoralArea: { councilId: councilId(), electoralArea: area } },
     data: { lastNumber: { increment: 1 } },
   });
   return formatSerial(code, updated.lastNumber);
@@ -104,6 +105,7 @@ export async function POST(req: NextRequest) {
         prisma.$transaction(async (tx) => {
           const created = await tx.feePayer.create({
             data: {
+              councilId: councilId(),
               serialNumber: serial,
               electoralArea,
               name: name.trim(),
@@ -120,6 +122,7 @@ export async function POST(req: NextRequest) {
           // Opening billing entry (the typed fee) — keeps the ledger truthful
           await tx.fee.create({
             data: {
+              councilId: councilId(),
               feePayerId: created.id,
               amount: feeNum.toFixed(2),
               description: "Opening fee (temporal structure)",
@@ -129,6 +132,7 @@ export async function POST(req: NextRequest) {
 
           await tx.auditLog.create({
             data: {
+              councilId: councilId(),
               userId: session.sub,
               action: "CREATE_RECORD",
               entityType: "fee_payer",

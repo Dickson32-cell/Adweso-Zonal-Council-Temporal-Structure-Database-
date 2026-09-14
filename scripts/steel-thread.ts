@@ -28,7 +28,7 @@ function check(label: string, cond: boolean, extra?: unknown) {
 async function allocateSerial(area: string) {
   return prisma.$transaction(async (tx) => {
     const updated = await tx.serialCounter.update({
-      where: { electoralArea: area },
+      where: { councilId_electoralArea: { councilId: process.env.COUNCIL_ID || 'adweso', electoralArea: area } },
       data: { lastNumber: { increment: 1 } },
     });
     return `${AREAS[area]}/ ${pad(updated.lastNumber)}`;

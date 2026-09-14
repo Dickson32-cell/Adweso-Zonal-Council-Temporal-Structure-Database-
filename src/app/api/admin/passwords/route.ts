@@ -1,7 +1,7 @@
 // GET   /api/admin/passwords — list password change requests
 // PATCH /api/admin/passwords — approve (applies the stored hash) or reject
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit, getFullUser } from "@/lib/db";
+import { prisma, councilId, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
 
@@ -14,6 +14,7 @@ export async function GET() {
     return NextResponse.json({ error: "Not permitted" }, { status: 403 });
 
   const requests = await prisma.passwordChangeRequest.findMany({
+    where: { councilId: councilId() },
     orderBy: { requestedAt: "desc" },
     include: { user: { select: { username: true, fullName: true, active: true } } },
   });
@@ -43,8 +44,8 @@ export async function PATCH(req: NextRequest) {
     if (!requestId || !["approve", "reject"].includes(decision))
       return NextResponse.json({ error: "requestId and decision required" }, { status: 400 });
 
-    const reqRow = await prisma.passwordChangeRequest.findUnique({
-      where: { id: requestId },
+    const reqRow = await prisma.passwordChangeRequest.findFirst({
+      where: { id: requestId, councilId: councilId() },
     });
     if (!reqRow) return NextResponse.json({ error: "Request not found" }, { status: 404 });
     if (reqRow.status !== "PENDING")

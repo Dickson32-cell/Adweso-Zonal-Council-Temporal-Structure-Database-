@@ -2,7 +2,7 @@
 //   Register | Area Summary | Grand Totals
 // Mirrors the current filter view (area / status / search).
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma, councilId } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import * as XLSX from "xlsx";
 import { licenseStatus } from "@/lib/license";
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const q = (sp.get("q") || "").trim();
   const status = (sp.get("status") || "").trim();
 
-  const where: Record<string, unknown> = { recordStatus: "ACTIVE" };
+  const where: Record<string, unknown> = { recordStatus: "ACTIVE", councilId: councilId() };
   if (area) where.electoralArea = area;
   if (status) where.status = status;
   if (q) {

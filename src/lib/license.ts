@@ -7,7 +7,7 @@
 // count, so one council's key cannot unlock another council's register.
 
 import crypto from "crypto";
-import { prisma } from "./db";
+import { prisma, councilId } from "./db";
 
 export const FREE_LIMIT = 100;      // registrations allowed before lock
 export const LICENSE_FEE_USD = 5;   // price per 100 registrations
@@ -21,16 +21,16 @@ export const LICENSE_FEE_USD = 5;   // price per 100 registrations
 
 export async function getLicenseState() {
   return prisma.licenseState.upsert({
-    where: { id: 1 },
+    where: { id: councilId() },
     update: {},
-    create: { id: 1, paidThrough: 0 },
+    create: { id: councilId(), paidThrough: 0 },
   });
 }
 
 export async function countActiveRegistrations() {
   // Soft-deleted records do NOT count toward the license (fair to councils);
   // serial gaps from tests remain but ACTIVE rows are what matters.
-  return prisma.feePayer.count({ where: { recordStatus: "ACTIVE" } });
+  return prisma.feePayer.count({ where: { councilId: councilId(), recordStatus: "ACTIVE" } });
 }
 
 export type LicenseStatus = {
@@ -88,14 +88,15 @@ export function verifyKey(councilId: string, paidThrough: number, key: string): 
 
 // Apply a paid unlock: raises paidThrough by FREE_LIMIT (one payment = 100 more
 // registrations) and stores the key that unlocked it.
-export async function applyUnlockKey(councilId: string, key: string) {
+export async function applyUnlockKey(councilKey: string, key: string) {
+  // councilKey = this deployment's COUNCIL_ID (from the license API route)
   const state = await getLicenseState();
   const target = state.paidThrough + FREE_LIMIT;
-  if (!verifyKey(councilId, target, key)) {
+  if (!verifyKey(councilKey, target, key)) {
     return { ok: false as const, error: "Invalid key. Check with the system provider after payment." };
   }
   const updated = await prisma.licenseState.update({
-    where: { id: 1 },
+    where: { id: councilKey },
     data: { paidThrough: target, licenseKey: key.trim().toUpperCase(), lastPaymentAt: new Date() },
   });
   return { ok: true as const, paidThrough: updated.paidThrough };

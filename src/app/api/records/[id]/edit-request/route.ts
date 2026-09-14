@@ -2,7 +2,7 @@
 // Nothing changes on the record yet; the request waits for admin approval.
 // Admin edits applied directly via PATCH /api/records/[id] still work.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit } from "@/lib/db";
+import { prisma, councilId, audit } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 const EDITABLE = ["name", "businessName", "telephone", "streetName", "electoralArea"] as const;
@@ -18,7 +18,7 @@ export async function POST(
   const { id } = await params;
   try {
     const body = await req.json();
-    const payer = await prisma.feePayer.findUnique({ where: { id } });
+    const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
 
