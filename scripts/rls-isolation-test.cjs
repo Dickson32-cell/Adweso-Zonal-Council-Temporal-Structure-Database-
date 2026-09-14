@@ -14,8 +14,8 @@ function councilUrl(user, pw) {
 async function asOwner() {
   const c = new Client({ connectionString: dbUrl(), ssl: { rejectUnauthorized: false } });
   await c.connect();
-  await c.query("ALTER ROLE zc_adweso PASSWORD 'Adw3s0-RLS-2026-xK9'");
-  await c.query("ALTER ROLE zc_newtown PASSWORD 'N3wT0wn-RLS-2026-qW7'");
+  await c.query("ALTER ROLE zc_adweso PASSWORD process.env.PW_A || 'REDACTED-see-ops-manual'");
+  await c.query("ALTER ROLE zc_newtown PASSWORD process.env.PW_N || 'REDACTED-see-ops-manual'");
   await c.query("GRANT CONNECT ON DATABASE neondb TO zc_adweso, zc_newtown");
   const dbName = (await c.query("SELECT current_database()")).rows[0].current_database;
   console.log("db name:", dbName, "| owner grants done");
@@ -46,6 +46,6 @@ async function asCouncil(user, pw, label) {
 
 (async () => {
   await asOwner();
-  await asCouncil("zc_newtown", "N3wT0wn-RLS-2026-qW7", "NEW TOWN role (must see NOTHING of Adweso's 8 records)");
-  await asCouncil("zc_adweso", "Adw3s0-RLS-2026-xK9", "ADWESO role (must see its own 8 records + 4 users)");
+  await asCouncil("zc_newtown", process.env.PW_N, "NEW TOWN role (must see NOTHING of Adweso's 8 records)");
+  await asCouncil("zc_adweso", process.env.PW_A, "ADWESO role (must see its own 8 records + 4 users");
 })().catch((e) => { console.error("TEST FAILED:", e.message); process.exit(1); });

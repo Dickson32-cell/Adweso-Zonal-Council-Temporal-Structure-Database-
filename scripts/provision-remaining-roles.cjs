@@ -6,10 +6,15 @@ async function main() {
   const c = new Client({ connectionString: process.env.DATABASE_URL.replace(/^"|"$/g, ""), ssl: { rejectUnauthorized: false } });
   await c.connect();
 
+  // passwords come from env vars, never committed:
+  // PW_OGUA, PW_NKUKWAO, PW_BETOM, PW_SRODAE, PW_OLDESTATE, PW_ANLOTOWN
   const pws = {
-    ogua: "Ogu4-RLS-2026-mN3", nkukwao: "Nkukw40-RLS-2026-pL8", betom: "B3t0m-RLS-2026-rT5",
-    srodae: "Srod43-RLS-2026-sD2", oldestate: "0ld3st4t3-RLS-2026-oE9", anlotown: "Anl0T0wn-RLS-2026-aT6",
+    ogua: process.env.PW_OGUA, nkukwao: process.env.PW_NKUKWAO, betom: process.env.PW_BETOM,
+    srodae: process.env.PW_SRODAE, oldestate: process.env.PW_OLDESTATE, anlotown: process.env.PW_ANLOTOWN,
   };
+  for (const [cid, pw] of Object.entries(pws)) {
+    if (!pw) { console.error('Missing env PW_' + cid.toUpperCase()); process.exit(1); }
+  }
   for (const [cid, pw] of Object.entries(pws)) {
     await c.query(`ALTER ROLE zc_${cid} PASSWORD '${pw}'`);
   }

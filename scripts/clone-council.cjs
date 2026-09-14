@@ -71,7 +71,7 @@ fs.writeFileSync(path.join(dest, ".env.example"),
 `DATABASE_URL=""        # create a Neon database for this council
 SESSION_SECRET="$(COUNCIL_ID)-session-CHANGE-ME"
 COUNCIL_ID="${COUNCIL_ID}"
-LICENSE_SECRET="ramedic-license-master-2026-Kx92mQvL"
+LICENSE_SECRET="<your-license-secret>"
 ADMIN_PASSWORD=""
 `);
 
