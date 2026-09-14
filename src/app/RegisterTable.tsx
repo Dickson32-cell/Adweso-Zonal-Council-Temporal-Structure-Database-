@@ -13,7 +13,7 @@ const AREAS = [
 ];
 
 const GHS = (n: number) =>
-  "GH\u20B5 " + n.toLocaleString("en-GH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  "GH₵ " + n.toLocaleString("en-GH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 type Row = {
   id: string; serialNumber: string; name: string; businessName: string;
@@ -143,7 +143,7 @@ export default function RegisterTable({
   }
 
   async function markPaid(row: Row) {
-    if (!confirm(`Mark ${row.name} (${row.serialNumber}) as PAID?\nBalance GH\u20B5 ${row.balance.toFixed(2)} will be recorded as fully settled.`)) return;
+    if (!confirm(`Mark ${row.name} (${row.serialNumber}) as PAID?\nBalance GH₵ ${row.balance.toFixed(2)} will be recorded as fully settled.`)) return;
     const res = await fetch(`/api/records/${row.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -331,7 +331,7 @@ export default function RegisterTable({
                 </div>
                 {gpsErr && <span className="err" style={{ marginTop: 6, display: "block", fontSize: 12 }}>{gpsErr}</span>}
               </label>
-              <label className="fld"><span className="cap">Fee (GH\u20B5) <span className="req">*</span></span>
+              <label className="fld"><span className="cap">Fee (GH₵) <span className="req">*</span></span>
                 <input type="number" step="0.01" min="0.01" placeholder="e.g. 50" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} required /></label>
             </div>
 
@@ -353,9 +353,9 @@ export default function RegisterTable({
                 <th>Electoral Area</th>
                 <th>Street Name</th>
                 <th>GPS</th>
-                <th style={{ textAlign: "right" }}>Fee (GH\u20B5)</th>
-                <th style={{ textAlign: "right" }}>Balance (GH\u20B5)</th>
-                <th style={{ textAlign: "right" }}>Total (GH\u20B5)</th>
+                <th style={{ textAlign: "right" }}>Fee (GH₵)</th>
+                <th style={{ textAlign: "right" }}>Balance (GH₵)</th>
+                <th style={{ textAlign: "right" }}>Total (GH₵)</th>
                 <th>Status</th>
                 <th className="no-print">Actions</th>
               </tr>
@@ -520,7 +520,7 @@ export default function RegisterTable({
             <h2>Record Cash Payment</h2>
             <p className="sub">{payFor.serialNumber} — {payFor.name} ({payFor.businessName})<br />Outstanding balance: <b>{GHS(payFor.balance)}</b></p>
             {payErr && <div className="err">{payErr}</div>}
-            <label className="fld"><span className="cap">Amount paid now (GH\u20B5)</span>
+            <label className="fld"><span className="cap">Amount paid now (GH₵)</span>
               <input type="number" step="0.01" min="0.01" max={payFor.balance} value={payAmt} onChange={(e) => setPayAmt(e.target.value)} autoFocus required /></label>
             <div style={{ display: "flex", gap: 10 }}>
               <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }}>Save Payment</button>
