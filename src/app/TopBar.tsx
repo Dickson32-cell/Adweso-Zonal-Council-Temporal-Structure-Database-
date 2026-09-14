@@ -46,6 +46,11 @@ export default function TopBar({ username, role, canReviewPasswords }: { usernam
         <b>{username}</b> · {role === "ADMIN" ? "Administrator" : "Staff"} &nbsp;{" "}
         {role === "ADMIN" && (
           <>
+            {username === "admin" && (
+              <a href="/master" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
+                Master
+              </a>
+            )}{" "}
             <a href="/admin/users" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
               Staff
             </a>{" "}

@@ -54,8 +54,8 @@ export async function licenseStatus(): Promise<LicenseStatus> {
     locked,
     nextUnlockAt: state.paidThrough + FREE_LIMIT,
     feeUSD: LICENSE_FEE_USD,
-    payee: "RAMEDIC Consultancy & Creative Ltd",
-    momoNumber: "0595 726 252 (MTN MoMo)",
+    payee: "",
+    momoNumber: "",
   };
 }
 
@@ -92,7 +92,7 @@ export async function applyUnlockKey(councilId: string, key: string) {
   const state = await getLicenseState();
   const target = state.paidThrough + FREE_LIMIT;
   if (!verifyKey(councilId, target, key)) {
-    return { ok: false as const, error: "Invalid key for this council and tier. Contact RAMEDIC (0595 726 252) after payment." };
+    return { ok: false as const, error: "Invalid key. Check with the system provider after payment." };
   }
   const updated = await prisma.licenseState.update({
     where: { id: 1 },

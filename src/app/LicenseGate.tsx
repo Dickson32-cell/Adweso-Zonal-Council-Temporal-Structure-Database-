@@ -1,8 +1,8 @@
 "use client";
 // LicenseGate — watches the register's license state. When the register
 // locks (100 registrations reached, payment not yet made), a modal popup
-// explains how to pay RAMEDIC US$5 and where to enter the unlock key the
-// owner issues after payment. While locked: no new records, no Excel export.
+// tells the council a US$5 fee is due and where to enter the unlock key
+// the owner issues after payment. While locked: no new records, no Excel export.
 import { useCallback, useEffect, useState } from "react";
 
 type License = {
@@ -52,7 +52,7 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
         onChanged?.();
         setTimeout(() => setMsg(""), 4000);
       } else {
-        setMsg(data.error || "Key not accepted. Contact RAMEDIC after payment.");
+        setMsg(data.error || "Key not accepted. Check with the system provider after payment.");
       }
     } finally { setBusy(false); }
   }
@@ -67,16 +67,12 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
           The council has registered <b style={{ color: "#065c37" }}>{license.registered} structures</b>,
           reaching the free limit of this system.
         </p>
-        <div style={{ background: "var(--paper, #f6fbf7)", border: "1px solid var(--line, #cde3d5)", borderRadius: 8, padding: "10px 14px", margin: "10px 0" }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5 }}>To continue, pay the US${license.feeUSD} licence fee</div>
-          <div style={{ fontSize: 13, marginTop: 4 }}>
-            Pay to: <b>{license.payee}</b><br />
-            Mobile Money: <b>{license.momoNumber}</b><br />
-            Reference: <b>licence — next 100 registrations</b>
-          </div>
+        <div style={{ background: "var(--paper, #f6fbf7)", border: "1px solid var(--line, #cde3d5)", borderRadius: 8, padding: "12px 16px", margin: "10px 0", textAlign: "center" }}>
+          <div style={{ fontWeight: 800, fontSize: 17, color: "#065c37" }}>Pay a US${license.feeUSD} fee to continue</div>
+          <div style={{ fontSize: 13, marginTop: 4 }}>Contact the system provider to make the payment and receive your unlock key.</div>
         </div>
         <p className="sub" style={{ fontSize: 12.5 }}>
-          After payment, RAMEDIC will send you an unlock key. Enter it below to
+          After payment, you will receive an unlock key. Enter it below to
           unlock the next 100 registrations. Until then, new entries and Excel
           export are paused — your existing records remain safe and viewable.
         </p>
