@@ -135,6 +135,17 @@ export default function RegisterTable({
 
   useEffect(() => { load(); }, [load]);
 
+  // AUTO-REFRESH: re-fetch the register every 30 seconds so staff see each
+  // other's new records and payments without pressing anything. The
+  // interval is cleared when the tab is hidden and resumes when visible
+  // again (no wasted data, no battery drain on phones in pockets).
+  useEffect(() => {
+    const tick = () => { if (!document.hidden) load(); };
+    const id = setInterval(tick, 30000);
+    document.addEventListener("visibilitychange", tick);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", tick); };
+  }, [load]);
+
   // Live serial preview when the Electoral Area is picked
   async function onAreaPick(a: string) {
     setForm((f) => ({ ...f, electoralArea: a }));
