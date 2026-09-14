@@ -3,7 +3,7 @@
 // retained for audit integrity but hidden from all lists. VIEWER admins and
 // staff are blocked.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, getFullUser } from "@/lib/db";
+import { prisma, councilId, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
 
@@ -23,7 +23,7 @@ export async function DELETE(
 
   const { id } = await params;
   try {
-    const payer = await prisma.feePayer.findUnique({ where: { id } });
+    const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
 

@@ -1,7 +1,7 @@
 // GET   /api/admin/edits — list edit requests (admin sees all; staff see own)
 // PATCH /api/admin/edits — approve (apply 'after' to the record) or reject
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, audit, getFullUser } from "@/lib/db";
+import { prisma, councilId, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
 
@@ -20,6 +20,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const edits: EditRow[] = (await prisma.pendingEdit.findMany({
+    where: { councilId: councilId() },
     orderBy: { createdAt: "desc" },
     include: {
       feePayer: { select: { serialNumber: true, name: true, businessName: true } },
@@ -53,8 +54,8 @@ export async function PATCH(req: NextRequest) {
     if (!editId || !["approve", "reject"].includes(decision))
       return NextResponse.json({ error: "editId and decision (approve|reject) required" }, { status: 400 });
 
-    const edit = await prisma.pendingEdit.findUnique({
-      where: { id: editId },
+    const edit = await prisma.pendingEdit.findFirst({
+      where: { id: editId, councilId: councilId() },
       include: { feePayer: true },
     });
     if (!edit) return NextResponse.json({ error: "Edit request not found" }, { status: 404 });

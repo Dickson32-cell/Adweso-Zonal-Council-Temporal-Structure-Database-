@@ -4,7 +4,7 @@
 // so Balance AND Total both read GH₵ 0.00 (Dickson's confirmed behaviour)
 // while the cash ledger stays truthful.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, payerTotals, audit, getFullUser } from "@/lib/db";
+import { prisma, councilId, payerTotals, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
 
@@ -27,7 +27,7 @@ export async function PATCH(
   const { id } = await params;
   try {
     const body = await req.json();
-    const payer = await prisma.feePayer.findUnique({ where: { id } });
+    const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
 

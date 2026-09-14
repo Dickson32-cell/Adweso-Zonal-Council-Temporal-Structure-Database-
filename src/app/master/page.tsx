@@ -1,19 +1,20 @@
 "use client";
 // MASTER CONSOLE — primary admin only (username 'admin'). Promoted admins
 // get a 404 here: the page and its API are invisible to them.
-// Features: every council's license status (local + linked remote DBs),
+// Features: every council's license status (shared multi-council DB),
 // key generator for any council/tier, Excel download of ALL councils.
 import { useCallback, useEffect, useState } from "react";
 
-type Remote = {
-  id: string;
-  status: { paidThrough: number; registered: number; licenseKey: string | null; lastPaymentAt: string | null } | null;
-  error?: string;
+type CouncilStatus = {
+  councilId: string;
+  registered: number;
+  paidThrough: number;
+  remainingFree: number;
+  locked: boolean;
+  lastPaymentAt: string | null;
 };
 type Master = {
-  councilId: string;
-  local: { registered: number; paidThrough: number; locked: boolean; remainingFree: number; nextUnlockAt: number };
-  remotes: Remote[];
+  councils: CouncilStatus[];
   feeUSD: number;
 };
 
@@ -49,18 +50,15 @@ export default function MasterPage() {
   if (denied) return <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>Page not found.</div>;
   if (!data) return <div style={{ padding: 40 }}>Loading…</div>;
 
-  const councils: { id: string; registered: number; paidThrough: number; locked: boolean | null; remaining: number | null; next: number | null; remote: boolean; error?: string }[] = [
-    { id: data.councilId + " (this system)", registered: data.local.registered, paidThrough: data.local.paidThrough, locked: data.local.locked, remaining: data.local.remainingFree, next: data.local.nextUnlockAt, remote: false },
-    ...data.remotes.map((r) => ({
-      id: r.id,
-      registered: r.status?.registered ?? 0,
-      paidThrough: r.status?.paidThrough ?? 0,
-      locked: r.status ? (r.status.registered ?? 0) >= (r.status.paidThrough ?? 0) + 100 : null,
-      remaining: r.status ? Math.max(0, (r.status.paidThrough ?? 0) + 100 - (r.status.registered ?? 0)) : null,
-      next: r.status ? (r.status.paidThrough ?? 0) + 100 : null,
-      remote: true, error: r.error,
-    })),
-  ];
+  const councils = data.councils.map((c) => ({
+    id: c.councilId,
+    registered: c.registered,
+    paidThrough: c.paidThrough,
+    locked: c.locked as boolean | null,
+    remaining: c.remainingFree as number | null,
+    next: c.paidThrough + 100,
+    error: undefined as string | undefined,
+  }));
 
   return (
     <div className="card" style={{ padding: 24, margin: "20px auto", maxWidth: 900 }}>
@@ -76,11 +74,11 @@ export default function MasterPage() {
         <tbody>
           {councils.map((c) => (
             <tr key={c.id}>
-              <td><b>{c.id}</b>{c.error ? <div style={{ color: "#b91c1c", fontSize: 11 }}>connection error: {c.error}</div> : null}</td>
+              <td><b>{c.id}</b></td>
               <td className="num">{c.registered}</td>
               <td className="num">{c.paidThrough}</td>
-              <td className="num">{c.remaining ?? "—"}</td>
-              <td className="num">{c.next ?? "—"}</td>
+              <td className="num">{c.remaining ?? "-"}</td>
+              <td className="num">{c.next ?? "-"}</td>
               <td>{c.locked == null ? "—" : c.locked
                 ? <span className="badge unpaid">LOCKED</span>
                 : <span className="badge paid">ACTIVE</span>}</td>
