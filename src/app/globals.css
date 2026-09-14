@@ -263,3 +263,17 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .grand { flex-direction: column; align-items: flex-start; }
   .grand .g { text-align: left; }
 }
+/* Name-as-link style for record detail view */
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.linklike:hover { text-decoration-color: var(--green, #065c37); color: var(--green, #065c37); }

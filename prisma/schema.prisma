@@ -61,6 +61,7 @@ model Payment {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   feePayer FeePayer @relation(fields: [feePayerId], references: [id], onDelete: Cascade)
+  receivedByUser AppUser? @relation("PaymentReceivedBy", fields: [receivedBy], references: [id])
 
   @@map("payment")
 }
@@ -85,6 +86,7 @@ model AppUser {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   passwordRequests PasswordChangeRequest[]
+  paymentsReceived Payment[] @relation("PaymentReceivedBy")
 
   @@map("app_user")
 }

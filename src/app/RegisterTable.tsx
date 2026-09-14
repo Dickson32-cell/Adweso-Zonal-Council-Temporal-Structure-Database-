@@ -91,6 +91,32 @@ export default function RegisterTable({
   const [payAmt, setPayAmt] = useState("");
   const [payErr, setPayErr] = useState("");
 
+  // Record detail view (staff + admin can both open)
+  type Detail = {
+    record: {
+      serialNumber: string; name: string; businessName: string; telephone: string;
+      electoralArea: string; streetName: string; recordStatus: string;
+      latitude: number | null; longitude: number | null;
+      createdAt: string;
+      fees: { amount: number; createdAt: string }[];
+      payments: { amount: number; kind: string; createdAt: string; recordedBy?: { username?: string } | null }[];
+    };
+    totals: { billed: number; collected: number; balance: number };
+  };
+  const [detail, setDetail] = useState<Detail | null>(null);
+  const [detailBusy, setDetailBusy] = useState(false);
+
+  async function openDetail(r: Row) {
+    setDetailBusy(true);
+    try {
+      const res = await fetch(`/api/records/${r.id}/detail`);
+      if (res.ok) setDetail(await res.json());
+      else setDetail(null);
+    } finally {
+      setDetailBusy(false);
+    }
+  }
+
   const load = useCallback(async () => {
     setLoading(true);
     const p = new URLSearchParams();
@@ -368,7 +394,7 @@ export default function RegisterTable({
               {rows.map((r) => (
                 <tr key={r.id}>
                   <td className="serial">{r.serialNumber}</td>
-                  <td>{r.name}</td>
+                  <td><button className="linklike" title="View details" onClick={() => openDetail(r)}>{r.name}</button></td>
                   <td>{r.businessName}</td>
                   <td>{r.telephone}</td>
                   <td>{r.electoralArea}</td>
@@ -418,7 +444,7 @@ export default function RegisterTable({
               <div className="user-card-head">
                 <div>
                   <div className="serial" style={{ fontSize: 14 }}>{r.serialNumber}</div>
-                  <div style={{ fontWeight: 700 }}>{r.name}</div>
+                  <div style={{ fontWeight: 700 }}><button className="linklike" title="View details" onClick={() => openDetail(r)}>{r.name}</button></div>
                   <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{r.businessName}</div>
                 </div>
                 <span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span>
@@ -510,6 +536,81 @@ export default function RegisterTable({
               <button type="button" className="btn btn-ghost" onClick={() => setEditFor(null)}>Cancel</button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Record detail modal — staff and admin both use this */}
+      {detailBusy && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(3,70,39,0.25)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+          <div className="card modal-card" style={{ margin: 0, padding: "18px 22px" }}>Loading details…</div>
+        </div>
+      )}
+      {detail && !detailBusy && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(3,70,39,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 12 }} onClick={() => setDetail(null)}>
+          <div className="card modal-card" style={{ width: 440, maxWidth: "100%", margin: 0, maxHeight: "86vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <h2 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+              <span>Record Details</span>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDetail(null)}>Close</button>
+            </h2>
+            <p className="sub" style={{ marginBottom: 10 }}><b style={{ fontSize: 16 }}>{detail.record.serialNumber}</b> — {detail.record.name}</p>
+            <table className="kv" style={{ width: "100%", fontSize: 13.5, borderCollapse: "collapse" }}>
+              <tbody>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Business Name</td><td style={{ padding: "4px 0", fontWeight: 600 }}>{detail.record.businessName || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Telephone</td><td style={{ padding: "4px 0" }}>{detail.record.telephone || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Electoral Area</td><td style={{ padding: "4px 0" }}>{detail.record.electoralArea}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Street</td><td style={{ padding: "4px 0" }}>{detail.record.streetName || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Registered</td><td style={{ padding: "4px 0" }}>{new Date(detail.record.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Location</td><td style={{ padding: "4px 0" }}>
+                  {detail.record.latitude != null && detail.record.longitude != null ? (
+                    <a href={`https://www.google.com/maps?q=${detail.record.latitude},${detail.record.longitude}`} target="_blank" rel="noopener noreferrer">View on map ({detail.record.latitude.toFixed(5)}, {detail.record.longitude.toFixed(5)})</a>
+                  ) : "—"}
+                </td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Status</td><td style={{ padding: "4px 0" }}><span className={`badge ${detail.totals.balance <= 0 ? "paid" : "unpaid"}`}>{detail.totals.balance <= 0 ? "PAID" : "UNPAID"}</span></td></tr>
+              </tbody>
+            </table>
+
+            <h3 style={{ margin: "16px 0 6px", fontSize: 14.5 }}>Money</h3>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div className="g" style={{ flex: 1, minWidth: 110, border: "1px solid var(--line)", borderRadius: 8, padding: "8px 12px" }}>
+                <div className="k" style={{ fontSize: 11, color: "var(--muted)" }}>TOTAL BILLED</div>
+                <div className="v" style={{ fontWeight: 700 }}>{GHS(detail.totals.billed)}</div>
+              </div>
+              <div className="g" style={{ flex: 1, minWidth: 110, border: "1px solid var(--line)", borderRadius: 8, padding: "8px 12px" }}>
+                <div className="k" style={{ fontSize: 11, color: "var(--muted)" }}>PAID SO FAR</div>
+                <div className="v" style={{ fontWeight: 700 }}>{GHS(detail.totals.collected)}</div>
+              </div>
+              <div className="g" style={{ flex: 1, minWidth: 110, border: "1px solid var(--line)", borderRadius: 8, padding: "8px 12px", background: "var(--paper)" }}>
+                <div className="k" style={{ fontSize: 11, color: "var(--muted)" }}>BALANCE</div>
+                <div className="v" style={{ fontWeight: 800, color: detail.totals.balance > 0 ? "var(--danger, #b91c1c)" : "var(--ok, #065c37)" }}>{GHS(detail.totals.balance)}</div>
+              </div>
+            </div>
+
+            <h3 style={{ margin: "16px 0 6px", fontSize: 14.5 }}>Payment history</h3>
+            {detail.record.payments.length === 0 ? (
+              <p className="sub">No payments recorded yet.</p>
+            ) : (
+              <table style={{ width: "100%", fontSize: 12.5, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ textAlign: "left", color: "var(--muted)" }}>
+                    <th style={{ padding: "3px 8px 3px 0" }}>Date</th>
+                    <th style={{ padding: "3px 8px 3px 0" }}>Type</th>
+                    <th style={{ padding: "3px 8px 3px 0" }}>Recorded by</th>
+                    <th style={{ padding: "3px 0", textAlign: "right" }}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.record.payments.map((p, i) => (
+                    <tr key={i} style={{ borderTop: "1px solid var(--line)" }}>
+                      <td style={{ padding: "5px 8px 5px 0" }}>{new Date(p.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td>
+                      <td style={{ padding: "5px 8px 5px 0" }}>{p.kind === "SETTLEMENT" ? "Full settlement" : "Part payment"}</td>
+                      <td style={{ padding: "5px 8px 5px 0" }}>{p.recordedBy?.username || "—"}</td>
+                      <td style={{ padding: "5px 0", textAlign: "right", fontWeight: 600 }}>{GHS(p.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       )}
 

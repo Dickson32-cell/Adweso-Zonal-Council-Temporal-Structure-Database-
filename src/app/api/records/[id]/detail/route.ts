@@ -15,11 +15,35 @@ export async function GET(
     where: { id },
     include: {
       fees: { orderBy: { createdAt: "asc" } },
-      payments: { orderBy: { createdAt: "asc" } },
+      payments: {
+        orderBy: { createdAt: "asc" },
+        include: { receivedByUser: { select: { username: true } } },
+      },
     },
   });
   if (!payer) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const totals = await payerTotals(id);
-  return NextResponse.json({ record: payer, totals });
+  // Shape the payload for the client detail modal
+  const payments = payer.payments.map((p) => ({
+    amount: Number(p.amount),
+    kind: p.receiptNo === "SETTLEMENT" ? "SETTLEMENT" : "PART",
+    createdAt: p.createdAt.toISOString(),
+    recordedBy: p.receivedByUser ? { username: p.receivedByUser.username } : null,
+  }));
+  const record = {
+    serialNumber: payer.serialNumber,
+    name: payer.name,
+    businessName: payer.businessName,
+    telephone: payer.telephone,
+    electoralArea: payer.electoralArea,
+    streetName: payer.streetName,
+    recordStatus: payer.recordStatus,
+    latitude: payer.latitude ? Number(payer.latitude) : null,
+    longitude: payer.longitude ? Number(payer.longitude) : null,
+    createdAt: payer.createdAt.toISOString(),
+    fees: payer.fees.map((f) => ({ amount: Number(f.amount), createdAt: f.createdAt.toISOString() })),
+    payments,
+  };
+  return NextResponse.json({ record, totals });
 }
