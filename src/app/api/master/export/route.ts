@@ -14,6 +14,9 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (session.username !== "admin")
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const masterCouncil = process.env.MASTER_COUNCIL;
+  if (!masterCouncil || masterCouncil !== process.env.COUNCIL_ID)
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const payers = await prisma.feePayer.findMany({
     orderBy: [{ councilId: "asc" }, { serialNumber: "asc" }],

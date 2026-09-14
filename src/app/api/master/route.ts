@@ -9,10 +9,21 @@ import { deriveKey, FREE_LIMIT, LICENSE_FEE_USD } from "@/lib/license";
 
 const ALL_COUNCILS = ["adweso", "newtown", "ogua", "nkukwao", "betom", "srodae", "oldestate", "anlotown"];
 
+// MASTER CONSOLE GATE — three conditions, ALL required:
+//   1. logged in as username 'admin'
+//   2. this deployment is the MASTER deployment (env MASTER_COUNCIL === COUNCIL_ID;
+//      only the owner's own deployment sets MASTER_COUNCIL)
+//   3. valid session
+// Council deployments (Srodae etc.) have no MASTER_COUNCIL set -> 404,
+// so their 'admin' sees NOTHING - the page and API do not exist for them.
 async function requirePrimaryAdmin() {
   const session = await getSession();
   if (!session) return { err: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   if (session.username !== "admin")
+    return { err: NextResponse.json({ error: "Not found" }, { status: 404 }) };
+  const masterCouncil = process.env.MASTER_COUNCIL;
+  const thisCouncil = process.env.COUNCIL_ID;
+  if (!masterCouncil || masterCouncil !== thisCouncil)
     return { err: NextResponse.json({ error: "Not found" }, { status: 404 }) };
   return { session };
 }

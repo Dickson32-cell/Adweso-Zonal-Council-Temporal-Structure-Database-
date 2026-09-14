@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { getFullUser } from "@/lib/db";
 import { permsFor } from "@/lib/perms";
 import RegisterTable from "./RegisterTable";
+import { isMasterDeployment } from "@/lib/masterFlag";
 import LicenseGate from "./LicenseGate";
 import TopBar from "./TopBar";
 
@@ -18,7 +19,7 @@ export default async function HomePage() {
 
   return (
     <div className="shell">
-      <TopBar username={me.username} role={me.role} canReviewPasswords={perms.canReviewPasswords} />
+      <TopBar username={me.username} role={me.role} canReviewPasswords={perms.canReviewPasswords} showMaster={isMasterDeployment()} />
       <main className="main">
         <RegisterTable
           isAdmin={me.role === "ADMIN"}
