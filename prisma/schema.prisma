@@ -135,3 +135,14 @@ model AuditLog {
 
   @@map("audit_log")
 }
+// ---------------------------------------------------------------------------
+// LICENSE — RAMEDIC pay-per-100-registrations licensing state (single row id=1)
+// ---------------------------------------------------------------------------
+model LicenseState {
+  id            Int       @id @default(1)
+  paidThrough   Int       @default(0) @map("paid_through")  // registrations paid for
+  licenseKey    String?   @map("license_key") @db.VarChar(30) // key that performed the last unlock
+  lastPaymentAt DateTime? @map("last_payment_at")
+
+  @@map("license_state")
+}

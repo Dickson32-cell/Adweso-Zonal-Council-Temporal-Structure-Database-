@@ -5,12 +5,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import * as XLSX from "xlsx";
+import { licenseStatus } from "@/lib/license";
 
 const GHS = (n: number) => n.toFixed(2);
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // LICENSE GATE: Excel export requires an unlocked register (payment made).
+  const license = await licenseStatus();
+  if (license.locked)
+    return NextResponse.json({ error: "EXPORT LOCKED", license }, { status: 402 });
 
   const sp = req.nextUrl.searchParams;
   const area = sp.get("area") || "";

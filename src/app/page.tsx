@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { getFullUser } from "@/lib/db";
 import { permsFor } from "@/lib/perms";
 import RegisterTable from "./RegisterTable";
+import LicenseGate from "./LicenseGate";
 import TopBar from "./TopBar";
 
 export default async function HomePage() {
@@ -26,6 +27,7 @@ export default async function HomePage() {
           canCreate={perms.canCreateRecords}
           canPay={perms.canRecordPayments}
         />
+        <LicenseGate />
       </main>
     </div>
   );

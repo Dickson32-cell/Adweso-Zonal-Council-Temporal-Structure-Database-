@@ -12,6 +12,7 @@ import {
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
 import { withRetry } from "@/lib/retry";
+import { assertCanCreate } from "@/lib/license";
 
 const PHONE_RE = /^0\d{9}$/;
 
@@ -53,6 +54,12 @@ export async function POST(req: NextRequest) {
       { error: "Your account does not have permission to create records" },
       { status: 403 }
     );
+
+  // LICENSE GATE: locked at every 100 registrations until the US$5 fee
+  // is paid to RAMEDIC and an unlock key is applied. 402 = Payment Required.
+  const license = await assertCanCreate();
+  if (license)
+    return NextResponse.json({ error: "REGISTER LOCKED", license }, { status: 402 });
 
   try {
     const body = await req.json();
