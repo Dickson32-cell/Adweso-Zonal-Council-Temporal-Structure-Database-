@@ -110,8 +110,9 @@ export default function MasterPage() {
         <div className="ok-msg" style={{ marginTop: 10, fontFamily: "monospace", fontSize: 15, padding: "10px 14px" }}>{genKey}</div>
       )}
 
-      <h2 style={{ fontSize: 16, margin: "26px 0 8px" }}>Download data</h2>
-      <p className="sub" style={{ fontSize: 12.5 }}>Excel export of a council&apos;s full register is done on their own system when unlocked. This console shows counts and license state only.</p>
+      <h2 style={{ fontSize: 16, margin: "26px 0 8px" }}>Download all databases (Excel)</h2>
+      <p className="sub" style={{ fontSize: 12.5 }}>One workbook with every council&apos;s complete register and payment history — active and deleted records. Only the primary admin can download this.</p>
+      <a className="btn btn-primary" href="/api/master/export" style={{ display: "inline-block", textDecoration: "none", marginTop: 6 }}>Download all councils (.xlsx)</a>
     </div>
   );
 }
