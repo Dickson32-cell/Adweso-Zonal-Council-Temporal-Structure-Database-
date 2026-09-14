@@ -13,7 +13,7 @@ const AREAS = [
 ];
 
 const GHS = (n: number) =>
-  "GH₵ " + n.toLocaleString("en-GH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  "GH₵ " + (Number.isFinite(n) ? n : 0).toLocaleString("en-GH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 type Row = {
   id: string; serialNumber: string; name: string; businessName: string;
@@ -101,7 +101,7 @@ export default function RegisterTable({
       fees: { amount: number; createdAt: string }[];
       payments: { amount: number; kind: string; createdAt: string; recordedBy?: { username?: string } | null }[];
     };
-    totals: { billed: number; collected: number; balance: number };
+    totals: { totalBilled: number; totalPaid: number; balance: number };
   };
   const [detail, setDetail] = useState<Detail | null>(null);
   const [detailBusy, setDetailBusy] = useState(false);
@@ -573,11 +573,11 @@ export default function RegisterTable({
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <div className="g" style={{ flex: 1, minWidth: 110, border: "1px solid var(--line)", borderRadius: 8, padding: "8px 12px" }}>
                 <div className="k" style={{ fontSize: 11, color: "var(--muted)" }}>TOTAL BILLED</div>
-                <div className="v" style={{ fontWeight: 700 }}>{GHS(detail.totals.billed)}</div>
+                <div className="v" style={{ fontWeight: 700 }}>{GHS(detail.totals.totalBilled)}</div>
               </div>
               <div className="g" style={{ flex: 1, minWidth: 110, border: "1px solid var(--line)", borderRadius: 8, padding: "8px 12px" }}>
                 <div className="k" style={{ fontSize: 11, color: "var(--muted)" }}>PAID SO FAR</div>
-                <div className="v" style={{ fontWeight: 700 }}>{GHS(detail.totals.collected)}</div>
+                <div className="v" style={{ fontWeight: 700 }}>{GHS(detail.totals.totalPaid)}</div>
               </div>
               <div className="g" style={{ flex: 1, minWidth: 110, border: "1px solid var(--line)", borderRadius: 8, padding: "8px 12px", background: "var(--paper)" }}>
                 <div className="k" style={{ fontSize: 11, color: "var(--muted)" }}>BALANCE</div>
