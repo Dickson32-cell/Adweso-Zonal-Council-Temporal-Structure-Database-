@@ -520,7 +520,7 @@ export default function RegisterTable({
             <h2>Record Cash Payment</h2>
             <p className="sub">{payFor.serialNumber} — {payFor.name} ({payFor.businessName})<br />Outstanding balance: <b>{GHS(payFor.balance)}</b></p>
             {payErr && <div className="err">{payErr}</div>}
-            <label className="fld"><span className="cap">Amount received (GH\u20B5)</span>
+            <label className="fld"><span className="cap">Amount paid now (GH\u20B5)</span>
               <input type="number" step="0.01" min="0.01" max={payFor.balance} value={payAmt} onChange={(e) => setPayAmt(e.target.value)} autoFocus required /></label>
             <div style={{ display: "flex", gap: 10 }}>
               <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }}>Save Payment</button>
