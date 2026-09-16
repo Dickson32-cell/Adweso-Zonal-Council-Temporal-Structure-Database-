@@ -30,6 +30,15 @@ export async function POST(
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
 
+    // OWNERSHIP: staff can only record payments on records THEY created.
+    // Admins (FULL/EDITOR) can pay on any record.
+    const isAdminUser = me.role === "ADMIN";
+    if (!isAdminUser && payer.createdBy && payer.createdBy !== session.sub)
+      return NextResponse.json(
+        { error: "This entry belongs to another staff member. Only they can record payments on it." },
+        { status: 403 }
+      );
+
     const totals = await payerTotals(id);
     if (amount > totals.balance + 0.001) {
       return NextResponse.json(

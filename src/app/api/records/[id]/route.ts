@@ -18,7 +18,17 @@ export async function PATCH(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const me = await getFullUser(session);
-  if (!me || !permsFor(me.role, me.adminLevel).canEditRecords)
+  if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Ownership model:
+  //   ADMIN (FULL/EDITOR) - can edit ANY record directly.
+  //   STAFF - can edit their OWN records directly (no approval needed);
+  //           foreign records are rejected.
+  const isStaff = me.role !== "ADMIN";
+  if (isStaff && !permsFor(me.role, me.adminLevel).canEditRecords) {
+    // staff: check ownership after loading the record (below)
+  }
+  if (!isStaff && !permsFor(me.role, me.adminLevel).canEditRecords)
     return NextResponse.json(
       { error: "Your account cannot edit records directly" },
       { status: 403 }
@@ -30,6 +40,11 @@ export async function PATCH(
     const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
+    if (isStaff && payer.createdBy && payer.createdBy !== session.sub)
+      return NextResponse.json(
+        { error: "This entry belongs to another staff member. Only they can edit it." },
+        { status: 403 }
+      );
 
     // --- Case 1: staff selects "PAID" → settle in full ---
     if (body.status === "PAID") {

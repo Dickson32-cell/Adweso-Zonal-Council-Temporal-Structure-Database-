@@ -14,6 +14,8 @@ datasource db {
 model FeePayer {
   id            String   @id @default(uuid()) @db.Uuid
   councilId     String   @default("adweso") @map("council_id") @db.VarChar(24)
+  createdBy     String?  @map("created_by") @db.Uuid
+  createdByUser AppUser? @relation("FeePayerCreator", fields: [createdBy], references: [id])
   serialNumber  String   @unique @map("serial_number") @db.VarChar(20)
   electoralArea String   @map("electoral_area") @db.VarChar(40)
   name          String   @db.VarChar(120)
@@ -93,6 +95,7 @@ model AppUser {
 
   passwordRequests PasswordChangeRequest[]
   paymentsReceived Payment[] @relation("PaymentReceivedBy")
+  feePayersCreated FeePayer[] @relation("FeePayerCreator")
 
   @@unique([councilId, username])
   @@map("app_user")
