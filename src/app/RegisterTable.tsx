@@ -21,6 +21,7 @@ type Row = {
   latitude: number | null; longitude: number | null; hasGps: boolean;
   mapsUrl: string | null;
   fee: number; total: number; paid: number; balance: number; status: string;
+  createdByUsername?: string | null;
 };
 type Grand = { records: number; billed: number; collected: number; outstanding: number };
 type AreaSum = { count: number; billed: number; collected: number; outstanding: number };
@@ -31,12 +32,14 @@ export default function RegisterTable({
   canEditDirect = true,
   canCreate = true,
   canPay = true,
+  currentUsername = "",
 }: {
   isAdmin?: boolean;
   canDelete?: boolean;
   canEditDirect?: boolean;
   canCreate?: boolean;
   canPay?: boolean;
+  currentUsername?: string;
 }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [byArea, setByArea] = useState<Record<string, AreaSum>>({});
@@ -88,6 +91,12 @@ export default function RegisterTable({
 
   // Payment modal state
   const [payFor, setPayFor] = useState<Row | null>(null);
+
+  // OWNERSHIP: staff can only act on records they created themselves.
+  // Admins can act on everything. A record with no creator is admin-only.
+  const isOwner = (r: Row) =>
+    isAdmin || (!!r.createdByUsername && r.createdByUsername === currentUsername);
+  const canTouch = (r: Row) => isOwner(r);
   const [payAmt, setPayAmt] = useState("");
   const [payErr, setPayErr] = useState("");
 
@@ -394,6 +403,7 @@ export default function RegisterTable({
                 <th style={{ textAlign: "right" }}>Balance (GH₵)</th>
                 <th style={{ textAlign: "right" }}>Total (GH₵)</th>
                 <th>Status</th>
+                {isAdmin && <th className="no-print">Created By</th>}
                 <th className="no-print">Actions</th>
               </tr>
             </thead>
@@ -423,9 +433,12 @@ export default function RegisterTable({
                   <td className="num"><b>{r.status === "PAID" ? "0.00" : r.balance.toFixed(2)}</b></td>
                   <td className="num">{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</td>
                   <td><span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span></td>
+                  {isAdmin && <td className="no-print">{r.createdByUsername || "—"}</td>}
                   <td className="no-print" style={{ whiteSpace: "nowrap" }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
-                    {r.status !== "PAID" && canPay && (
+                    {canTouch(r) && (
+                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
+                    )}
+                    {r.status !== "PAID" && canPay && canTouch(r) && (
                       <>
                         {" "}
                         <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
@@ -474,8 +487,10 @@ export default function RegisterTable({
                     Map
                   </a>
                 )}
-                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
-                {r.status !== "PAID" && canPay && (
+                {canTouch(r) && (
+                  <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)}>Edit</button>
+                )}
+                {r.status !== "PAID" && canPay && canTouch(r) && (
                   <>
                     <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
                     <button className="btn btn-green btn-sm" onClick={() => markPaid(r)}>Mark Paid</button>

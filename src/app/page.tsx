@@ -27,6 +27,7 @@ export default async function HomePage() {
           canEditDirect={perms.canEditRecords}
           canCreate={perms.canCreateRecords}
           canPay={perms.canRecordPayments}
+          currentUsername={me.username}
         />
         <LicenseGate />
       </main>

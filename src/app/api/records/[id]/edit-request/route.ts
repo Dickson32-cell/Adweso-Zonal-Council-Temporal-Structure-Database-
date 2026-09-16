@@ -2,7 +2,7 @@
 // Nothing changes on the record yet; the request waits for admin approval.
 // Admin edits applied directly via PATCH /api/records/[id] still work.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, councilId, audit } from "@/lib/db";
+import { prisma, councilId, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 const EDITABLE = ["name", "businessName", "telephone", "streetName", "electoralArea"] as const;
@@ -18,9 +18,19 @@ export async function POST(
   const { id } = await params;
   try {
     const body = await req.json();
+    const me = await getFullUser(session);
+    if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
+
+    // OWNERSHIP: staff may only propose edits on their OWN entries.
+    if (me.role !== "ADMIN" && payer.createdBy && payer.createdBy !== session.sub)
+      return NextResponse.json(
+        { error: "This entry belongs to another staff member. Only they can edit it." },
+        { status: 403 }
+      );
 
     // Collect only the fields the user actually changed
     const before: Record<string, string> = {};

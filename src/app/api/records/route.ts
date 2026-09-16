@@ -106,6 +106,7 @@ export async function POST(req: NextRequest) {
           const created = await tx.feePayer.create({
             data: {
               councilId: councilId(),
+              createdBy: session.sub,
               serialNumber: serial,
               electoralArea,
               name: name.trim(),

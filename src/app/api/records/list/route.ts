@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     include: {
       fees: { select: { amount: true } },
       payments: { select: { amount: true } },
+      createdByUser: { select: { username: true } },
     },
   });
 
@@ -43,6 +44,7 @@ export async function GET(req: NextRequest) {
     return {
       id: r.id,
       serialNumber: r.serialNumber,
+      createdByUsername: r.createdByUser?.username || null,
       name: r.name,
       businessName: r.businessName,
       telephone: r.telephone,

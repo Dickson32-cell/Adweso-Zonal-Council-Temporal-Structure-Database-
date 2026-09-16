@@ -67,10 +67,12 @@ export function permsFor(role: string, adminLevel: string | null): Perms {
       canSetAdminLevels: true,
     };
   }
-  // STAFF
+  // STAFF — ownership model: staff can edit their OWN records directly
+  // (enforced per-record at the route level), create new ones, and record
+  // payments on their own entries. They cannot touch other staff's entries.
   return {
     canCreateRecords: true,
-    canEditRecords: false, // staff edits go through approval
+    canEditRecords: true, // own records only — route-level ownership check
     canDeleteRecords: false,
     canRecordPayments: true,
     canExport: true,
