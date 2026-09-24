@@ -42,3 +42,5 @@ next-env.d.ts
 
 .vercel
 .env*
+ROTATED-CREDENTIALS-LOCAL.txt
+.vercel-env-urls.txt
