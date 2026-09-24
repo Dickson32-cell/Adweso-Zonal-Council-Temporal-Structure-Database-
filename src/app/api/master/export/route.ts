@@ -3,7 +3,7 @@
 // from the shared multi-council database. Only the primary admin sees this.
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { masterPrisma } from "@/lib/master-db";
 import * as XLSX from "xlsx";
 
 const GHS = (n: number) => n.toFixed(2);
@@ -18,7 +18,7 @@ export async function GET() {
   if (!masterCouncil || masterCouncil !== process.env.COUNCIL_ID)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const payers = await prisma.feePayer.findMany({
+  const payers = await masterPrisma.feePayer.findMany({
     orderBy: [{ councilId: "asc" }, { serialNumber: "asc" }],
     include: { payments: { orderBy: { receivedAt: "asc" }, include: { receivedByUser: { select: { username: true } } } } },
   });

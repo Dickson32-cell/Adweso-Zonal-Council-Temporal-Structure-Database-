@@ -4,7 +4,7 @@
 // connections needed. Promoted admins/staff get 404 (invisible to them).
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { masterPrisma } from "@/lib/master-db";
 import { deriveKey, FREE_LIMIT, LICENSE_FEE_USD } from "@/lib/license";
 
 const ALL_COUNCILS = ["adweso", "newtown", "ogua", "nkukwao", "betom", "srodae", "oldestate", "anlotown"];
@@ -33,8 +33,8 @@ export async function GET() {
   if (gate.err) return gate.err;
 
   const [states, counts] = await Promise.all([
-    prisma.licenseState.findMany(),
-    prisma.feePayer.groupBy({
+    masterPrisma.licenseState.findMany(),
+    masterPrisma.feePayer.groupBy({
       by: ["councilId"],
       where: { recordStatus: "ACTIVE" },
       _count: { _all: true },
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     const councilId = String(body.councilId || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     if (!councilId || !ALL_COUNCILS.includes(councilId))
       return NextResponse.json({ error: "Unknown council" }, { status: 400 });
-    const state = await prisma.licenseState.findUnique({ where: { id: councilId } });
+    const state = await masterPrisma.licenseState.findUnique({ where: { id: councilId } });
     const current = state?.paidThrough ?? 0;
     const target = current + FREE_LIMIT;
     const key = deriveKey(councilId, target);
