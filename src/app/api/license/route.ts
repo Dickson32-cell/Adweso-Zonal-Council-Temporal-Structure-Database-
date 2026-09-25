@@ -3,6 +3,7 @@
 //                     is the authority — it only works if genuinely issued)
 import { NextRequest, NextResponse } from "next/server";
 import { licenseStatus, applyUnlockKey } from "@/lib/license";
+import { paystackConfigured } from "@/lib/paystack";
 import { getSession } from "@/lib/auth";
 
 // Council identity — set per deployment via env so each clone is distinct
@@ -11,7 +12,7 @@ const COUNCIL_ID = process.env.COUNCIL_ID || "adweso";
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  return NextResponse.json(await licenseStatus());
+  return NextResponse.json({ ...(await licenseStatus()), onlinePay: paystackConfigured() });
 }
 
 export async function POST(req: NextRequest) {

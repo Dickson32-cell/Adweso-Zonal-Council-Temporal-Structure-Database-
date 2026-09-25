@@ -1,6 +1,7 @@
 // LICENSE — per-council licensing: free for the first 100 registrations,
 // then the register LOCKS (no new records, no Excel export) until the
-// owner (RAMEDIC / Dickson) is paid US$5 and issues an unlock key.
+// owner (RAMEDIC / Dickson) is paid US$6.99 — online via Paystack (self-unlock)
+// or offline via a manually issued unlock key.
 // Locks again at 200, 300, ... — every 100 registrations.
 //
 // Unlock keys are derived from a per-council secret + the paid-until
@@ -10,7 +11,7 @@ import crypto from "crypto";
 import { prisma, councilId } from "./db";
 
 export const FREE_LIMIT = 100;      // registrations allowed before lock
-export const LICENSE_FEE_USD = 5;   // price per 100 registrations
+export const LICENSE_FEE_USD = Number(process.env.LICENSE_FEE_USD || 6.99); // price per 100 registrations
 
 // ---------------------------------------------------------------------------
 // License state table (already in schema: LicenseState). Single row (id=1)

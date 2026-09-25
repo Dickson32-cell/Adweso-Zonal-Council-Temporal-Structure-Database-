@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
       { status: 403 }
     );
 
-  // LICENSE GATE: locked at every 100 registrations until the US$5 fee
-  // is paid to RAMEDIC and an unlock key is applied. 402 = Payment Required.
+  // LICENSE GATE: locked at every 100 registrations until the US$6.99 fee
+  // is paid to RAMEDIC (Paystack online, or a manual unlock key). 402 = Payment Required.
   const license = await assertCanCreate();
   if (license)
     return NextResponse.json({ error: "REGISTER LOCKED", license }, { status: 402 });

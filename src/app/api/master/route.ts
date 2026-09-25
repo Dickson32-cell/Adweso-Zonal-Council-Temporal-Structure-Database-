@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { masterPrisma } from "@/lib/master-db";
 import { deriveKey, FREE_LIMIT, LICENSE_FEE_USD } from "@/lib/license";
+// feeUSD now comes from LICENSE_FEE_USD (6.99) — master console shows the new price.
 
 const ALL_COUNCILS = ["adweso", "newtown", "ogua", "nkukwao", "betom", "srodae", "oldestate", "anlotown"];
 

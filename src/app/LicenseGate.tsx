@@ -1,8 +1,9 @@
 "use client";
 // LicenseGate — watches the register's license state. When the register
 // locks (100 registrations reached, payment not yet made), a modal popup
-// tells the council a US$5 fee is due and where to enter the unlock key
-// the owner issues after payment. While locked: no new records, no Excel export.
+// tells the council the fee is due and offers TWO ways to unlock:
+//   1. Pay online (Paystack: Mobile Money or card) — instant self-unlock.
+//   2. Manual: pay the provider offline, enter the unlock key (fallback).
 import { useCallback, useEffect, useState } from "react";
 
 type License = {
@@ -21,12 +22,18 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
   const [key, setKey] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [onlinePay, setOnlinePay] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   const check = useCallback(async () => {
     try {
       const res = await fetch("/api/license");
-      if (res.ok) setLicense(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setLicense(data);
+        setOnlinePay(Boolean(data.onlinePay));
+      }
     } catch { /* offline: keep last known state */ }
   }, []);
 
@@ -35,6 +42,21 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
     const id = setInterval(check, 30000);
     return () => clearInterval(id);
   }, [check]);
+
+  async function payOnline() {
+    setPaying(true); setMsg("");
+    try {
+      const res = await fetch("/api/license/pay");
+      const data = await res.json();
+      if (res.ok && data.authorizationUrl) {
+        window.location.href = data.authorizationUrl; // to Paystack checkout
+        return;
+      }
+      setMsg(data.error || "Could not start the online payment. Try again or use the unlock key.");
+    } catch {
+      setMsg("Network error starting payment. Try again or use the unlock key.");
+    } finally { setPaying(false); }
+  }
 
   async function submitKey(e: React.FormEvent) {
     e.preventDefault();
@@ -71,7 +93,18 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
           <div style={{ fontWeight: 800, fontSize: 17, color: "#065c37" }}>Pay a US${license.feeUSD} fee to continue</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>Contact the system provider to make the payment and receive your unlock key.</div>
         </div>
-        <p className="sub" style={{ fontSize: 12.5 }}>
+        {msg && <div className={msg.startsWith("Register unlocked") ? "ok" : "err"} style={{ margin: "6px 0", fontSize: 13 }}>{msg}</div>}
+        {onlinePay && (
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%", justifyContent: "center", fontSize: 15 }}
+            onClick={payOnline}
+            disabled={paying}
+          >
+            {paying ? "Starting payment…" : "Pay Online — Mobile Money or Card"}
+          </button>
+        )}
+        <p className="sub" style={{ fontSize: 12.5, marginTop: 10 }}>
           After payment, you will receive an unlock key. Enter it below to
           unlock the next 100 registrations. Until then, new entries and Excel
           export are paused — your existing records remain safe and viewable.
@@ -79,9 +112,8 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
         <form onSubmit={submitKey}>
           <label className="fld">
             <span className="cap">Unlock key</span>
-            <input value={key} onChange={(e) => setKey(e.target.value)} placeholder="XXXX-XXXX-XXXX-XXXX" autoFocus required />
+            <input value={key} onChange={(e) => setKey(e.target.value)} placeholder="XXXX-XXXX-XXXX-XXXX" required />
           </label>
-          {msg && <div className={msg.startsWith("Register unlocked") ? "ok" : "err"} style={{ margin: "6px 0", fontSize: 13 }}>{msg}</div>}
           <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
             <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }} disabled={busy}>
               {busy ? "Checking…" : "Unlock Register"}

@@ -154,8 +154,10 @@ model AuditLog {
 model LicenseState {
   id            String    @id @db.VarChar(24) // = councilId (adweso, newtown, ...)
   paidThrough   Int       @default(0) @map("paid_through")  // registrations paid for
-  licenseKey    String?   @map("license_key") @db.VarChar(30) // key that performed the last unlock
+  licenseKey    String?   @map("license_key") @db.VarChar(40) // unlock key or PS|receipt stamp
   lastPaymentAt DateTime? @map("last_payment_at")
+  pendingRef    String?   @map("pending_ref") @db.VarChar(60) // Paystack ref awaiting payment
+  pendingRefAt  DateTime? @map("pending_ref_at")
 
   @@map("license_state")
 }
