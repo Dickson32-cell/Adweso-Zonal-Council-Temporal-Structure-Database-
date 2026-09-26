@@ -44,3 +44,4 @@ next-env.d.ts
 .env*
 ROTATED-CREDENTIALS-LOCAL.txt
 .vercel-env-urls.txt
+COUNCIL-ADMIN-PW-LOCAL.txt
