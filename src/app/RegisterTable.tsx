@@ -91,6 +91,10 @@ export default function RegisterTable({
 
   // Payment modal state
   const [payFor, setPayFor] = useState<Row | null>(null);
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const toggleSel = (id: string) => setSel((prev) => { const n = new Set(prev); if (n.has(id)) { n.delete(id); } else { n.add(id); } return n; });
+  const printSelected = () => { if (sel.size) window.open(`/bill/print?ids=${[...sel].join(",")}`, "_blank"); };
+  const printAllFiltered = () => { if (rows.length) window.open(`/bill/print?ids=${rows.map((r) => r.id).join(",")}`, "_blank"); };
 
   // OWNERSHIP: staff can only act on records they created themselves.
   // Admins can act on everything. A record with no creator is admin-only.
@@ -325,6 +329,12 @@ export default function RegisterTable({
           {canCreate && <button className="btn btn-primary" onClick={() => { setShowForm((s) => !s); setFormOk(""); }}>New Record</button>}
           <button className="btn btn-ghost" onClick={exportExcel}>Export Excel</button>
           <button className="btn btn-ghost" onClick={() => window.print()}>Print</button>
+          <button className="btn btn-ghost" onClick={printSelected} disabled={sel.size === 0} title="Print bills for ticked clients">
+            Print Bills ({sel.size})
+          </button>
+          <button className="btn btn-ghost" onClick={printAllFiltered} title="Print a bill for every client in the current filter">
+            Bills for All ({rows.length})
+          </button>
         </div>
 
         {showForm && (
@@ -392,6 +402,7 @@ export default function RegisterTable({
           <table className="tbl">
             <thead>
               <tr>
+                <th className="no-print" style={{ width: 30 }} title="Tick to select clients for bill printing"></th>
                 <th>Serial No</th>
                 <th>Name</th>
                 <th>Business Name</th>
@@ -414,6 +425,9 @@ export default function RegisterTable({
               )}
               {rows.map((r) => (
                 <tr key={r.id}>
+                  <td className="no-print" style={{ textAlign: "center" }}>
+                    <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggleSel(r.id)} aria-label={`Select bill for ${r.name}`} />
+                  </td>
                   <td className="serial">{r.serialNumber}</td>
                   <td><button className="linklike" title="View details" onClick={() => openDetail(r)}>{r.name}</button></td>
                   <td>{r.businessName}</td>
@@ -468,6 +482,9 @@ export default function RegisterTable({
               <div className="user-card-head">
                 <div>
                   <div className="serial" style={{ fontSize: 14 }}>{r.serialNumber}</div>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, marginTop: 4 }}>
+                    <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggleSel(r.id)} /> Bill
+                  </label>
                   <div style={{ fontWeight: 700 }}><button className="linklike" title="View details" onClick={() => openDetail(r)}>{r.name}</button></div>
                   <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{r.businessName}</div>
                 </div>
