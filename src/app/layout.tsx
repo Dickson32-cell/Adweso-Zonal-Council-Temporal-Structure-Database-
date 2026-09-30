@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  other: { google: "notranslate" },
   title: "Adweso Zonal Council — Temporal Structures Register",
   description: "Fee register for temporal structures, Adweso Zonal Council",
   icons: {
