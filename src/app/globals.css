@@ -217,7 +217,35 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .topbar .brand .t2 { font-size: 10px; }
   .topbar .who { font-size: 11.5px; width: 100%; display: flex; align-items: center; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
   .topbar .who b { max-width: 100%; overflow-wrap: anywhere; }
-  .topbar .who .btn { padding: 5px 10px; font-size: 12px; }
+  .topbar .who .btn { padding: 9px 12px; font-size: 12.5px; min-height: 44px; }
+  /* Mobile: register actions float within thumb reach (skill: m-nav FAB+bottom-bar rule) */
+  .m-actions { position: sticky; bottom: 0; z-index: 29; background: var(--bg, #f6f8f7); margin: 0 -14px 12px; padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); box-shadow: 0 -2px 6px rgba(10,40,30,0.06); }
+  .m-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .m-actions .btn { min-height: 44px; }
+  .m-actions .btn-primary, .m-actions .btn-green { grid-column: 1 / -1; }
+  .m-actions-row2 { display: flex; gap: 8px; grid-column: 1 / -1; }
+  .m-actions-row2 .btn { flex: 1; padding: 9px 10px; font-size: 12.5px; min-height: 44px; }
+
+  /* Side menu (drawer) — replaces the wrapping topbar button row on phones */
+  .drawer-burger { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 9px 14px; font-weight: 700; font-size: 13.5px; color: #ffffff; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.55); border-radius: 8px; cursor: pointer; }
+  .burger-bars { display: inline-flex; flex-direction: column; gap: 3.5px; width: 16px; }
+  .burger-bars i { display: block; height: 2.5px; width: 100%; background: #ffffff; border-radius: 2px; }
+  .drawer-scrim { position: fixed; inset: 0; background: rgba(3,25,16,0.5); z-index: 60; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(300px, 84vw); background: #ffffff; z-index: 61; box-shadow: -6px 0 24px rgba(3,25,16,0.25); transform: translateX(105%); transition: transform 0.25s ease; display: flex; flex-direction: column; }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .drawer-head span { font-weight: 800; font-size: 15px; color: var(--navy); }
+  .drawer-close { background: none; border: none; font-size: 18px; padding: 10px; min-width: 44px; min-height: 44px; color: var(--navy); cursor: pointer; }
+  .drawer-nav { display: flex; flex-direction: column; padding: 8px 0; overflow-y: auto; }
+  .drawer-item { display: block; width: 100%; text-align: left; padding: 14px 20px; min-height: 48px; font-size: 15px; font-weight: 600; color: var(--navy); background: none; border: none; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; }
+  .drawer-item:hover, .drawer-item:focus { text-decoration: none; background: #f2f7f4; }
+  .drawer-item:active { background: #e6efe9; }
+  .drawer-danger { color: var(--danger, #b91c1c); }
+
+  /* Modals: full-width bottom sheets on phones; inputs reachable above the keyboard */
+  .modal-card { width: 100% !important; margin: 12px !important; max-height: calc(100dvh - 96px) !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-card input, .modal-card select { font-size: 16px; }
+  .user-card-meta label.bill-tick { padding: 8px; min-height: 44px; }
+  .user-card-meta .bill-tick input { width: 22px; height: 22px; }
 
   .main { padding: 12px; }
   .card { padding: 14px; border-radius: 8px; }
@@ -270,15 +298,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .m-chip.on.chip-paid { background: var(--green, #0b6e43); border-color: var(--green, #0b6e43); }
   .m-chip.on.chip-unpaid { background: #8a5a00; border-color: #8a5a00; }
 
-  /* Mobile register actions: print/export within thumb reach */
-  .m-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 12px; }
-  .m-actions .btn { min-height: 44px; }
-  .m-actions .btn-primary, .m-actions .btn-green { grid-column: 1 / -1; }
-  .m-actions-row2 { display: flex; gap: 8px; grid-column: 1 / -1; }
-  .m-actions-row2 .btn { flex: 1; }
 
-
-  .modal-card { width: 100% !important; margin: 12px !important; }
 }
 
 /* Tablets (640–1024px) */

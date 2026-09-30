@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 export default function TopBar({ username, role, canReviewPasswords, showMaster }: { username: string; role: string; canReviewPasswords?: boolean; showMaster?: boolean }) {
   const router = useRouter();
   const [pwOpen, setPwOpen] = useState(false);
+  const [drawer, setDrawer] = useState(false);
   const [curPw, setCurPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [pwMsg, setPwMsg] = useState("");
@@ -32,6 +33,23 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
     setCurPw(""); setNewPw("");
   }
 
+  // Drawer content — admin links + actions (phones only; CSS hides on desktop)
+  const drawerBody = (
+    <nav className="drawer-nav" onClick={() => setDrawer(false)}>
+      <a href="/" className="drawer-item">Register</a>
+      {role === "ADMIN" && (
+        <>
+          {username === "admin" && showMaster && <a href="/master" className="drawer-item">Master</a>}
+          <a href="/admin/users" className="drawer-item">Staff</a>
+          <a href="/admin/edits" className="drawer-item">Edits</a>
+          {canReviewPasswords && <a href="/admin/passwords" className="drawer-item">Passwords</a>}
+        </>
+      )}
+      <button type="button" className="drawer-item" onClick={() => { setDrawer(false); setPwOpen(true); }}>Change Password</button>
+      <button type="button" className="drawer-item drawer-danger" onClick={logout}>Log out</button>
+    </nav>
+  );
+
   return (
     <header className="topbar" style={{ position: "relative", paddingBottom: pwOpen ? 290 : undefined }}>
       <div className="brand">
@@ -43,6 +61,22 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
         </div>
       </div>
       <div className="who">
+        <b>{username}</b> · {role === "ADMIN" ? "Administrator" : "Staff"}
+        <button className="drawer-burger only-mobile" aria-label="Open menu" aria-expanded={drawer} onClick={() => setDrawer(true)}>
+          <span className="burger-bars" aria-hidden="true"><i /><i /><i /></span>
+          Menu
+        </button>
+      </div>
+      <div className="drawer-scrim only-mobile" style={{ display: drawer ? "block" : "none" }} onClick={() => setDrawer(false)} />
+      <aside className="drawer only-mobile" role="dialog" aria-label="Menu" style={{ transform: drawer ? "translateX(0)" : "translateX(105%)" }}>
+        <div className="drawer-head">
+          <span>Menu</span>
+          <button type="button" className="drawer-close" aria-label="Close menu" onClick={() => setDrawer(false)}>✕</button>
+        </div>
+        {drawerBody}
+      </aside>
+      {/* Desktop/tablet inline buttons — hidden on phones (drawer replaces them) */}
+      <div className="who only-desktop">
         <b>{username}</b> · {role === "ADMIN" ? "Administrator" : "Staff"} &nbsp;{" "}
         {role === "ADMIN" && (
           <>
