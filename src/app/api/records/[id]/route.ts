@@ -109,6 +109,35 @@ export async function PATCH(
       if (typeof body[f] === "string" && body[f].trim()) data[f] = body[f].trim();
     }
 
+    // GPS: staff changes always route through the administrator approval queue.
+    const NUM_GPS = /^-?\d{1,3}(\.\d{1,7})?$/;
+    const latRaw = typeof body.latitude === "string" ? body.latitude.trim() : "";
+    const lngRaw = typeof body.longitude === "string" ? body.longitude.trim() : "";
+    if (latRaw || lngRaw) {
+      if (isStaff)
+        return NextResponse.json(
+          { errors: ["GPS changes require administrator approval. Use the Edit (GPS) request."] },
+          { status: 400 }
+        );
+      if (latRaw) {
+        const cur = payer.latitude != null ? String(Number(payer.latitude)) : "";
+        if (latRaw !== cur) {
+          if (!NUM_GPS.test(latRaw) || Math.abs(Number(latRaw)) > 90)
+            errors.push("Latitude must be a number between -90 and 90, e.g. 5.123456");
+          else data.latitude = latRaw;
+        }
+      }
+      if (lngRaw) {
+        const cur = payer.longitude != null ? String(Number(payer.longitude)) : "";
+        if (lngRaw !== cur) {
+          if (!NUM_GPS.test(lngRaw) || Math.abs(Number(lngRaw)) > 180)
+            errors.push("Longitude must be a number between -180 and 180, e.g. -0.987654");
+          else data.longitude = lngRaw;
+        }
+      }
+      if (errors.length) return NextResponse.json({ errors }, { status: 400 });
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       const r = await tx.feePayer.update({ where: { id }, data });
       await tx.auditLog.create({

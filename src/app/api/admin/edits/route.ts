@@ -64,9 +64,12 @@ export async function PATCH(req: NextRequest) {
 
     await prisma.$transaction(async (tx) => {
       if (decision === "approve") {
+        const updateData: Record<string, unknown> = { ...(edit.after as Record<string, unknown>) };
+        if ("latitude" in updateData) updateData.latitude = Number(updateData.latitude);
+        if ("longitude" in updateData) updateData.longitude = Number(updateData.longitude);
         await tx.feePayer.update({
           where: { id: edit.feePayerId },
-          data: edit.after as Record<string, string>,
+          data: updateData as Record<string, string>,
         });
       }
       await tx.pendingEdit.update({

@@ -18,6 +18,8 @@ export async function GET(req: NextRequest) {
   if (license.locked)
     return NextResponse.json({ error: "EXPORT LOCKED", license }, { status: 402 });
 
+  const isAdmin = (session as { role?: string }).role === "ADMIN";
+
   const sp = req.nextUrl.searchParams;
   const area = sp.get("area") || "";
   const q = (sp.get("q") || "").trim();
@@ -80,22 +82,32 @@ export async function GET(req: NextRequest) {
     a.collected = Number((a.collected + paid).toFixed(2));
     a.outstanding = Number((a.outstanding + Math.max(0, billed - paid)).toFixed(2));
   });
-  const summary = Object.entries(byArea).map(([k, v]) => ({
-    "Electoral Area": k,
-    "Records": v.count,
-    "Total Billed (GHS)": v.billed,
-    "Collected (GHS)": v.collected,
-    "Outstanding (GHS)": v.outstanding,
-  }));
+  // Money aggregates (billed/collected/outstanding) are visible to administrators only.
+  const summary = isAdmin
+    ? Object.entries(byArea).map(([k, v]) => ({
+        "Electoral Area": k,
+        "Records": v.count,
+        "Total Billed (GHS)": v.billed,
+        "Collected (GHS)": v.collected,
+        "Outstanding (GHS)": v.outstanding,
+      }))
+    : Object.entries(byArea).map(([k, v]) => ({
+        "Electoral Area": k,
+        "Records": v.count,
+      }));
 
-  const grand = {
-    "Total Records": records.length,
-    "Grand Total Billed (GHS)": Number(records.reduce((s, r) => s + r["Total (GHS)"], 0).toFixed(2)),
-    "Grand Total Collected (GHS)": Number(
-      Object.values(byArea).reduce((s, v) => s + v.collected, 0).toFixed(2)
-    ),
-    "Grand Total Outstanding (GHS)": Number(records.reduce((s, r) => s + r["Balance (GHS)"], 0).toFixed(2)),
-  };
+  const grand = isAdmin
+    ? {
+        "Total Records": records.length,
+        "Grand Total Billed (GHS)": Number(records.reduce((s, r) => s + r["Total (GHS)"], 0).toFixed(2)),
+        "Grand Total Collected (GHS)": Number(
+          Object.values(byArea).reduce((s, v) => s + v.collected, 0).toFixed(2)
+        ),
+        "Grand Total Outstanding (GHS)": Number(records.reduce((s, r) => s + r["Balance (GHS)"], 0).toFixed(2)),
+      }
+    : {
+        "Total Records": records.length,
+      };
 
   // Build workbook
   const wb = XLSX.utils.book_new();
@@ -108,8 +120,10 @@ export async function GET(req: NextRequest) {
   const wsSummary = XLSX.utils.json_to_sheet(summary);
   XLSX.utils.book_append_sheet(wb, wsSummary, "Area Summary");
 
-  const wsGrand = XLSX.utils.json_to_sheet([grand]);
-  XLSX.utils.book_append_sheet(wb, wsGrand, "Grand Totals");
+  if (isAdmin) {
+    const wsGrand = XLSX.utils.json_to_sheet([grand]);
+    XLSX.utils.book_append_sheet(wb, wsGrand, "Grand Totals");
+  }
 
   const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 

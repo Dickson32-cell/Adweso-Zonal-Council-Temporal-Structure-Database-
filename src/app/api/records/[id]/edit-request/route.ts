@@ -37,6 +37,29 @@ export async function POST(
     const after: Record<string, string> = {};
     const errors: string[] = [];
 
+    // GPS edits travel through the same approval flow.
+    const NUM_GPS = /^-?\d{1,3}(\.\d{1,7})?$/;
+    const latRaw = typeof body.latitude === "string" ? body.latitude.trim() : "";
+    const lngRaw = typeof body.longitude === "string" ? body.longitude.trim() : "";
+    const curLat = payer.latitude != null ? String(Number(payer.latitude)) : "";
+    const curLng = payer.longitude != null ? String(Number(payer.longitude)) : "";
+    if (latRaw && latRaw !== curLat) {
+      if (!NUM_GPS.test(latRaw) || Math.abs(Number(latRaw)) > 90)
+        errors.push("Latitude must be a number between -90 and 90, e.g. 5.123456");
+      else {
+        before.latitude = curLat;
+        after.latitude = latRaw;
+      }
+    }
+    if (lngRaw && lngRaw !== curLng) {
+      if (!NUM_GPS.test(lngRaw) || Math.abs(Number(lngRaw)) > 180)
+        errors.push("Longitude must be a number between -180 and 180, e.g. -0.987654");
+      else {
+        before.longitude = curLng;
+        after.longitude = lngRaw;
+      }
+    }
+
     for (const f of EDITABLE) {
       const incoming = body[f];
       if (typeof incoming !== "string" || !incoming.trim()) continue;

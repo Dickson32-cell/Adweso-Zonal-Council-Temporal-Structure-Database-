@@ -83,5 +83,18 @@ export async function GET(req: NextRequest) {
     outstanding: Number(records.reduce((s, r) => s + r.balance, 0).toFixed(2)),
   };
 
-  return NextResponse.json({ records, byArea, grand });
+  // Only administrators see money aggregates; staff see record/area counts.
+  const isAdmin = (session as { role?: string }).role === "ADMIN";
+  const safeByArea = isAdmin
+    ? byArea
+    : Object.fromEntries(Object.entries(byArea).map(([k, v]) => [k, { count: v.count }]));
+  const safeGrand = isAdmin
+    ? grand
+    : { records: grand.records, billed: null, collected: null, outstanding: null };
+  return NextResponse.json({
+    records,
+    byArea: safeByArea,
+    grand: safeGrand,
+    moneyHidden: !isAdmin,
+  });
 }

@@ -219,7 +219,7 @@ export default function RegisterTable({
 
   // Edit modal state
   const [editFor, setEditFor] = useState<Row | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "" });
+  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "" });
   const [editErr, setEditErr] = useState<string[]>([]);
   const [editMsg, setEditMsg] = useState("");
   const [editBusy, setEditBusy] = useState(false);
@@ -229,6 +229,8 @@ export default function RegisterTable({
     setEditForm({
       name: row.name, businessName: row.businessName, telephone: row.telephone,
       streetName: row.streetName, electoralArea: row.electoralArea,
+      latitude: row.latitude != null ? String(row.latitude) : "",
+      longitude: row.longitude != null ? String(row.longitude) : "",
     });
     setEditErr([]); setEditMsg("");
   }
@@ -563,13 +565,19 @@ export default function RegisterTable({
           ))}
         </div>
 
-        {/* Grand totals — system-computed */}
+        {/* Grand totals — money visible to administrators only */}
         <div className="grand">
           <div className="tag">GRAND TOTALS</div>
           <div className="g"><div className="k">RECORDS</div><div className="v">{grand.records}</div></div>
-          <div className="g"><div className="k">TOTAL BILLED</div><div className="v">{GHS(grand.billed)}</div></div>
-          <div className="g"><div className="k">TOTAL COLLECTED</div><div className="v">{GHS(grand.collected)}</div></div>
-          <div className="g"><div className="k">OUTSTANDING</div><div className="v">{GHS(grand.outstanding)}</div></div>
+          {isAdmin ? (
+            <>
+              <div className="g"><div className="k">TOTAL BILLED</div><div className="v">{GHS(grand.billed)}</div></div>
+              <div className="g"><div className="k">TOTAL COLLECTED</div><div className="v">{GHS(grand.collected)}</div></div>
+              <div className="g"><div className="k">OUTSTANDING</div><div className="v">{GHS(grand.outstanding)}</div></div>
+            </>
+          ) : (
+            <div className="g"><div className="k">MONEY TOTALS</div><div className="v" style={{ fontSize: 13 }}>Admin only</div></div>
+          )}
         </div>
       </div>
 
@@ -582,8 +590,12 @@ export default function RegisterTable({
             <div className="sum-card" key={a}>
               <div className="k">{a}</div>
               <div className="v">{s.count} record{s.count === 1 ? "" : "s"}</div>
-              <div className="k" style={{ marginTop: 6 }}>Billed {GHS(s.billed)} · Collected {GHS(s.collected)}</div>
-              <div className="k">Outstanding {GHS(s.outstanding)}</div>
+              {isAdmin ? (
+                <>
+                  <div className="k" style={{ marginTop: 6 }}>Billed {GHS(s.billed)} · Collected {GHS(s.collected)}</div>
+                  <div className="k">Outstanding {GHS(s.outstanding)}</div>
+                </>
+              ) : null}
             </div>
           ))}
         </div>
@@ -613,6 +625,20 @@ export default function RegisterTable({
               </select></label>
             <label className="fld"><span className="cap">Street Name</span>
               <input type="text" value={editForm.streetName} onChange={(e) => setEditForm({ ...editForm, streetName: e.target.value })} /></label>
+            {!canEditDirect && (
+              <p className="sub" style={{ margin: "2px 0 0" }}>
+                GPS changes are sent to the administrator for approval before they take effect.
+              </p>
+            )}
+            <div style={{ display: "flex", gap: 8 }}>
+              <label className="fld" style={{ flex: 1 }}><span className="cap">GPS Latitude</span>
+                <input type="text" inputMode="decimal" placeholder="e.g. 5.123456" value={editForm.latitude} onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })} /></label>
+              <label className="fld" style={{ flex: 1 }}><span className="cap">GPS Longitude</span>
+                <input type="text" inputMode="decimal" placeholder="e.g. -0.987654" value={editForm.longitude} onChange={(e) => setEditForm({ ...editForm, longitude: e.target.value })} /></label>
+            </div>
+            {editForm.latitude && editForm.longitude && !isNaN(Number(editForm.latitude)) && !isNaN(Number(editForm.longitude)) && (
+              <p className="sub"><a href={`https://www.google.com/maps?q=${editForm.latitude},${editForm.longitude}`} target="_blank" rel="noopener noreferrer">Preview GPS on Google Maps</a></p>
+            )}
 
             <div style={{ display: "flex", gap: 10 }}>
               <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }} disabled={editBusy}>
