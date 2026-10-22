@@ -1,7 +1,8 @@
 "use client";
 // RegisterTable — the register: filters, Dickson's exact column order,
 // per-area summary, GRAND TOTAL row, New Record form, payment modal.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
+import { listPending, putPending, deletePending, markPendingError, type PendingRecord } from "@/lib/pendingRecords";
 
 const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
 const CONTAINER_SIZES = ["Small", "Medium", "Large"];
@@ -180,27 +181,105 @@ export default function RegisterTable({
     }
   }
 
+  const [pendingCount, setPendingCount] = useState(0);
+  const [pendingListOpen, setPendingListOpen] = useState(false);
+  const [pendingItems, setPendingItems] = useState<PendingRecord[]>([]);
+  const [pendingSyncing, setPendingSyncing] = useState(false);
+  const pendingSyncingRef = useRef(false);
+
   async function saveRecord(e: React.FormEvent) {
     e.preventDefault();
     setFormErr([]); setFormOk(""); setBusy(true);
-    const res = await fetch("/api/records", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        businessType: form.otherType.trim() || form.businessType,
-        ...(gps ? { latitude: gps.lat, longitude: gps.lng } : {}),
-      }),
-    });
+    const payload = {
+      ...form,
+      businessType: form.otherType.trim() || form.businessType,
+      ...(gps ? { latitude: gps.lat, longitude: gps.lng } : {}),
+    };
+    const resetForm = () => {
+      setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "" });
+      setSerialPreview("");
+      setGps(null);
+    };
+    let res: Response | null = null;
+    try {
+      res = await fetch("/api/records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch { res = null; }
+    if (res === null) {
+      // No network — keep the entry on this phone; it uploads on its own.
+      const pendingId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : `pend-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      await putPending({ pendingId, payload, createdAt: new Date().toISOString(), note: "" });
+      const n = (await listPending()).length;
+      setPendingCount(n); setBusy(false); resetForm();
+      setFormOk(`Saved on phone — ${n} pending. It uploads by itself once the network returns (serial assigned then).`);
+      void syncPending();
+      return;
+    }
+    if (res.status === 402) {
+      // Register locked (license) — the entry waits on this phone until the key is applied.
+      const pendingId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : `pend-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      await putPending({ pendingId, payload, createdAt: new Date().toISOString(), note: "Waiting for the unlock key (register is locked)" });
+      const n = (await listPending()).length;
+      setPendingCount(n); setBusy(false); resetForm();
+      setFormErr(["Register is locked — your entry is saved on this phone and will upload automatically after the unlock key is entered."]);
+      return;
+    }
     const data = await res.json();
     setBusy(false);
     if (!res.ok) { setFormErr(data.errors || [data.error]); return; }
     setFormOk(`Saved — ${data.record.serialNumber} (${data.record.name})` + (gps ? " with GPS location" : ""));
-    setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "" });
-    setSerialPreview("");
-    setGps(null);
+    resetForm();
     load();
+    void syncPending();
   }
+
+  async function syncPending() {
+    if (pendingSyncingRef.current) return;
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+    pendingSyncingRef.current = true; setPendingSyncing(true);
+    let uploaded = 0;
+    try {
+      const items = await listPending();
+      for (const it of items) {
+        let res: Response | null = null;
+        try {
+          res = await fetch("/api/records", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...it.payload, pendingId: it.pendingId }),
+          });
+        } catch { res = null; }
+        if (res === null) break;          // still offline — resume on the next trigger
+        if (res.status === 402) break;    // register locked — waits for the unlock key
+        const data = await res.json().catch(() => ({}) as { errors?: string[]; error?: string });
+        if (res.ok) { await deletePending(it.pendingId); uploaded += 1; continue; }
+        if (res.status >= 400 && res.status < 500) {
+          const why = (data.errors && data.errors.join("; ")) || data.error || `Rejected (${res.status})`;
+          await markPendingError(it.pendingId, why);
+        } else {
+          await markPendingError(it.pendingId, "Server hiccup — will retry automatically");
+        }
+      }
+    } finally {
+      pendingSyncingRef.current = false;
+      const x = await listPending();
+      setPendingCount(x.length); setPendingItems(x); setPendingSyncing(false);
+      if (uploaded > 0) load();
+    }
+  }
+
+  useEffect(() => {
+    listPending().then((x) => { setPendingCount(x.length); setPendingItems(x); });
+    const onOnline = () => { void syncPending(); };
+    window.addEventListener("online", onOnline);
+    const onVis = () => { if (document.visibilityState === "visible") void syncPending(); };
+    document.addEventListener("visibilitychange", onVis);
+    const iv = window.setInterval(() => { void syncPending(); }, 60000);
+    return () => { window.removeEventListener("online", onOnline); document.removeEventListener("visibilitychange", onVis); window.clearInterval(iv); };
+  }, []);
 
   async function markPaid(row: Row) {
     if (!confirm(`Mark ${row.name} (${row.serialNumber}) as PAID?\nBalance GH₵ ${row.balance.toFixed(2)} will be recorded as fully settled.`)) return;
@@ -317,6 +396,42 @@ export default function RegisterTable({
       <div className="card">
         <h2>Temporal Structures Register</h2>
         <p className="sub">Official fee register — Adweso Zonal Council, New Juaben South Municipal Assembly</p>
+          {pendingCount > 0 && (
+            <div style={{ margin: "8px 0" }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => { listPending().then((x) => { setPendingItems(x); setPendingListOpen(true); }); }}>
+                Pending ({pendingCount}) {pendingSyncing ? "— syncing…" : "— uploads by itself when network returns"}
+              </button>
+            </div>
+          )}
+          {pendingListOpen && (
+            <div style={{ position: "fixed", inset: 0, background: "rgba(3,70,39,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 130, padding: 14 }}>
+              <div className="card modal-card" style={{ width: 500, maxWidth: "100%", maxHeight: "86vh", overflowY: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <h2 style={{ fontSize: 18 }}>Pending records ({pendingCount})</h2>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setPendingListOpen(false)}>Close</button>
+                </div>
+                <p className="sub" style={{ fontSize: 12.5 }}>Captured while offline. They upload automatically, oldest first — the server refuses duplicates so nothing can double-count. Serials are assigned at upload.</p>
+                {pendingItems.slice().reverse().map((p) => (
+                  <div key={p.pendingId} style={{ border: "1px solid var(--line, #cde3d5)", borderRadius: 8, padding: "8px 10px", margin: "6px 0", fontSize: 13 }}>
+                    <div style={{ fontWeight: 700 }}>{String(p.payload?.name ?? "")} — {String(p.payload?.businessName ?? "")}</div>
+                    <div style={{ color: "var(--muted)" }}>
+                      {String(p.payload?.electoralArea ?? "")} · {String(p.payload?.streetName ?? "")} · GH₵{String(p.payload?.fee ?? "")} · saved {new Date(p.createdAt).toLocaleString()}
+                    </div>
+                    {p.note ? <div style={{ color: "#8a1c1c", marginTop: 2 }}>{p.note}</div> : null}
+                    <div style={{ marginTop: 4 }}>
+                      <button className="btn btn-ghost btn-sm" onClick={async () => { await deletePending(p.pendingId); const x = await listPending(); setPendingItems(x); setPendingCount(x.length); }}>Remove</button>
+                    </div>
+                  </div>
+                ))}
+                {pendingItems.length === 0 ? <p className="sub">Nothing pending — everything is synced.</p> : null}
+                <div style={{ marginTop: 8 }}>
+                  <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={() => { setPendingListOpen(false); void syncPending(); }}>
+                    {pendingSyncing ? "Syncing…" : "Sync now"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
         <div className="filters only-desktop">
           <div className="f">

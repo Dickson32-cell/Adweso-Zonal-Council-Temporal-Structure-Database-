@@ -56,12 +56,10 @@ export async function POST(req: NextRequest) {
       { status: 403 }
     );
 
-  // LICENSE GATE: locked at every 100 registrations until the US$6.99 fee
-  // is paid to RAMEDIC (Paystack online, or a manual unlock key). 402 = Payment Required.
-  const license = await assertCanCreate();
-  if (license)
-    return NextResponse.json({ error: "REGISTER LOCKED", license }, { status: 402 });
-
+  // pendingId: dedupe key sent by devices syncing offline-captured records.
+  // Checked BEFORE the license gate so a lost-response retry always resolves
+  // to the record that already exists instead of being blocked by a lock.
+  let pendingId = "";
   try {
     const body = await req.json();
     const { name, businessName, telephone, electoralArea, streetName, fee } = body;
@@ -92,6 +90,26 @@ export async function POST(req: NextRequest) {
     }
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
 
+    // OFFLINE DEDUPE: a retry (lost/duplicate sync) returns the record that already
+    // exists. Combined with the (council_id, pending_id) unique index, double entries
+    // are impossible even on flaky networks.
+    const pendingIdRaw = body.pendingId ? String(body.pendingId) : "";
+    pendingId = /^[A-Za-z0-9._:-]{8,64}$/.test(pendingIdRaw) ? pendingIdRaw : "";
+    if (pendingId) {
+      const dup = await prisma.feePayer.findFirst({ where: { councilId: councilId(), pendingId } });
+      if (dup)
+        return NextResponse.json(
+          { ok: true, duplicate: true, record: { id: dup.id, serialNumber: dup.serialNumber, name: dup.name } },
+          { status: 200 }
+        );
+    }
+
+    // LICENSE GATE: locked at every 100 registrations until the US$6.99 fee
+    // is paid and an unlock key is applied. 402 = Payment Required.
+    const license = await assertCanCreate();
+    if (license)
+      return NextResponse.json({ error: "REGISTER LOCKED", license }, { status: 402 });
+
     // Concurrency-safe create:
     // 1. ATOMIC serial allocation (single UPDATE — row lock held for
     //    microseconds, so 5+ staff at once never block each other into
@@ -106,6 +124,7 @@ export async function POST(req: NextRequest) {
           const created = await tx.feePayer.create({
             data: {
               councilId: councilId(),
+              pendingId: pendingId || null,
               createdBy: session.sub,
               serialNumber: serial,
               electoralArea,
@@ -144,7 +163,7 @@ export async function POST(req: NextRequest) {
               action: "CREATE_RECORD",
               entityType: "fee_payer",
               entityId: created.id,
-              details: { serial, name, businessName, electoralArea, fee: feeNum },
+              details: { serial, name, businessName, electoralArea, fee: feeNum, offline: Boolean(pendingId) },
             },
           });
 
@@ -174,6 +193,22 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (e) {
+    // Two retries (or two devices) racing with the same pendingId: the unique
+    // index stops the second insert — resolve it to the first record instead.
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2002" &&
+      pendingId
+    ) {
+      const dup = await prisma.feePayer
+        .findFirst({ where: { councilId: councilId(), pendingId } })
+        .catch(() => null);
+      if (dup)
+        return NextResponse.json(
+          { ok: true, duplicate: true, record: { id: dup.id, serialNumber: dup.serialNumber, name: dup.name } },
+          { status: 200 }
+        );
+    }
     console.error("create record error", e);
     return NextResponse.json({ error: "Could not create record" }, { status: 500 });
   }
