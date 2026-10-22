@@ -40,7 +40,7 @@ export async function GET(
     },
     bill: {
       structureRate: Number(r.fee.toFixed(2)),
-      bop: null, // BOP not collected by zonal councils yet — placeholder until mandate
+      bop: r.bopFee != null ? Number(r.bopFee) : null, // shows when staff enter the BOP fee
       basicRate: 1.0,
       rent: 0,
       arrears: 0,

@@ -34,6 +34,8 @@ export async function DELETE(
       });
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
+        
           userId: session.sub,
           action: "DELETE_RECORD",
           entityType: "fee_payer",

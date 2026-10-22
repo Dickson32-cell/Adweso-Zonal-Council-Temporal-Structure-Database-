@@ -3,6 +3,8 @@
 // per-area summary, GRAND TOTAL row, New Record form, payment modal.
 import { useCallback, useEffect, useState } from "react";
 
+const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
+const CONTAINER_SIZES = ["Small", "Medium", "Large"];
 const AREAS = [
   "Adweso Estate",
   "Adweso Town",
@@ -18,6 +20,9 @@ const GHS = (n: number) =>
 type Row = {
   id: string; serialNumber: string; name: string; businessName: string;
   telephone: string; electoralArea: string; streetName: string;
+  businessType: string | null;
+  containerSize: string | null;
+  bopFee: number | null;
   latitude: number | null; longitude: number | null; hasGps: boolean;
   mapsUrl: string | null;
   fee: number; total: number; paid: number; balance: number; status: string;
@@ -52,7 +57,7 @@ export default function RegisterTable({
   // New-record form state
   const [showForm, setShowForm] = useState(false);
   const [serialPreview, setSerialPreview] = useState("");
-  const [form, setForm] = useState({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "" });
+  const [form, setForm] = useState({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "" });
   const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsBusy, setGpsBusy] = useState(false);
   const [gpsErr, setGpsErr] = useState("");
@@ -108,7 +113,8 @@ export default function RegisterTable({
   type Detail = {
     record: {
       serialNumber: string; name: string; businessName: string; telephone: string;
-      electoralArea: string; streetName: string; recordStatus: string;
+      electoralArea: string; streetName: string; businessType: string | null;
+      containerSize: string | null; bopFee: number | null; recordStatus: string;
       latitude: number | null; longitude: number | null;
       createdAt: string;
       fees: { amount: number; createdAt: string }[];
@@ -119,7 +125,10 @@ export default function RegisterTable({
   const [detail, setDetail] = useState<Detail | null>(null);
   const [detailBusy, setDetailBusy] = useState(false);
 
+  const [detailRow, setDetailRow] = useState<Row | null>(null);
+
   async function openDetail(r: Row) {
+    setDetailRow(r);
     setDetailBusy(true);
     try {
       const res = await fetch(`/api/records/${r.id}/detail`);
@@ -179,6 +188,7 @@ export default function RegisterTable({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        businessType: form.otherType.trim() || form.businessType,
         ...(gps ? { latitude: gps.lat, longitude: gps.lng } : {}),
       }),
     });
@@ -186,7 +196,7 @@ export default function RegisterTable({
     setBusy(false);
     if (!res.ok) { setFormErr(data.errors || [data.error]); return; }
     setFormOk(`Saved — ${data.record.serialNumber} (${data.record.name})` + (gps ? " with GPS location" : ""));
-    setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "" });
+    setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "" });
     setSerialPreview("");
     setGps(null);
     load();
@@ -219,7 +229,7 @@ export default function RegisterTable({
 
   // Edit modal state
   const [editFor, setEditFor] = useState<Row | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "" });
+  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "", businessType: "", otherType: "", containerSize: "", bopFee: "" });
   const [editErr, setEditErr] = useState<string[]>([]);
   const [editMsg, setEditMsg] = useState("");
   const [editBusy, setEditBusy] = useState(false);
@@ -230,7 +240,11 @@ export default function RegisterTable({
       name: row.name, businessName: row.businessName, telephone: row.telephone,
       streetName: row.streetName, electoralArea: row.electoralArea,
       latitude: row.latitude != null ? String(row.latitude) : "",
+      businessType: row.businessType || "",
+      containerSize: row.containerSize || "",
+      bopFee: row.bopFee != null ? String(row.bopFee) : "",
       longitude: row.longitude != null ? String(row.longitude) : "",
+          otherType: "",
     });
     setEditErr([]); setEditMsg("");
   }
@@ -245,11 +259,13 @@ export default function RegisterTable({
       const res = await fetch(`/api/records/${editFor.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({ ...editForm, businessType: editForm.otherType.trim() || editForm.businessType }),
       });
       const data = await res.json();
       setEditBusy(false);
       if (!res.ok) { setEditErr(data.errors || [data.error]); return; }
+      if (detail && data.record && detailRow && detailRow.id === editFor.id)
+        setDetail({ ...detail, record: { ...detail.record, ...data.record } });
       setEditFor(null);
       setFormOk(`Record ${editFor.serialNumber} updated`);
       load();
@@ -258,7 +274,7 @@ export default function RegisterTable({
       const res = await fetch(`/api/records/${editFor.id}/edit-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({ ...editForm, businessType: editForm.otherType.trim() || editForm.businessType }),
       });
       const data = await res.json();
       setEditBusy(false);
@@ -411,6 +427,19 @@ export default function RegisterTable({
                 </select></label>
               <label className="fld"><span className="cap">Street Name <span className="req">*</span></span>
                 <input type="text" value={form.streetName} onChange={(e) => setForm({ ...form, streetName: e.target.value })} required /></label>
+                <label className="fld"><span className="cap">Type of Business</span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <select value={form.businessType} onChange={(e) => setForm({ ...form, businessType: e.target.value })} style={{ flex: 1 }}>
+                      <option value="">—</option>
+                      {BIZ_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                  </div>
+                  <input type="text" placeholder="or type a business type" value={form.otherType} onChange={(e) => setForm({ ...form, otherType: e.target.value })} maxLength={80} /></label>
+                  <label className="fld"><span className="cap">Container Size</span>
+                    <select value={form.containerSize} onChange={(e) => setForm({ ...form, containerSize: e.target.value })}>
+                      <option value="">—</option>
+                      {CONTAINER_SIZES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select></label>
 
               <label className="fld">
                 <span className="cap">GPS Location <span style={{ fontWeight: 400, color: "var(--muted)" }}>(optional — stand at the structure and pick)</span></span>
@@ -457,6 +486,9 @@ export default function RegisterTable({
                 <th style={{ textAlign: "right" }}>Balance (GH₵)</th>
                 <th style={{ textAlign: "right" }}>Total (GH₵)</th>
                 <th>Status</th>
+                <th className="no-print">Business Type</th>
+                <th className="no-print">Container</th>
+                <th className="no-print">BOP (GHS)</th>
                 {isAdmin && <th className="no-print">Created By</th>}
                 <th className="no-print">Actions</th>
               </tr>
@@ -490,6 +522,9 @@ export default function RegisterTable({
                   <td className="num"><b>{r.status === "PAID" ? "0.00" : r.balance.toFixed(2)}</b></td>
                   <td className="num">{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</td>
                   <td><span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span></td>
+                  <td className="no-print">{r.businessType || "—"}</td>
+                  <td className="no-print">{r.containerSize || "—"}</td>
+                  <td className="no-print">{r.bopFee != null ? r.bopFee.toFixed(2) : "—"}</td>
                   {isAdmin && <td className="no-print">{r.createdByUsername || "—"}</td>}
                   <td className="no-print" style={{ whiteSpace: "nowrap" }}>
                     {canTouch(r) && (
@@ -540,7 +575,7 @@ export default function RegisterTable({
                   <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggleSel(r.id)} />
                   Bill
                 </label>
-                <span>{r.telephone} · {r.electoralArea} · {r.streetName}</span>
+                <span>{r.telephone} · {r.electoralArea} · {r.streetName} · <i>{r.businessType || "—"}</i> · {r.containerSize || "—"}</span>
               </div>
               <div className="row-actions" onClick={(e) => e.stopPropagation()}>
                 {r.hasGps && (
@@ -625,6 +660,23 @@ export default function RegisterTable({
               </select></label>
             <label className="fld"><span className="cap">Street Name</span>
               <input type="text" value={editForm.streetName} onChange={(e) => setEditForm({ ...editForm, streetName: e.target.value })} /></label>
+              <label className="fld"><span className="cap">Type of Business</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <select value={editForm.businessType} onChange={(e) => setEditForm({ ...editForm, businessType: e.target.value })} style={{ flex: 1 }}>
+                    <option value="">—</option>
+                    {BIZ_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+                <input type="text" placeholder="or type a business type" value={editForm.otherType} onChange={(e) => setEditForm({ ...editForm, otherType: e.target.value })} maxLength={80} /></label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <label className="fld" style={{ flex: 1 }}><span className="cap">Container Size</span>
+                    <select value={editForm.containerSize} onChange={(e) => setEditForm({ ...editForm, containerSize: e.target.value })}>
+                      <option value="">—</option>
+                      {CONTAINER_SIZES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select></label>
+                  <label className="fld" style={{ flex: 1 }}><span className="cap">BOP Fee (GHS)</span>
+                    <input type="text" inputMode="decimal" placeholder="e.g. 50" value={editForm.bopFee} onChange={(e) => setEditForm({ ...editForm, bopFee: e.target.value })} /></label>
+                </div>
             {!canEditDirect && (
               <p className="sub" style={{ margin: "2px 0 0" }}>
                 GPS changes are sent to the administrator for approval before they take effect.
@@ -662,6 +714,9 @@ export default function RegisterTable({
             <h2 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
               <span>Record Details</span>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDetail(null)}>Close</button>
+              {isAdmin && canDelete && detailRow && (
+                <button type="button" className="btn btn-danger btn-sm" onClick={() => { setDetail(null); deleteRecord(detailRow); }}>Delete record</button>
+              )}
             </h2>
             <p className="sub" style={{ marginBottom: 10 }}><b style={{ fontSize: 16 }}>{detail.record.serialNumber}</b> — {detail.record.name}</p>
             <table className="kv" style={{ width: "100%", fontSize: 13.5, borderCollapse: "collapse" }}>
@@ -670,6 +725,9 @@ export default function RegisterTable({
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Telephone</td><td style={{ padding: "4px 0" }}>{detail.record.telephone || "—"}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Electoral Area</td><td style={{ padding: "4px 0" }}>{detail.record.electoralArea}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Street</td><td style={{ padding: "4px 0" }}>{detail.record.streetName || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Business Type</td><td style={{ padding: "4px 0" }}>{detail.record.businessType || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Container Size</td><td style={{ padding: "4px 0" }}>{detail.record.containerSize || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>BOP Fee</td><td style={{ padding: "4px 0" }}>{detail.record.bopFee != null ? "GH₵ " + detail.record.bopFee.toFixed(2) : "—"}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Registered</td><td style={{ padding: "4px 0" }}>{new Date(detail.record.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Location</td><td style={{ padding: "4px 0" }}>
                   {detail.record.latitude != null && detail.record.longitude != null ? (

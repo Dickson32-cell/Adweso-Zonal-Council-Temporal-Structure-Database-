@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
       });
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
+        
           userId: user.id,
           action: "PASSWORD_CHANGE_REQUESTED",
           entityType: "app_user",

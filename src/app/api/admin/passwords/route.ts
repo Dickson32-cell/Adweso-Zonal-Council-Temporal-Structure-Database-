@@ -68,6 +68,8 @@ export async function PATCH(req: NextRequest) {
       });
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
+        
           userId: me.id,
           action: `PASSWORD_${decision === "approve" ? "APPROVED" : "REJECTED"}`,
           entityType: "app_user",

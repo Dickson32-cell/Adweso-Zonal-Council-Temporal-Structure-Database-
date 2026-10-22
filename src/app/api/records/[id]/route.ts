@@ -67,7 +67,9 @@ export async function PATCH(
         }
         await tx.feePayer.update({ where: { id }, data: { status: "PAID" } });
         await tx.auditLog.create({
-          data: {
+        data: {
+          councilId: councilId(),
+        
             userId: session.sub,
             action: "MARK_PAID",
             entityType: "fee_payer",
@@ -85,7 +87,9 @@ export async function PATCH(
       await prisma.$transaction(async (tx) => {
         await tx.feePayer.update({ where: { id }, data: { status: "UNPAID" } });
         await tx.auditLog.create({
-          data: {
+        data: {
+          councilId: councilId(),
+        
             userId: session.sub,
             action: "MARK_UNPAID",
             entityType: "fee_payer",
@@ -105,7 +109,7 @@ export async function PATCH(
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
 
     const data: Record<string, string> = {};
-    for (const f of ["name", "businessName", "telephone", "streetName", "electoralArea"]) {
+    for (const f of ["name", "businessName", "telephone", "streetName", "electoralArea", "businessType"]) {
       if (typeof body[f] === "string" && body[f].trim()) data[f] = body[f].trim();
     }
 
@@ -138,10 +142,25 @@ export async function PATCH(
       if (errors.length) return NextResponse.json({ errors }, { status: 400 });
     }
 
+    // Container size + BOP fee (staff may set both on their own entries)
+    if (typeof body.containerSize === "string" && body.containerSize.trim()) {
+      if (!["Small", "Medium", "Large"].includes(body.containerSize.trim()))
+        errors.push("Container size must be Small, Medium or Large");
+      else data.containerSize = body.containerSize.trim();
+    }
+    if (typeof body.bopFee === "string" && body.bopFee.trim()) {
+      const bop = Number(body.bopFee.trim());
+      if (!Number.isFinite(bop) || bop < 0)
+        errors.push("BOP fee must be a positive amount in GHS");
+      else data.bopFee = bop.toFixed(2);
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       const r = await tx.feePayer.update({ where: { id }, data });
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
+        
           userId: session.sub,
           action: "UPDATE_RECORD",
           entityType: "fee_payer",

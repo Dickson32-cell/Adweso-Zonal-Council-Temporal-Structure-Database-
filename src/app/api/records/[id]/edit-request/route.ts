@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, councilId, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
-const EDITABLE = ["name", "businessName", "telephone", "streetName", "electoralArea"] as const;
+const EDITABLE = ["name", "businessName", "telephone", "streetName", "electoralArea", "businessType", "containerSize", "bopFee"] as const;
 const PHONE_RE = /^0\d{9}$/;
 
 export async function POST(
@@ -69,6 +69,10 @@ export async function POST(
       after[f] = incoming.trim();
       if (f === "telephone" && !PHONE_RE.test(incoming.trim()))
         errors.push("Telephone must be 10 digits starting with 0");
+      if (f === "containerSize" && !["Small", "Medium", "Large"].includes(incoming.trim()))
+        errors.push("Container size must be Small, Medium or Large");
+      if (f === "bopFee" && !Number.isFinite(Number(incoming.trim())))
+        errors.push("BOP fee must be a valid amount in GHS");
     }
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
     if (Object.keys(after).length === 0)
@@ -86,6 +90,8 @@ export async function POST(
       });
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
+        
           userId: session.sub,
           action: "EDIT_REQUESTED",
           entityType: "pending_edit",

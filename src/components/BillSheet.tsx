@@ -10,7 +10,7 @@ export type BillData = {
     telephone: string; electoralArea: string; streetName: string;
   };
   bill: {
-    structureRate: number; bop: null; basicRate: number; rent: number;
+    structureRate: number; bop: number | null; basicRate: number; rent: number;
     arrears: number; payment: number; totalDue: number; status: string;
     description: string;
   };
@@ -121,7 +121,7 @@ export default function BillSheet({ data, directorName }: { data: BillData; dire
           <tbody>
             <tr>
               <td>{GHS(bill.structureRate)} GHS</td>
-              <td>—</td>
+              <td>{bill.bop != null ? `${GHS(bill.bop)} GHS` : "—"}</td>
               <td>{bill.rent} GHS</td>
               <td>{GHS(bill.basicRate)} GHS</td>
               <td>{GHS(bill.arrears)} GHS</td>
@@ -179,7 +179,7 @@ export default function BillSheet({ data, directorName }: { data: BillData; dire
           CUSTOMER ID: {customer.id}
         </div>
         <div className="stub-rate">STRUCTURE RATE: {GHS(bill.structureRate)} GHS</div>
-        <div className="stub-rate">BOP: — (NOT COLLECTED)</div>
+        <div className="stub-rate">BOP: {bill.bop != null ? `${GHS(bill.bop)} GHS` : "— (NOT COLLECTED)"}</div>
         <div className="stub-rate">BASIC RATE: {GHS(bill.basicRate)} GHS</div>
         <div className="stub-rate">ARREARS: {GHS(bill.arrears)} GHS</div>
         <div className="stub-rate">RENT: {bill.rent} GHS</div>

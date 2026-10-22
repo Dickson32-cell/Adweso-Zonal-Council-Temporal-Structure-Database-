@@ -66,7 +66,7 @@ function BatchPrintInner() {
         </label>
         <button className="btn btn-primary" onClick={() => window.print()}>Print {bills.length} bill(s)</button>
         {" "}
-        <button className="btn btn-ghost" onClick={() => history.back()}>Back</button>
+        <button className="btn btn-ghost" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.href = "/"; }}>Back</button>
         {errors > 0 && <span style={{ color: "#a33", marginLeft: 10 }}>{errors} bill(s) could not be loaded</span>}
       </div>
       {bills.map((b) => (

@@ -113,6 +113,12 @@ export async function POST(req: NextRequest) {
               businessName: businessName.trim(),
               telephone,
               streetName: streetName.trim(),
+              businessType: body.businessType && String(body.businessType).trim()
+                ? String(body.businessType).trim().slice(0, 80)
+                : null,
+              containerSize: ["Small", "Medium", "Large"].includes(body.containerSize)
+                ? body.containerSize
+                : null,
               latitude: lat != null ? lat.toFixed(7) : null,
               longitude: lng != null ? lng.toFixed(7) : null,
               fee: feeNum.toFixed(2),
@@ -157,6 +163,8 @@ export async function POST(req: NextRequest) {
         telephone: record.telephone,
         electoralArea: record.electoralArea,
         streetName: record.streetName,
+        businessType: record.businessType || null,
+        containerSize: record.containerSize || null,
         latitude: record.latitude ? Number(record.latitude) : null,
         longitude: record.longitude ? Number(record.longitude) : null,
         fee: Number(record.fee),

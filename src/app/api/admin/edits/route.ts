@@ -82,6 +82,8 @@ export async function PATCH(req: NextRequest) {
       });
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
+        
           userId: session.sub,
           action: `EDIT_${decision === "approve" ? "APPROVED" : "REJECTED"}`,
           entityType: "pending_edit",

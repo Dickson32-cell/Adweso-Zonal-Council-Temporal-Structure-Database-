@@ -48,7 +48,7 @@ export default function BillPage() {
         </label>
         <button className="btn btn-primary" onClick={() => window.print()}>Print bill</button>
         {" "}
-        <button className="btn btn-ghost" onClick={() => history.back()}>Back</button>
+        <button className="btn btn-ghost" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.href = "/"; }}>Back</button>
       </div>
       <BillSheet data={data} directorName={director} />
     </div>
