@@ -50,8 +50,12 @@ export default function RegisterTable({
   const [rows, setRows] = useState<Row[]>([]);
   const [byArea, setByArea] = useState<Record<string, AreaSum>>({});
   const [grand, setGrand] = useState<Grand>({ records: 0, billed: 0, collected: 0, outstanding: 0 });
+  // Register list collapsed by default — click to show, searching re-opens it.
+  const [listOpen, setListOpen] = useState(false);
+  const toggleList = () => setListOpen((v) => !v);
   const [area, setArea] = useState("");
   const [q, setQ] = useState("");
+  useEffect(() => { if (q && !listOpen) setListOpen(true); }, [q, listOpen]);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -585,6 +589,19 @@ export default function RegisterTable({
           </form>
         )}
 
+        {/* The long list is hidden until needed — totals and summary stay visible */}
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, margin: "12px 0 4px" }}>
+          <button className="btn btn-ghost" onClick={toggleList} style={{ justifyContent: "center" }}>
+            {listOpen ? "Hide the register list" : `Show the register list (${rows.length})`}
+          </button>
+          {!listOpen && rows.length > 0 && (
+            <span style={{ fontSize: 12, color: "var(--muted)" }}>
+              the record list is hidden to keep the page short — click the button to view all {rows.length}
+            </span>
+          )}
+        </div>
+        {listOpen && (
+          <>
         <div className="tbl-wrap only-desktop">
           <table className="tbl">
             <thead>
@@ -714,6 +731,8 @@ export default function RegisterTable({
             </div>
           ))}
         </div>
+          </>
+        )}
 
         {/* Grand totals — money visible to administrators only */}
         <div className="grand">
