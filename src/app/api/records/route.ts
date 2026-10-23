@@ -88,6 +88,15 @@ export async function POST(req: NextRequest) {
         errors.push("GPS coordinates look invalid (must be within Ghana)");
       }
     }
+    // Container type + category pairing
+    const containerSizeVal = ["Small", "Medium", "Large", "Double Container", "Wooden"].includes(body.containerSize) ? body.containerSize as string : null;
+    const catRaw = body.containerCategory ? String(body.containerCategory).trim() : "";
+    const catSet = containerSizeVal === "Wooden" ? ["Small", "Medium", "Large"] : ["CAT A", "CAT B", "CAT C"];
+    const containerCategoryVal = catRaw && catSet.includes(catRaw) ? catRaw : null;
+    if (containerSizeVal && !containerCategoryVal)
+      errors.push("Select the container category (CAT A/B/C — or Small/Medium/Large for Wooden)");
+    if (catRaw && !containerCategoryVal)
+      errors.push("Container category does not match the container type");
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
 
     // OFFLINE DEDUPE: a retry (lost/duplicate sync) returns the record that already
@@ -135,9 +144,8 @@ export async function POST(req: NextRequest) {
               businessType: body.businessType && String(body.businessType).trim()
                 ? String(body.businessType).trim().slice(0, 80)
                 : null,
-              containerSize: ["Small", "Medium", "Large"].includes(body.containerSize)
-                ? body.containerSize
-                : null,
+              containerSize: containerSizeVal,
+              containerCategory: containerCategoryVal,
               latitude: lat != null ? lat.toFixed(7) : null,
               longitude: lng != null ? lng.toFixed(7) : null,
               fee: feeNum.toFixed(2),
@@ -184,6 +192,7 @@ export async function POST(req: NextRequest) {
         streetName: record.streetName,
         businessType: record.businessType || null,
         containerSize: record.containerSize || null,
+      containerCategory: record.containerCategory || null,
         latitude: record.latitude ? Number(record.latitude) : null,
         longitude: record.longitude ? Number(record.longitude) : null,
         fee: Number(record.fee),

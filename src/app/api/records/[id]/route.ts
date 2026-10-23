@@ -143,10 +143,20 @@ export async function PATCH(
     }
 
     // Container size + BOP fee (staff may set both on their own entries)
-    if (typeof body.containerSize === "string" && body.containerSize.trim()) {
-      if (!["Small", "Medium", "Large"].includes(body.containerSize.trim()))
-        errors.push("Container size must be Small, Medium or Large");
-      else data.containerSize = body.containerSize.trim();
+    const CONTAINER_TYPES = ["Small", "Medium", "Large", "Double Container", "Wooden"];
+    const nextSizeRaw = typeof body.containerSize === "string" ? body.containerSize.trim() : "";
+    if (nextSizeRaw && !CONTAINER_TYPES.includes(nextSizeRaw))
+      errors.push("Container size must be Small, Medium, Large, Double Container or Wooden");
+    else if (nextSizeRaw) data.containerSize = nextSizeRaw;
+    const nextCatRaw = typeof body.containerCategory === "string" ? body.containerCategory.trim() : "";
+    if (nextSizeRaw && !nextCatRaw)
+      errors.push("Include the container category when changing the container type");
+    if (nextCatRaw) {
+      const eff = nextSizeRaw || (payer.containerSize ?? "");
+      const catSet = eff === "Wooden" ? ["Small", "Medium", "Large"] : ["CAT A", "CAT B", "CAT C"];
+      if (!catSet.includes(nextCatRaw))
+        errors.push("Container category does not match the container type");
+      else data.containerCategory = nextCatRaw;
     }
     if (typeof body.bopFee === "string" && body.bopFee.trim()) {
       const bop = Number(body.bopFee.trim());

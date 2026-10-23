@@ -61,6 +61,7 @@ export async function GET(req: NextRequest) {
       "Street Name": r.streetName,
       "Business Type": r.businessType || "",
       "Container Size": r.containerSize || "",
+      "Container Category": r.containerCategory || "",
       "BOP Fee (GHS)": r.bopFee != null ? Number(r.bopFee) : "",
       "GPS Latitude": lat,
       "GPS Longitude": lng,

@@ -5,6 +5,11 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { listPending, putPending, deletePending, markPendingError, type PendingRecord } from "@/lib/pendingRecords";
 
 const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
+const CONTAINER_TYPES = ["Small", "Medium", "Large", "Double Container", "Wooden"];
+const CATS_ABC = ["CAT A", "CAT B", "CAT C"];
+const CATS_WOOD = ["Small", "Medium", "Large"];
+const CATS_FOR = (t2: string) => (t2 === "Wooden" ? CATS_WOOD : CATS_ABC);
+const ctrTxt = (size?: string | null, cat?: string | null) => size ? (cat ? size + " — " + cat : size) : "—"; // CONTAINER-CATS
 const CONTAINER_SIZES = ["Small", "Medium", "Large"];
 const AREAS = [
   "Adweso Estate",
@@ -23,6 +28,7 @@ type Row = {
   telephone: string; electoralArea: string; streetName: string;
   businessType: string | null;
   containerSize: string | null;
+  containerCategory: string | null;
   bopFee: number | null;
   latitude: number | null; longitude: number | null; hasGps: boolean;
   mapsUrl: string | null;
@@ -62,7 +68,7 @@ export default function RegisterTable({
   // New-record form state
   const [showForm, setShowForm] = useState(false);
   const [serialPreview, setSerialPreview] = useState("");
-  const [form, setForm] = useState({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "" });
+  const [form, setForm] = useState({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "", containerCategory: "" });
   const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
   const [gpsBusy, setGpsBusy] = useState(false);
   const [gpsErr, setGpsErr] = useState("");
@@ -119,7 +125,7 @@ export default function RegisterTable({
     record: {
       serialNumber: string; name: string; businessName: string; telephone: string;
       electoralArea: string; streetName: string; businessType: string | null;
-      containerSize: string | null; bopFee: number | null; recordStatus: string;
+      containerSize: string | null; containerCategory: string | null; bopFee: number | null; recordStatus: string;
       latitude: number | null; longitude: number | null;
       createdAt: string;
       fees: { amount: number; createdAt: string }[];
@@ -200,7 +206,7 @@ export default function RegisterTable({
       ...(gps ? { latitude: gps.lat, longitude: gps.lng } : {}),
     };
     const resetForm = () => {
-      setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "" });
+      setForm({ name: "", businessName: "", telephone: "", electoralArea: "", streetName: "", fee: "", businessType: "", otherType: "", containerSize: "", containerCategory: "" });
       setSerialPreview("");
       setGps(null);
     };
@@ -312,7 +318,7 @@ export default function RegisterTable({
 
   // Edit modal state
   const [editFor, setEditFor] = useState<Row | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "", businessType: "", otherType: "", containerSize: "", bopFee: "" });
+  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "", businessType: "", otherType: "", containerSize: "", containerCategory: "", bopFee: "" });
   const [editErr, setEditErr] = useState<string[]>([]);
   const [editMsg, setEditMsg] = useState("");
   const [editBusy, setEditBusy] = useState(false);
@@ -325,6 +331,7 @@ export default function RegisterTable({
       latitude: row.latitude != null ? String(row.latitude) : "",
       businessType: row.businessType || "",
       containerSize: row.containerSize || "",
+    containerCategory: row.containerCategory || "",
       bopFee: row.bopFee != null ? String(row.bopFee) : "",
       longitude: row.longitude != null ? String(row.longitude) : "",
           otherType: "",
@@ -554,11 +561,20 @@ export default function RegisterTable({
                     </select>
                   </div>
                   <input type="text" placeholder="or type a business type" value={form.otherType} onChange={(e) => setForm({ ...form, otherType: e.target.value })} maxLength={80} /></label>
-                  <label className="fld"><span className="cap">Container Size</span>
-                    <select value={form.containerSize} onChange={(e) => setForm({ ...form, containerSize: e.target.value })}>
+                  <label className="fld"><span className="cap">Container Type</span>
+                    <select value={form.containerSize} onChange={(e) => setForm({ ...form, containerSize: e.target.value, containerCategory: "" })}>
                       <option value="">—</option>
-                      {CONTAINER_SIZES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select></label>
+                      {CONTAINER_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </label>
+                  {form.containerSize && (
+                    <label className="fld"><span className="cap">Category <span className="req">*</span></span>
+                      <select value={form.containerCategory} onChange={(e) => setForm({ ...form, containerCategory: e.target.value })}>
+                        <option value="">— pick —</option>
+                        {CATS_FOR(form.containerSize).map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </label>
+                  )}
 
               <label className="fld">
                 <span className="cap">GPS Location <span style={{ fontWeight: 400, color: "var(--muted)" }}>(optional — stand at the structure and pick)</span></span>
@@ -655,7 +671,7 @@ export default function RegisterTable({
                   <td className="num">{r.status === "PAID" ? "0.00" : r.total.toFixed(2)}</td>
                   <td><span className={`badge ${r.status === "PAID" ? "paid" : "unpaid"}`}>{r.status === "PAID" ? "PAID" : "UNPAID"}</span></td>
                   <td className="no-print">{r.businessType || "—"}</td>
-                  <td className="no-print">{r.containerSize || "—"}</td>
+                  <td className="no-print">{ctrTxt(r.containerSize, r.containerCategory)}</td>
                   <td className="no-print">{r.bopFee != null ? r.bopFee.toFixed(2) : "—"}</td>
                   {isAdmin && <td className="no-print">{r.createdByUsername || "—"}</td>}
                   <td className="no-print" style={{ whiteSpace: "nowrap" }}>
@@ -707,7 +723,7 @@ export default function RegisterTable({
                   <input type="checkbox" checked={sel.has(r.id)} onChange={() => toggleSel(r.id)} />
                   Bill
                 </label>
-                <span>{r.telephone} · {r.electoralArea} · {r.streetName} · <i>{r.businessType || "—"}</i> · {r.containerSize || "—"}</span>
+                <span>{r.telephone} · {r.electoralArea} · {r.streetName} · <i>{r.businessType || "—"}</i> · {ctrTxt(r.containerSize, r.containerCategory)}</span>
               </div>
               <div className="row-actions" onClick={(e) => e.stopPropagation()}>
                 {r.hasGps && (
@@ -803,11 +819,18 @@ export default function RegisterTable({
                 </div>
                 <input type="text" placeholder="or type a business type" value={editForm.otherType} onChange={(e) => setEditForm({ ...editForm, otherType: e.target.value })} maxLength={80} /></label>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <label className="fld" style={{ flex: 1 }}><span className="cap">Container Size</span>
-                    <select value={editForm.containerSize} onChange={(e) => setEditForm({ ...editForm, containerSize: e.target.value })}>
+                  <label className="fld" style={{ flex: 1 }}><span className="cap">Container Type</span>
+                    <select value={editForm.containerSize} onChange={(e) => setEditForm({ ...editForm, containerSize: e.target.value, containerCategory: "" })}>
                       <option value="">—</option>
-                      {CONTAINER_SIZES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select></label>
+                      {CONTAINER_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </label>
+                  <label className="fld" style={{ flex: 1 }}><span className="cap">Category <span className="req">*</span></span>
+                    <select value={editForm.containerCategory} onChange={(e) => setEditForm({ ...editForm, containerCategory: e.target.value })}>
+                      <option value="">— pick —</option>
+                      {CATS_FOR(editForm.containerSize).map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </label>
                   <label className="fld" style={{ flex: 1 }}><span className="cap">BOP Fee (GHS)</span>
                     <input type="text" inputMode="decimal" placeholder="e.g. 50" value={editForm.bopFee} onChange={(e) => setEditForm({ ...editForm, bopFee: e.target.value })} /></label>
                 </div>
@@ -860,7 +883,7 @@ export default function RegisterTable({
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Electoral Area</td><td style={{ padding: "4px 0" }}>{detail.record.electoralArea}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Street</td><td style={{ padding: "4px 0" }}>{detail.record.streetName || "—"}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Business Type</td><td style={{ padding: "4px 0" }}>{detail.record.businessType || "—"}</td></tr>
-                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Container Size</td><td style={{ padding: "4px 0" }}>{detail.record.containerSize || "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Container</td><td style={{ padding: "4px 0" }}>{ctrTxt(detail.record.containerSize, detail.record.containerCategory)}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>BOP Fee</td><td style={{ padding: "4px 0" }}>{detail.record.bopFee != null ? "GH₵ " + detail.record.bopFee.toFixed(2) : "—"}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Registered</td><td style={{ padding: "4px 0" }}>{new Date(detail.record.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Location</td><td style={{ padding: "4px 0" }}>

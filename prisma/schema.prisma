@@ -25,7 +25,8 @@ model FeePayer {
   latitude      Decimal?  @db.Decimal(10, 7)  // GPS of the structure
   longitude     Decimal?  @db.Decimal(10, 7)  // GPS of the structure
   businessType  String?  @map("business_type") @db.VarChar(80) // Type of business
-  containerSize String?  @map("container_size") @db.VarChar(10) // Small | Medium | Large
+    containerSize String?  @map("container_size") @db.VarChar(24) // Small | Medium | Large | Double Container | Wooden // CONTAINER-CATS
+  containerCategory String? @map("container_category") @db.VarChar(12) // CAT A | CAT B | CAT C (or Small/Medium/Large for Wooden) // CONTAINER-CATS
   bopFee        Decimal? @map("bop_fee") @db.Decimal(12, 2) // BOP fee (entered later by staff)
   pendingId     String?  @map("pending_id") @db.VarChar(64) // offline capture dedupe key (unique per council + key) // OFFLINE-SYNC
   fee           Decimal  @db.Decimal(12, 2)

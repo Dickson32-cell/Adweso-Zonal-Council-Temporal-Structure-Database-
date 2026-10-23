@@ -40,6 +40,7 @@ export async function GET(
     streetName: payer.streetName,
     businessType: payer.businessType || null,
     containerSize: payer.containerSize || null,
+ containerCategory: payer.containerCategory || null,
     bopFee: payer.bopFee != null ? Number(payer.bopFee) : null,
     recordStatus: payer.recordStatus,
     latitude: payer.latitude ? Number(payer.latitude) : null,
