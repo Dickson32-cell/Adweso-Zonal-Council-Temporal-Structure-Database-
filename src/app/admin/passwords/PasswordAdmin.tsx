@@ -75,7 +75,7 @@ export default function PasswordAdmin() {
             </thead>
             <tbody>
               {pending.map((r) => (
-                <tr key={r.id} style={{ background: "#fffbeb" }}>
+                <tr key={r.id} style={{ background: "var(--amber-soft)" }}>
                   <td className="serial">{r.username}</td>
                   <td>{r.fullName}</td>
                   <td>{r.accountActive ? "Active" : "Disabled"}</td>
@@ -92,7 +92,7 @@ export default function PasswordAdmin() {
 
         <div className="only-mobile">
           {pending.map((r) => (
-            <div key={r.id} className="user-card" style={{ background: "#fffbeb" }}>
+            <div key={r.id} className="user-card" style={{ background: "var(--amber-soft)" }}>
               <div className="user-card-head">
                 <div>
                   <div className="serial" style={{ fontSize: 14 }}>{r.username}</div>

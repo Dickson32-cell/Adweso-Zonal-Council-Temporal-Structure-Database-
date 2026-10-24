@@ -188,7 +188,7 @@ export default function UserAdmin() {
             </thead>
             <tbody>
               {[...pending, ...active].map((u) => (
-                <tr key={u.id} style={!u.active ? { background: "#fffbeb" } : undefined}>
+                <tr key={u.id} style={!u.active ? { background: "var(--amber-soft)" } : undefined}>
                   <td className="serial">{u.username}</td>
                   <td>{u.fullName}</td>
                   <td><RoleLabel u={u} /></td>
@@ -205,7 +205,7 @@ export default function UserAdmin() {
         {/* Phones: stacked cards */}
         <div className="only-mobile">
           {[...pending, ...active].map((u) => (
-            <div key={u.id} className="user-card" style={!u.active ? { background: "#fffbeb" } : undefined}>
+            <div key={u.id} className="user-card" style={!u.active ? { background: "var(--amber-soft)" } : undefined}>
               <div className="user-card-head">
                 <div>
                   <div className="serial" style={{ fontSize: 14 }}>{u.username}</div>

@@ -86,11 +86,11 @@ export default function LicenseGate({ onChanged }: { onChanged?: () => void }) {
       <div className="card modal-card" style={{ width: 430, maxWidth: "100%", margin: 0, maxHeight: "88vh", overflowY: "auto" }}>
         <h2 style={{ fontSize: 19 }}>Register Limit Reached</h2>
         <p className="sub" style={{ marginTop: 4 }}>
-          The council has registered <b style={{ color: "#065c37" }}>{license.registered} structures</b>,
+          The council has registered <b style={{ color: "var(--ok, #065c37)" }}>{license.registered} structures</b>,
           reaching the free limit of this system.
         </p>
         <div style={{ background: "var(--paper, #f6fbf7)", border: "1px solid var(--line, #cde3d5)", borderRadius: 8, padding: "12px 16px", margin: "10px 0", textAlign: "center" }}>
-          <div style={{ fontWeight: 800, fontSize: 17, color: "#065c37" }}>Pay a US${license.feeUSD} fee to continue</div>
+          <div style={{ fontWeight: 800, fontSize: 17, color: "var(--ok, #065c37)" }}>Pay a US${license.feeUSD} fee to continue</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>Contact the system provider to make the payment and receive your unlock key.</div>
         </div>
         {msg && <div className={msg.startsWith("Register unlocked") ? "ok" : "err"} style={{ margin: "6px 0", fontSize: 13 }}>{msg}</div>}

@@ -84,7 +84,7 @@ export default function EditsAdmin() {
         )}
 
         {pending.map((e) => (
-          <div key={e.id} className="card" style={{ background: "#fbfdff", borderColor: "var(--line)" }}>
+          <div key={e.id} className="card" style={{ background: "var(--white)", borderColor: "var(--line)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
               <div>
                 <b className="serial">{e.serial}</b> — {e.payerName} ({e.businessName})

@@ -2,6 +2,7 @@
 // TopBar — logo + brand + user + Change Password + admin links + logout
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 export default function TopBar({ username, role, canReviewPasswords, showMaster }: { username: string; role: string; canReviewPasswords?: boolean; showMaster?: boolean }) {
   const router = useRouter();
@@ -45,6 +46,7 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
           {canReviewPasswords && <a href="/admin/passwords" className="drawer-item">Passwords</a>}
         </>
       )}
+      <ThemeToggle drawer />
       <button type="button" className="drawer-item" onClick={() => { setDrawer(false); setPwOpen(true); }}>Change Password</button>
       <button type="button" className="drawer-item drawer-danger" onClick={logout}>Log out</button>
     </nav>
@@ -98,6 +100,7 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
             )}
           </>
         )}{" "}
+        <ThemeToggle />{" "}
         <button className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }} onClick={() => { setPwOpen((s) => !s); setPwMsg(""); setPwErr(""); }}>
           Change Password
         </button>{" "}

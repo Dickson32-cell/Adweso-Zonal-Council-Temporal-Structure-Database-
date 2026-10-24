@@ -331,3 +331,80 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   text-underline-offset: 3px;
 }
 .linklike:hover { text-decoration-color: var(--green, #065c37); color: var(--green, #065c37); }
+/* =============================================================
+   [dark-mode] DARK THEME LAYER — additive; light stays the default.
+   html[data-theme="dark"] is set pre-paint by app/layout.tsx and toggled
+   by ThemeToggle.tsx (persisted in localStorage key 'zc-theme').
+   Deep-green bands keep the council identity; surfaces and text flip.
+   Bill pages (/bill*) stay light on purpose — they simulate paper.
+   ============================================================= */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0d1411;
+  --white: #17211b;
+  --ink: #e4efe8;
+  --muted: #9db3a6;
+  --line: #2a3c31;
+  --line-strong: #3d5847;
+  --bg: #101915;
+  --green-soft: #16301f;
+  --blue-soft: #16301f;
+  --gold-soft: #332713;
+  --amber-soft: #332713;
+  --green-soft-status: #16301f;
+  --ok: #8fd6a9;
+  --danger: #f2a9a5;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Text that pairs with the flipped soft panels and dark surfaces */
+html[data-theme="dark"] .card h2,
+html[data-theme="dark"] .sum-card .v,
+html[data-theme="dark"] .serial-preview,
+html[data-theme="dark"] label.fld .cap,
+html[data-theme="dark"] .login-card h1,
+html[data-theme="dark"] .drawer-head span,
+html[data-theme="dark"] .drawer-close,
+html[data-theme="dark"] .drawer-item,
+html[data-theme="dark"] .bill-tick,
+html[data-theme="dark"] .user-card-balance .b-value,
+html[data-theme="dark"] .btn-ghost,
+html[data-theme="dark"] .linklike { color: #cfe8d8; }
+html[data-theme="dark"] .linklike:hover { color: #8fd6a9; text-decoration-color: #3d5847; }
+
+/* Panels and tints whose light values were hardcoded */
+html[data-theme="dark"] .tbl tr:nth-child(even) td { background: #131d17; }
+html[data-theme="dark"] .err { background: #3a1717; border-color: #5c2626; color: #f2a9a5; }
+html[data-theme="dark"] .ok-msg { background: #14301f; border-color: #2f5c40; color: #8fd6a9; }
+html[data-theme="dark"] .badge.unpaid { background: #332713; color: #e8c163; }
+html[data-theme="dark"] .badge.paid { background: #16301f; color: #8fd6a9; }
+html[data-theme="dark"] .btn-primary:disabled { background: #2f4a3a; color: #b9d3c3; }
+html[data-theme="dark"] .drawer { background: #141d18; }
+html[data-theme="dark"] .drawer-scrim { background: rgba(0, 0, 0, 0.55); }
+html[data-theme="dark"] .drawer-item:hover, html[data-theme="dark"] .drawer-item:focus { background: #1d2b23; }
+html[data-theme="dark"] .drawer-item:active { background: #22332a; }
+html[data-theme="dark"] .user-card-tap:active { background: #1d2b23; }
+html[data-theme="dark"] .user-card-balance { background: #141f18; border-color: #2a3c31; }
+html[data-theme="dark"] .user-card-balance.is-paid { background: #16301f; border-color: #2f5c40; }
+html[data-theme="dark"] .bill-tick { background: #141d18; }
+html[data-theme="dark"] .serial-preview { border-color: #4d7c62; }
+html[data-theme="dark"] input:focus, html[data-theme="dark"] select:focus { outline-color: #4d7c62; }
+
+/* Text that sits on the unchanged deep-green bands (--white has flipped) */
+html[data-theme="dark"] .topbar .who b,
+html[data-theme="dark"] .tbl th,
+html[data-theme="dark"] .btn-primary,
+html[data-theme="dark"] .btn-green,
+html[data-theme="dark"] .m-chip.on,
+html[data-theme="dark"] .grand,
+html[data-theme="dark"] .grand .tag { color: #ffffff; }
+html[data-theme="dark"] .topbar .mark { background: #ffffff; color: #034627; }
+
+/* Print stays light in every theme */
+@media print {
+  html, body { background: #ffffff !important; color: #111111 !important; }
+  .card { background: #ffffff !important; color: #111111 !important; }
+  .tbl td { color: #111111 !important; border-color: #bbb !important; }
+  .tbl th { background: #e3f0e8 !important; color: #034627 !important; }
+}

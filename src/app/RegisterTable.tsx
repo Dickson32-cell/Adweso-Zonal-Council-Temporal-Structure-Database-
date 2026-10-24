@@ -428,7 +428,7 @@ export default function RegisterTable({
                     <div style={{ color: "var(--muted)" }}>
                       {String(p.payload?.electoralArea ?? "")} · {String(p.payload?.streetName ?? "")} · GH₵{String(p.payload?.fee ?? "")} · saved {new Date(p.createdAt).toLocaleString()}
                     </div>
-                    {p.note ? <div style={{ color: "#8a1c1c", marginTop: 2 }}>{p.note}</div> : null}
+                    {p.note ? <div style={{ color: "var(--danger, #b91c1c)", marginTop: 2 }}>{p.note}</div> : null}
                     <div style={{ marginTop: 4 }}>
                       <button className="btn btn-ghost btn-sm" onClick={async () => { await deletePending(p.pendingId); const x = await listPending(); setPendingItems(x); setPendingCount(x.length); }}>Remove</button>
                     </div>
@@ -523,7 +523,7 @@ export default function RegisterTable({
         </div>
 
         {showForm && (
-          <form onSubmit={saveRecord} className="card" style={{ background: "#fbfdff" }}>
+          <form onSubmit={saveRecord} className="card" style={{ background: "var(--white)" }}>
             <h2>New Record</h2>
             <p className="sub">Serial number is generated automatically when you select the Electoral Area.</p>
 
