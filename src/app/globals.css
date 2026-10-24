@@ -408,3 +408,7 @@ html[data-theme="dark"] .topbar .mark { background: #ffffff; color: #034627; }
   .tbl td { color: #111111 !important; border-color: #bbb !important; }
   .tbl th { background: #e3f0e8 !important; color: #034627 !important; }
 }
+/* [dark-mode][a] companion: the mobile user chip row must not also render on wide screens */
+@media (min-width: 640px) {
+  .topbar > .who:not(.only-desktop) { display: none; }
+}
