@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: "(function(){try{var p=location.pathname;if(p.indexOf('/bill')!==0){var t=null;try{t=localStorage.getItem('zc-theme')}catch(e){}if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}if(t==='dark'){document.documentElement.setAttribute('data-theme','dark')}try{var m=document.querySelector('meta[name=\"theme-color\"]');if(m)m.setAttribute('content',t==='dark'?'#0d1411':'#0a3b2a')}catch(e){}}}catch(e){})();",
+            __html: "(function(){try{var p=location.pathname;if(p.indexOf('/bill')!==0){var t=null;try{t=localStorage.getItem('zc-theme')}catch(e){}if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}if(t==='dark'){document.documentElement.setAttribute('data-theme','dark')}try{var m=document.querySelector('meta[name=\"theme-color\"]');if(m)m.setAttribute('content',t==='dark'?'#0d1411':'#0a3b2a')}catch(e){}}}catch(e){}})();",
           }}
         />
       </head>

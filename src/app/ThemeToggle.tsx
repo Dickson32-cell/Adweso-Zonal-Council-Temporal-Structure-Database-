@@ -9,7 +9,14 @@ export default function ThemeToggle({ drawer = false }: { drawer?: boolean }) {
   const [dark, setDark] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setDark(document.documentElement.getAttribute("data-theme") === "dark");
+    let d = document.documentElement.getAttribute("data-theme") === "dark";
+    try {
+      // re-apply the stored theme after hydration — heals any pre-paint failure
+      const stored = localStorage.getItem("zc-theme");
+      if (stored === "dark" && !d) { document.documentElement.setAttribute("data-theme", "dark"); d = true; }
+      else if (stored === "light" && d) { document.documentElement.removeAttribute("data-theme"); d = false; }
+    } catch { /* private mode */ }
+    setDark(d);
   }, []);
 
   function toggle() {
