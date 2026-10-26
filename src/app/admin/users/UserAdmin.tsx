@@ -251,7 +251,7 @@ export default function UserAdmin({ areas = [] }: { areas?: string[] }) {
 
         {areasFor && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(10,15,12,.45)", zIndex: 60, display: "grid", placeItems: "center" }} onClick={() => setAreasFor(null)}>
-            <div style={{ background: "var(--card,#fff)", color: "var(--ink,#111827)", border: "1px solid var(--line,#e5e7eb)", borderRadius: 14, padding: 18, width: "min(440px, 92vw)", maxHeight: "82vh", overflowY: "auto", boxShadow: "0 16px 48px rgba(0,0,0,.28)" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ background: "var(--white,#fff)", color: "var(--ink,#111827)", border: "1px solid var(--line,#e5e7eb)", borderRadius: 14, padding: 18, width: "min(440px, 92vw)", maxHeight: "82vh", overflowY: "auto", boxShadow: "0 16px 48px rgba(0,0,0,.28)" }} onClick={(e) => e.stopPropagation()}>
               <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>Areas {areasFor.username} may view</div>
               <div style={{ fontSize: 12.5, color: "var(--muted,#6b7280)", marginBottom: 12 }}>
                 Tick the electoral areas this viewer can see. Save with none ticked = see ALL areas.
@@ -259,7 +259,7 @@ export default function UserAdmin({ areas = [] }: { areas?: string[] }) {
               <div style={{ display: "grid", gap: 4, marginBottom: 12 }}>
                 {areas.map((a) => (
                   <label key={a} style={{ display: "flex", gap: 9, alignItems: "center", fontSize: 14, padding: "5px 4px", borderRadius: 8, border: "1px solid var(--line,#e5e7eb)", cursor: "pointer" }}>
-                    <input type="checkbox" checked={areasDraft.includes(a)} onChange={() => toggleAreaDraft(a)} />
+                    <input type="checkbox" checked={areasDraft.includes(a)} onChange={() => toggleAreaDraft(a)} style={{ accentColor: "var(--navy,#034627)" }} />
                     <span>{a}</span>
                   </label>
                 ))}
