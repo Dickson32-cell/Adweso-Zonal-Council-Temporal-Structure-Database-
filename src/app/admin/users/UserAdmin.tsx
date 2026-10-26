@@ -18,7 +18,7 @@ function RoleLabel({ u }: { u: U }) {
   return <>{lv === "VIEWER" ? "Viewer Admin" : lv === "EDITOR" ? "Editor Admin" : "Full Admin"}</>;
 }
 
-export default function UserAdmin() {
+export default function UserAdmin({ areas = [] }: { areas?: string[] }) {
   const [users, setUsers] = useState<U[]>([]);
   const [busyId, setBusyId] = useState("");
   const [msg, setMsg] = useState("");
@@ -89,17 +89,21 @@ export default function UserAdmin() {
     await act(u, "setAdminLevel", `${u.username} is now a ${normalized} administrator`, { adminLevel: normalized });
   }
 
-  async function viewAreasFlow(u: U) {
-    const current = u.viewerAreas && u.viewerAreas.length ? u.viewerAreas.join(", ") : "";
-    const entry = prompt(
-      `Viewing areas for ${u.username}.\n\n` +
-      `Type the electoral area names this viewer may see, separated by commas.\n` +
-      `Leave EMPTY to let the viewer see ALL areas.\n\n` +
-      `Current: ${current || "ALL areas"}`
-    );
-    if (entry === null) return;
-    const areas = entry.split(",").map((x) => x.trim()).filter(Boolean);
-    await act(u, "setViewerAreas", areas.length ? `${u.username} restricted to ${areas.length} area(s)` : `${u.username} can see ALL areas`, { areas });
+  const [areasFor, setAreasFor] = useState<U | null>(null);
+  const [areasDraft, setAreasDraft] = useState<string[]>([]);
+  function openAreasFlow(u: U) {
+    setAreasFor(u);
+    setAreasDraft(u.viewerAreas && u.viewerAreas.length ? [...u.viewerAreas] : []);
+  }
+  function toggleAreaDraft(a: string) {
+    setAreasDraft((d) => (d.includes(a) ? d.filter((x) => x !== a) : [...d, a]));
+  }
+  async function saveAreasFlow() {
+    const u = areasFor;
+    if (!u) return;
+    const chosen = [...areasDraft];
+    await act(u, "setViewerAreas", chosen.length ? `${u.username} restricted to ${chosen.length} area(s)` : `${u.username} can see ALL areas`, { areas: chosen });
+    setAreasFor(null);
   }
 
   const pending = users.filter((u) => !u.active);
@@ -142,7 +146,7 @@ export default function UserAdmin() {
         )}
         {u.active && u.role === "ADMIN" && u.adminLevel === "VIEWER" && (
           <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
-            onClick={() => viewAreasFlow(u)}>
+            onClick={() => openAreasFlow(u)}>
             Viewing Areas
           </button>
         )}
@@ -244,6 +248,33 @@ export default function UserAdmin() {
         <div style={{ marginTop: 14 }}>
           <Link href="/" className="btn btn-ghost">Back to Register</Link>
         </div>
+
+        {areasFor && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(10,15,12,.45)", zIndex: 60, display: "grid", placeItems: "center" }} onClick={() => setAreasFor(null)}>
+            <div style={{ background: "var(--card,#fff)", color: "var(--ink,#111827)", border: "1px solid var(--line,#e5e7eb)", borderRadius: 14, padding: 18, width: "min(440px, 92vw)", maxHeight: "82vh", overflowY: "auto", boxShadow: "0 16px 48px rgba(0,0,0,.28)" }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4 }}>Areas {areasFor.username} may view</div>
+              <div style={{ fontSize: 12.5, color: "var(--muted,#6b7280)", marginBottom: 12 }}>
+                Tick the electoral areas this viewer can see. Save with none ticked = see ALL areas.
+              </div>
+              <div style={{ display: "grid", gap: 4, marginBottom: 12 }}>
+                {areas.map((a) => (
+                  <label key={a} style={{ display: "flex", gap: 9, alignItems: "center", fontSize: 14, padding: "5px 4px", borderRadius: 8, border: "1px solid var(--line,#e5e7eb)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={areasDraft.includes(a)} onChange={() => toggleAreaDraft(a)} />
+                    <span>{a}</span>
+                  </label>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <button className="btn btn-primary" disabled={busyId === areasFor.id} onClick={saveAreasFlow}>Save Areas</button>
+                <button className="btn btn-ghost" onClick={() => setAreasFor(null)}>Cancel</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => setAreasDraft([])}>Clear (see all)</button>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--muted,#6b7280)" }}>
+                Currently: {areasFor.viewerAreas && areasFor.viewerAreas.length ? areasFor.viewerAreas.join(", ") : "ALL areas"}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

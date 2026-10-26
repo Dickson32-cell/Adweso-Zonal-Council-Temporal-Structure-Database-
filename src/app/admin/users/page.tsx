@@ -1,7 +1,7 @@
 // Admin page — manage staff accounts: approve registrations, deactivate, promote, delete.
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { getFullUser } from "@/lib/db";
+import { getFullUser, ELECTORAL_AREAS } from "@/lib/db";
 import { permsFor } from "@/lib/perms";
 import TopBar from "@/app/TopBar";
 import UserAdmin from "./UserAdmin";
@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
     <div className="shell">
       <TopBar username={me.username} role={me.role} canReviewPasswords={permsFor(me.role, me.adminLevel).canReviewPasswords} />
       <main className="main">
-        <UserAdmin />
+        <UserAdmin areas={ELECTORAL_AREAS.map((a) => a.area)} />
       </main>
     </div>
   );
