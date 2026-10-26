@@ -1,7 +1,7 @@
 // GET /api/records — the register list with computed money columns,
 // area filters, search, per-area summaries AND GRAND TOTALS.
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, councilId } from "@/lib/db";
+import { prisma, councilId, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
@@ -12,9 +12,23 @@ export async function GET(req: NextRequest) {
   const area = sp.get("area") || "";
   const q = (sp.get("q") || "").trim();
   const status = (sp.get("status") || "").trim(); // UNPAID | PAID | ""
+  const _role = (session as { role?: string }).role;
+  const isAdmin = _role === "ADMIN";
+  let moneyVisible = isAdmin;
+  let viewerScope: string[] = [];
+  if (isAdmin) {
+    const _me = await getFullUser(session);
+    moneyVisible = (_me?.adminLevel || "FULL") === "FULL";
+    if (_me && _me.adminLevel === "VIEWER" && Array.isArray(_me.viewerAreas))
+      viewerScope = _me.viewerAreas.filter((a) => typeof a === "string" && a.length > 0);
+  }
 
   const where: Record<string, unknown> = { recordStatus: "ACTIVE", councilId: councilId() };
   if (area) where.electoralArea = area;
+  if (viewerScope.length) {
+    if (area) where.electoralArea = viewerScope.includes(area) ? area : { in: [] };
+    else where.electoralArea = { in: viewerScope };
+  }
   if (status) where.status = status;
   if (q) {
     where.OR = [
@@ -87,18 +101,17 @@ export async function GET(req: NextRequest) {
     outstanding: Number(records.reduce((s, r) => s + r.balance, 0).toFixed(2)),
   };
 
-  // Only administrators see money aggregates; staff see record/area counts.
-  const isAdmin = (session as { role?: string }).role === "ADMIN";
-  const safeByArea = isAdmin
+  // Money aggregates (billed/collected/outstanding) are visible to FULL administrators only.
+  const safeByArea = moneyVisible
     ? byArea
     : Object.fromEntries(Object.entries(byArea).map(([k, v]) => [k, { count: v.count }]));
-  const safeGrand = isAdmin
+  const safeGrand = moneyVisible
     ? grand
     : { records: grand.records, billed: null, collected: null, outstanding: null };
   return NextResponse.json({
     records,
     byArea: safeByArea,
     grand: safeGrand,
-    moneyHidden: !isAdmin,
+    moneyHidden: !moneyVisible,
   });
 }

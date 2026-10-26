@@ -151,7 +151,7 @@ export async function verifySessionToken(token: string) {
 export async function getFullUser(session: { sub: string }) {
   const user = await prisma.appUser.findUnique({
     where: { id: session.sub },
-    select: { id: true, username: true, fullName: true, role: true, adminLevel: true, active: true },
+    select: { id: true, username: true, fullName: true, role: true, adminLevel: true, active: true, viewerAreas: true },
   });
   return user;
 }

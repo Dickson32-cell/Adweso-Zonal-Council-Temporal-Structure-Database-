@@ -40,6 +40,7 @@ type AreaSum = { count: number; billed: number; collected: number; outstanding: 
 
 export default function RegisterTable({
   isAdmin = false,
+  moneyVisible = false,
   canDelete = true,
   canEditDirect = true,
   canCreate = true,
@@ -47,6 +48,7 @@ export default function RegisterTable({
   currentUsername = "",
 }: {
   isAdmin?: boolean;
+  moneyVisible?: boolean;
   canDelete?: boolean;
   canEditDirect?: boolean;
   canCreate?: boolean;
@@ -754,15 +756,13 @@ export default function RegisterTable({
         <div className="grand">
           <div className="tag">GRAND TOTALS</div>
           <div className="g"><div className="k">RECORDS</div><div className="v">{grand.records}</div></div>
-          {isAdmin ? (
+          {moneyVisible ? (
             <>
               <div className="g"><div className="k">TOTAL BILLED</div><div className="v">{GHS(grand.billed)}</div></div>
               <div className="g"><div className="k">TOTAL COLLECTED</div><div className="v">{GHS(grand.collected)}</div></div>
               <div className="g"><div className="k">OUTSTANDING</div><div className="v">{GHS(grand.outstanding)}</div></div>
             </>
-          ) : (
-            <div className="g"><div className="k">MONEY TOTALS</div><div className="v" style={{ fontSize: 13 }}>Admin only</div></div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -775,7 +775,7 @@ export default function RegisterTable({
             <div className="sum-card" key={a}>
               <div className="k">{a}</div>
               <div className="v">{s.count} record{s.count === 1 ? "" : "s"}</div>
-              {isAdmin ? (
+              {moneyVisible ? (
                 <>
                   <div className="k" style={{ marginTop: 6 }}>Billed {GHS(s.billed)} · Collected {GHS(s.collected)}</div>
                   <div className="k">Outstanding {GHS(s.outstanding)}</div>

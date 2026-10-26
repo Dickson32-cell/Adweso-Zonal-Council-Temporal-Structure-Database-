@@ -17,6 +17,7 @@ export async function GET() {
     select: {
       id: true, username: true, fullName: true,
       role: true, adminLevel: true, active: true, createdAt: true,
+      viewerAreas: true,
     },
   });
 
@@ -104,6 +105,17 @@ export async function PATCH(req: NextRequest) {
           });
         });
         return NextResponse.json({ ok: true, deleted: target.username });
+      case "setViewerAreas":
+        if (!Array.isArray(body.areas))
+          return NextResponse.json({ error: "areas must be a list of electoral area names" }, { status: 400 });
+        data = {
+          viewerAreas: body.areas
+            .filter((x: unknown) => typeof x === "string")
+            .map((x: string) => x.trim())
+            .filter((x: string) => x.length > 0)
+            .slice(0, 40),
+        };
+        break;
       case "demoteToStaff":
         if (target.username === "admin")
           return NextResponse.json({ error: "The primary admin cannot be demoted" }, { status: 400 });

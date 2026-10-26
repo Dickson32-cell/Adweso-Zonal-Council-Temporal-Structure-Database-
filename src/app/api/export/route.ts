@@ -2,7 +2,7 @@
 //   Register | Area Summary | Grand Totals
 // Mirrors the current filter view (area / status / search).
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, councilId } from "@/lib/db";
+import { prisma, councilId, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import * as XLSX from "xlsx";
 import { licenseStatus } from "@/lib/license";
@@ -18,15 +18,28 @@ export async function GET(req: NextRequest) {
   if (license.locked)
     return NextResponse.json({ error: "EXPORT LOCKED", license }, { status: 402 });
 
-  const isAdmin = (session as { role?: string }).role === "ADMIN";
-
-  const sp = req.nextUrl.searchParams;
+    const sp = req.nextUrl.searchParams;
+  
+  const _role = (session as { role?: string }).role;
+  const isAdmin = _role === "ADMIN";
+  let moneyVisible = isAdmin;
+  let viewerScope: string[] = [];
+  if (isAdmin) {
+    const _me = await getFullUser(session);
+    moneyVisible = (_me?.adminLevel || "FULL") === "FULL";
+    if (_me && _me.adminLevel === "VIEWER" && Array.isArray(_me.viewerAreas))
+      viewerScope = _me.viewerAreas.filter((a) => typeof a === "string" && a.length > 0);
+  }
   const area = sp.get("area") || "";
   const q = (sp.get("q") || "").trim();
   const status = (sp.get("status") || "").trim();
 
   const where: Record<string, unknown> = { recordStatus: "ACTIVE", councilId: councilId() };
   if (area) where.electoralArea = area;
+  if (viewerScope.length) {
+    if (area) where.electoralArea = viewerScope.includes(area) ? area : { in: [] };
+    else where.electoralArea = { in: viewerScope };
+  }
   if (status) where.status = status;
   if (q) {
     where.OR = [
@@ -87,7 +100,7 @@ export async function GET(req: NextRequest) {
     a.outstanding = Number((a.outstanding + Math.max(0, billed - paid)).toFixed(2));
   });
   // Money aggregates (billed/collected/outstanding) are visible to administrators only.
-  const summary = isAdmin
+  const summary = moneyVisible
     ? Object.entries(byArea).map(([k, v]) => ({
         "Electoral Area": k,
         "Records": v.count,
@@ -100,7 +113,7 @@ export async function GET(req: NextRequest) {
         "Records": v.count,
       }));
 
-  const grand = isAdmin
+  const grand = moneyVisible
     ? {
         "Total Records": records.length,
         "Grand Total Billed (GHS)": Number(records.reduce((s, r) => s + r["Total (GHS)"], 0).toFixed(2)),
@@ -124,7 +137,7 @@ export async function GET(req: NextRequest) {
   const wsSummary = XLSX.utils.json_to_sheet(summary);
   XLSX.utils.book_append_sheet(wb, wsSummary, "Area Summary");
 
-  if (isAdmin) {
+  if (moneyVisible) {
     const wsGrand = XLSX.utils.json_to_sheet([grand]);
     XLSX.utils.book_append_sheet(wb, wsGrand, "Grand Totals");
   }

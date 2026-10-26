@@ -95,6 +95,7 @@ model AppUser {
   fullName     String   @map("full_name") @db.VarChar(120)
   role         String   @default("STAFF") @db.VarChar(10) // ADMIN | STAFF
   adminLevel   String?  @map("admin_level") @db.VarChar(10) // for ADMINs: FULL | EDITOR | VIEWER (primary admin = FULL)
+  viewerAreas  String[] @default([]) @map("viewer_areas") // VIEWER admins: restricted electoral areas (empty = all areas)
   active       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 

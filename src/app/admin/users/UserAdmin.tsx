@@ -7,6 +7,7 @@ import Link from "next/link";
 type U = {
   id: string; username: string; fullName: string;
   role: string; adminLevel: string | null; active: boolean; createdAt: string;
+ viewerAreas?: string[];
   recordsCreated: number;
 };
 
@@ -88,6 +89,19 @@ export default function UserAdmin() {
     await act(u, "setAdminLevel", `${u.username} is now a ${normalized} administrator`, { adminLevel: normalized });
   }
 
+  async function viewAreasFlow(u: U) {
+    const current = u.viewerAreas && u.viewerAreas.length ? u.viewerAreas.join(", ") : "";
+    const entry = prompt(
+      `Viewing areas for ${u.username}.\n\n` +
+      `Type the electoral area names this viewer may see, separated by commas.\n` +
+      `Leave EMPTY to let the viewer see ALL areas.\n\n` +
+      `Current: ${current || "ALL areas"}`
+    );
+    if (entry === null) return;
+    const areas = entry.split(",").map((x) => x.trim()).filter(Boolean);
+    await act(u, "setViewerAreas", areas.length ? `${u.username} restricted to ${areas.length} area(s)` : `${u.username} can see ALL areas`, { areas });
+  }
+
   const pending = users.filter((u) => !u.active);
   const active = users.filter((u) => u.active);
 
@@ -124,6 +138,12 @@ export default function UserAdmin() {
           <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
             onClick={() => changeLevelFlow(u)}>
             Change Level
+          </button>
+        )}
+        {u.active && u.role === "ADMIN" && u.adminLevel === "VIEWER" && (
+          <button className="btn btn-ghost btn-sm" disabled={busyId === u.id}
+            onClick={() => viewAreasFlow(u)}>
+            Viewing Areas
           </button>
         )}
         {u.active && u.role === "ADMIN" && (

@@ -23,6 +23,7 @@ export default async function HomePage() {
       <main className="main">
         <RegisterTable
           isAdmin={me.role === "ADMIN"}
+          moneyVisible={perms.canViewMoneyTotals}
           canDelete={perms.canDeleteRecords}
           canEditDirect={perms.canEditRecords}
           canCreate={perms.canCreateRecords}

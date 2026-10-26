@@ -9,6 +9,7 @@ export type Perms = {
   canCreateRecords: boolean;
   canEditRecords: boolean; // directly (else requires approval workflow)
   canDeleteRecords: boolean;
+  canViewMoneyTotals: boolean;
   canRecordPayments: boolean;
   canExport: boolean;
   canManageUsers: boolean; // staff approve/reject/delete
@@ -30,6 +31,7 @@ export function permsFor(role: string, adminLevel: string | null): Perms {
   if (role === "ADMIN") {
     if (adminLevel === "VIEWER") {
       return {
+        canViewMoneyTotals: false,
         canCreateRecords: false,
         canEditRecords: false,
         canDeleteRecords: false,
@@ -43,6 +45,7 @@ export function permsFor(role: string, adminLevel: string | null): Perms {
     }
     if (adminLevel === "EDITOR") {
       return {
+        canViewMoneyTotals: false,
         canCreateRecords: true,
         canEditRecords: true,
         canDeleteRecords: true,
@@ -56,6 +59,7 @@ export function permsFor(role: string, adminLevel: string | null): Perms {
     }
     // FULL (primary or promoted full admin)
     return {
+      canViewMoneyTotals: true,
       canCreateRecords: true,
       canEditRecords: true,
       canDeleteRecords: true,
@@ -71,6 +75,7 @@ export function permsFor(role: string, adminLevel: string | null): Perms {
   // (enforced per-record at the route level), create new ones, and record
   // payments on their own entries. They cannot touch other staff's entries.
   return {
+    canViewMoneyTotals: false,
     canCreateRecords: true,
     canEditRecords: true, // own records only — route-level ownership check
     canDeleteRecords: false,
