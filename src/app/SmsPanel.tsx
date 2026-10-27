@@ -58,8 +58,11 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
       if (!res.ok) { setErr(data.error || "Send failed"); return; }
       if (dryRun) setResult(`Preview: ${data.result.wouldSend} message(s) would go out, ${data.result.skipped} skipped.`);
       else {
+        const r = data.result;
         const rem = data.remainingAfter;
-        setResult(`Sent to ${data.result.sent.length} number(s). Failed: ${data.result.failed.length}. Skipped: ${data.result.skipped.length}.` + (rem > 0 ? ` Remaining: ${rem} — press Send again for the next batch (no duplicates possible).` : " All done for this selection."));
+        const firstErrs = (r.failed || []).slice(0, 2).map((f: { error?: string }) => String(f.error || "").replace(/^Error: provider rejected: /, "").slice(0, 90));
+        const errLine = firstErrs.length ? ` Reason: ${firstErrs.join(" | ")}` : "";
+        setResult(`Sent to ${r.sent.length} number(s). Failed: ${r.failed.length}. Skipped: ${r.skipped.length}.` + errLine + (rem > 0 ? ` Remaining: ${rem} — press Send again for the next batch (no duplicates possible).` : " All done for this selection."));
         load();
       }
     } catch {

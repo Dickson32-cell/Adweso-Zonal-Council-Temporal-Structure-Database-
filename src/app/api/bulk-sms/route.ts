@@ -126,13 +126,26 @@ export async function POST(req: NextRequest) {
     const message = fillTemplate(SMS_TEXTS[type], r.name, r.serialNumber);
     if (dryRun) { sent.push({ id: r.id, serial: r.serialNumber, phone, name: r.name }); continue; }
     try {
-      await arkeselSend(apiKey, SMS_SENDER_ID, message, phone);
+      let sent1 = false;
+      let lastErr = "";
+      for (let attempt = 0; attempt < 2 && !sent1; attempt++) {
+        if (attempt > 0) await new Promise((r) => setTimeout(r, 500));
+        try {
+          await arkeselSend(apiKey, SMS_SENDER_ID, message, phone);
+          sent1 = true;
+        } catch (e) {
+          lastErr = String(e).slice(0, 90);
+          if (attempt === 0 && !dryRun) await new Promise((r) => setTimeout(r, 250)); // pace before retry
+        }
+      }
+      if (!sent1) throw new Error(lastErr);
       await markSms(SMS_COUNCIL, r.id, type as SmsType, phone, "SENT");
       sent.push({ id: r.id, serial: r.serialNumber, phone, name: r.name });
     } catch (e) {
       await markSms(SMS_COUNCIL, r.id, type as SmsType, phone, "FAILED");
-      failed.push({ id: r.id, serial: r.serialNumber, phone, error: String(e).slice(0, 90) });
+      failed.push({ id: r.id, serial: r.serialNumber, phone, error: String(e).slice(0, 120) });
     }
+    if (!dryRun) await new Promise((r) => setTimeout(r, 120)); // keep batches under provider pace limits
   }
 
   await prisma.auditLog.create({
