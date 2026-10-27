@@ -9,7 +9,7 @@
 import crypto from "crypto";
 import { prisma, councilId } from "./db";
 
-export const SMS_SENDER_ID = String(process.env.ARKESEL_SENDER || "ADWESO-ZC").slice(0, 11);
+export const SMS_SENDER_ID = String(process.env.ARKESEL_SENDER || "ADWESOZC").slice(0, 11);
 
 export const SMS_TEXTS: Record<string, string> = {
   THANK_YOU:
@@ -71,7 +71,7 @@ export async function markSms(council: string, recordId: string, type: SmsType, 
 
 /** Send via Arkesel v2 API. Returns the provider message id or throws. */
 export async function arkeselSend(apiKey: string, sender: string, message: string, recipient: string): Promise<string> {
-  const res = await fetch("https://api.arkesel.com/api/v2/sms/send", {
+  const res = await fetch("https://sms.arkesel.com/api/v2/sms/send", {
     method: "POST",
     headers: { "api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({ sender, message, recipients: [recipient] }),
