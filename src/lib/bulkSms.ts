@@ -15,7 +15,7 @@ export const SMS_TEXTS: Record<string, string> = {
   THANK_YOU:
     "Adweso Zonal Council: Thank you, {name}. Your shop has been successfully registered. Serial No.: {serial}. Please encourage other shop owners to register as well. They can call the Director of Adweso Zonal Council on 024 884 7819.",
   BILL_NOTICE:
-    "Adweso Zonal Council: Notice to {name}. Your bill serial {serial} has been printed and will be delivered to you. Please receive the council officer. For enquiries contact the council office. Or the Director via 0248847819",
+    "Adweso Zonal Council: Dear {name}, your bill (Serial No.: {serial}) has been printed and will be delivered to you shortly. Kindly receive the council officer when they arrive. For enquiries, please contact the council office or the Director on 024 884 7819.",
 };
 
 export type SmsType = "THANK_YOU" | "BILL_NOTICE";
