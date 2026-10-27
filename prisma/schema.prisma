@@ -167,3 +167,16 @@ model LicenseState {
 
   @@map("license_state")
 }
+
+model SmsSend {
+  id        String   @id @db.VarChar(30)
+  councilId String   @map("council_id") @db.VarChar(12)
+  recordId  String   @map("record_id") @db.VarChar(30)
+  type      String   @db.VarChar(16) // THANK_YOU | BILL_NOTICE
+  phone     String   @db.VarChar(15)
+  status    String   @default("SENT") @db.VarChar(10) // SENT | FAILED
+  sentAt    DateTime @default(now()) @map("sent_at") @db.Timestamptz(3)
+
+  @@unique([councilId, recordId, type])
+  @@map("sms_send")
+}

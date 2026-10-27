@@ -1,9 +1,10 @@
 // Home = the register (server component guards the session)
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
-import { getFullUser } from "@/lib/db";
+import { getFullUser, councilId } from "@/lib/db";
 import { permsFor } from "@/lib/perms";
 import RegisterTable from "./RegisterTable";
+import SmsPanel from "./SmsPanel";
 import { isMasterDeployment } from "@/lib/masterFlag";
 import LicenseGate from "./LicenseGate";
 import TopBar from "./TopBar";
@@ -21,6 +22,11 @@ export default async function HomePage() {
     <div className="shell">
       <TopBar username={me.username} role={me.role} canReviewPasswords={perms.canReviewPasswords} showMaster={isMasterDeployment()} />
       <main className="main">
+        {councilId() === "adweso" && perms.canManageUsers === true && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+            <SmsPanel allowed={true} />
+          </div>
+        )}
         <RegisterTable
           isAdmin={me.role === "ADMIN"}
           moneyVisible={perms.canViewMoneyTotals}
