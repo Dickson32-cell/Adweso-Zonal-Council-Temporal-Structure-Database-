@@ -137,14 +137,14 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
                         ))}
                       </div>
                       <label className="fld" style={{ marginBottom: 8 }}>
-                        <span className="cap">Search by serial or name</span>
-                        <input type="text" value={sq} onChange={(e) => { setSq(e.target.value); setSingleRec(""); }} placeholder="e.g. ADA/ 45 or Kwesi" />
+                        <span className="cap">Search by name or serial</span>
+                        <input type="text" value={sq} onChange={(e) => { setSq(e.target.value); setSingleRec(""); }} placeholder="e.g. Kwesi or ADA/ 45" />
                       </label>
                       {sq.trim() !== "" && (
                         <select aria-label="Pick the record" value={singleRec} onChange={(e) => setSingleRec(e.target.value)} style={{ marginBottom: 8 }}>
                           <option value="">— pick from {matches.length} match(es) —</option>
                           {matches.map((r) => (
-                            <option key={r.id} value={r.id}>{r.serialNumber} — {r.name} ({r.electoralArea})</option>
+                            <option key={r.id} value={r.id}>{r.name} — {r.serialNumber} ({r.electoralArea})</option>
                           ))}
                         </select>
                       )}
