@@ -13,7 +13,7 @@ export const SMS_SENDER_ID = String(process.env.ARKESEL_SENDER || "ADWESO-ZC").s
 
 export const SMS_TEXTS: Record<string, string> = {
   THANK_YOU:
-    "Adweso Zonal Council: Thank you {name}, your shop has been registered. Serial {serial}. Kindly tell others to also come and register.",
+    "Adweso Zonal Council: Thank you {name}, your shop has been registered. Serial {serial}. Kindly tell others to also come and register; for their registration they can call the Director of Adweso Zonal Council on 0248847819.",
   BILL_NOTICE:
     "Adweso Zonal Council: Notice to {name}. Your bill serial {serial} has been printed and will be delivered to you. Please receive the council officer. For enquiries contact the council office. Or the Director via 0248847819",
 };
