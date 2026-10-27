@@ -49,6 +49,18 @@ export async function GET(req: NextRequest) {
     },
   });
 
+  // Serial order must be NUMERIC (1, 2, ..., 10, ..., 101) inside each area —
+  // text ordering of the serial would put 101 right after 10.
+  const serialNum = (s: string) => {
+    const m = /(\d+)\s*$/.exec(s || "");
+    return m ? parseInt(m[1], 10) : Number.MAX_SAFE_INTEGER;
+  };
+  rows.sort((a, b) =>
+    (a.electoralArea || "").localeCompare(b.electoralArea || "") ||
+    serialNum(a.serialNumber) - serialNum(b.serialNumber) ||
+    (a.serialNumber || "").localeCompare(b.serialNumber || "")
+  );
+
   const records = rows.map((r) => {
     const totalBilled = r.fees.reduce((s, f) => s + Number(f.amount), 0);
     const totalPaid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
