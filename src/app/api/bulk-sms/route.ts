@@ -16,7 +16,7 @@ import {
 } from "@/lib/bulkSms";
 
 const SMS_COUNCIL = "adweso";
-const MAX_PER_PRESS = 300;
+const MAX_PER_PRESS = 40; // keep each press well under the serverless timeout; the marks make repeats safe
 
 async function guard() {
   const session = await getSession();
@@ -145,10 +145,13 @@ export async function POST(req: NextRequest) {
       details: { type, area: area || "ALL", sentCount: sent.length, failedCount: failed.length, skippedCount: skipped.length, by: me.username },
     },
   });
+  const remainingAfter = (await smsDue(SMS_COUNCIL, type as SmsType))
+    .due.filter((r) => !area || r.electoralArea === area).length;
   return NextResponse.json({
     ok: true,
     type,
     senderId: SMS_SENDER_ID,
     result: dryRun ? { preview: true, wouldSend: sent.length, skipped: skipped.length } : { sent, failed, skipped },
+    remainingAfter: dryRun ? null : remainingAfter,
   });
 }

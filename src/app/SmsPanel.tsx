@@ -58,7 +58,8 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
       if (!res.ok) { setErr(data.error || "Send failed"); return; }
       if (dryRun) setResult(`Preview: ${data.result.wouldSend} message(s) would go out, ${data.result.skipped} skipped.`);
       else {
-        setResult(`Sent to ${data.result.sent.length} number(s). Failed: ${data.result.failed.length}. Skipped: ${data.result.skipped.length}.`);
+        const rem = data.remainingAfter;
+        setResult(`Sent to ${data.result.sent.length} number(s). Failed: ${data.result.failed.length}. Skipped: ${data.result.skipped.length}.` + (rem > 0 ? ` Remaining: ${rem} — press Send again for the next batch (no duplicates possible).` : " All done for this selection."));
         load();
       }
     } catch {
