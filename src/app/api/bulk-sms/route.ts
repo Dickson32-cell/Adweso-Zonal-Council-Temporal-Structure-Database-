@@ -43,6 +43,7 @@ export async function GET() {
       dueCount: d.due.length,
       sentCount: d.sentCount,
       skips: { noPhone: d.noPhone, badPhone: d.badPhone },
+      due: d.due.slice(0, 300).map((r) => ({ id: r.id, name: r.name, serialNumber: r.serialNumber, telephone: r.telephone, electoralArea: r.electoralArea })),
     };
   }
   return NextResponse.json({ configured, senderId: SMS_SENDER_ID, areas: Array.from(areas).sort(), types });
@@ -60,6 +61,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unknown SMS type" }, { status: 400 });
   const area = String(body.area || "").trim();
   const dryRun = body.dryRun === true;
+
+  // Single-record send: same fixed messages, same once-per-record rule.
+  if (body.recordId) {
+    const rid = String(body.recordId);
+    const rec = await prisma.feePayer.findFirst({
+      where: { councilId: SMS_COUNCIL, id: rid, recordStatus: "ACTIVE" },
+      select: { id: true, name: true, serialNumber: true, telephone: true, electoralArea: true },
+    });
+    if (!rec) return NextResponse.json({ error: "Record not found in this register" }, { status: 404 });
+    const st = await prisma.smsSend.findUnique({ where: { councilId_recordId_type: { councilId: SMS_COUNCIL, recordId: rid, type } } });
+    if (st && st.status === "SENT" && !dryRun)
+      return NextResponse.json({ error: "This record already received this message (each record gets a type once)" }, { status: 409 });
+    const phone = normalizePhone(rec.telephone || "");
+    if (!phone) return NextResponse.json({ error: "This record has no usable phone number" }, { status: 400 });
+    const message = fillTemplate(SMS_TEXTS[type], rec.name, rec.serialNumber);
+    if (dryRun) return NextResponse.json({ ok: true, type, senderId: SMS_SENDER_ID, result: { preview: true, wouldSend: 1, skipped: 0, message } });
+    let s: "SENT" | "FAILED";
+    let errText = "";
+    try {
+      await arkeselSend(process.env.ARKESEL_API_KEY as string, SMS_SENDER_ID, message, phone);
+      s = "SENT";
+    } catch (e) {
+      s = "FAILED"; errText = String(e).slice(0, 90);
+    }
+    await markSms(SMS_COUNCIL, rid, type as SmsType, phone, s);
+    await prisma.auditLog.create({
+      data: {
+        councilId: councilId(),
+        userId: g.sub,
+        action: "SINGLE_SMS",
+        entityType: "fee_payer",
+        entityId: rid,
+        details: { type, status: s, phone, error: errText, by: me.username },
+      },
+    });
+    return NextResponse.json({
+      ok: s === "SENT",
+      type,
+      senderId: SMS_SENDER_ID,
+      result: s === "SENT"
+        ? { sent: [{ id: rid, serial: rec.serialNumber, phone, name: rec.name }], failed: [], skipped: 0 }
+        : { sent: [], failed: [{ id: rid, serial: rec.serialNumber, phone, error: errText }], skipped: 0 },
+    });
+  }
 
   const d = await smsDue(SMS_COUNCIL, type as SmsType);
   let due = d.due;

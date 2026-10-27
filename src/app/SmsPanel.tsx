@@ -11,6 +11,7 @@ type TypeInfo = {
   dueCount: number;
   sentCount: number;
   skips: { noPhone: number; badPhone: number };
+  due: Array<{ id: string; name: string; serialNumber: string; telephone: string; electoralArea: string }>;
 };
 
 const TYPE_LABELS: Record<TypeKey, string> = {
@@ -25,6 +26,9 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
   const [busyType, setBusyType] = useState<"" | TypeKey>("");
   const [result, setResult] = useState<string>("");
   const [err, setErr] = useState("");
+  const [singleType, setSingleType] = useState<TypeKey>("THANK_YOU");
+  const [singleRec, setSingleRec] = useState("");
+  const [sq, setSq] = useState("");
 
   const load = useCallback(async () => {
     setErr(""); 
@@ -42,13 +46,13 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
     return () => window.removeEventListener("online", onOnline);
   }, [open, load]);
 
-  async function send(type: TypeKey, dryRun: boolean) {
+  async function send(type: TypeKey, dryRun: boolean, recordId?: string) {
     setBusyType(type); setResult(""); setErr("");
     try {
       const res = await fetch("/api/bulk-sms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, area, dryRun }),
+        body: JSON.stringify(recordId ? { type, dryRun, recordId } : { type, area, dryRun }),
       });
       const data = await res.json();
       if (!res.ok) { setErr(data.error || "Send failed"); return; }
@@ -86,7 +90,7 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
             {info && (
               <>
                 <label className="fld" style={{ margin: "10px 0" }}>
-                  <span className="cap">Electoral area (optional)</span>
+                  <span className="cap">Send by electoral area — or All areas</span>
                   <select value={area} onChange={(e) => setArea(e.target.value)}>
                     <option value="">All areas</option>
                     {(info.areas || []).map((a) => <option key={a} value={a}>{a}</option>)}
@@ -117,6 +121,53 @@ export default function SmsPanel({ allowed }: { allowed: boolean }) {
                     </div>
                   );
                 })}
+                {(() => {
+                  const d = info.types[singleType];
+                  const matches = (d ? d.due : []).filter((r) => {
+                    const q = sq.trim().toLowerCase();
+                    return !q || (r.serialNumber || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q);
+                  }).slice(0, 40);
+                  return (
+                    <div style={{ border: "1px solid var(--line,#e5e7eb)", borderRadius: 10, padding: "12px 14px", marginTop: 4 }}>
+                      <div style={{ fontWeight: 800, marginBottom: 4 }}>Single SMS (one person)</div>
+                      <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                        {(["THANK_YOU", "BILL_NOTICE"] as TypeKey[]).map((t) => (
+                          <button key={t} type="button" className={singleType === t ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm"}
+                            onClick={() => { setSingleType(t); setSingleRec(""); }}>{TYPE_LABELS[t]}</button>
+                        ))}
+                      </div>
+                      <label className="fld" style={{ marginBottom: 8 }}>
+                        <span className="cap">Search by serial or name</span>
+                        <input type="text" value={sq} onChange={(e) => { setSq(e.target.value); setSingleRec(""); }} placeholder="e.g. ADA/ 45 or Kwesi" />
+                      </label>
+                      {sq.trim() !== "" && (
+                        <select aria-label="Pick the record" value={singleRec} onChange={(e) => setSingleRec(e.target.value)} style={{ marginBottom: 8 }}>
+                          <option value="">— pick from {matches.length} match(es) —</option>
+                          {matches.map((r) => (
+                            <option key={r.id} value={r.id}>{r.serialNumber} — {r.name} ({r.electoralArea})</option>
+                          ))}
+                        </select>
+                      )}
+                      {singleRec && (() => {
+                        const picked = (d ? d.due : []).find((r) => r.id === singleRec);
+                        return picked ? (
+                          <p className="sub" style={{ margin: "0 0 8px" }}>
+                            To: <b>{picked.name}</b> · {picked.telephone || "(no phone on record)"} — the fixed {TYPE_LABELS[singleType].toLowerCase()} with {picked.serialNumber} filled in.
+                          </p>
+                        ) : null;
+                      })()}
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button type="button" className="btn btn-primary btn-sm" disabled={busyType === singleType || !info.configured || !singleRec || !sq.trim()}
+                          onClick={() => send(singleType, false, singleRec)}>
+                          {busyType === singleType ? "Sending…" : "Send to this one"}
+                        </button>
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--muted,#6b7280)", marginTop: 8 }}>
+                        The once-per-record rule holds here too: a person who already received this type cannot get it again.
+                      </div>
+                    </div>
+                  );
+                })()}
               </>
             )}
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
