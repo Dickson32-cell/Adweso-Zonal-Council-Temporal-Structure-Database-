@@ -107,6 +107,34 @@ export default function RegisterTable({
     );
   }
 
+  // Edit-side GPS pick — fills the EDIT form's latitude/longitude (a record
+  // whose GPS was skipped at creation can be located later).
+  function pickGpsEdit() {
+    setGpsErr("");
+    if (!("geolocation" in navigator)) {
+      setGpsErr("This device does not support GPS");
+      return;
+    }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setEditForm((f) => ({ ...f, latitude: Number(pos.coords.latitude.toFixed(7)).toString(), longitude: Number(pos.coords.longitude.toFixed(7)).toString() }));
+        setGpsBusy(false);
+      },
+      (err) => {
+        setGpsBusy(false);
+        setGpsErr(
+          err.code === 1
+            ? "GPS permission denied — allow location access in your browser"
+            : err.code === 3
+              ? "GPS timed out — step outside and try again"
+              : "GPS unavailable right now — try again"
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
   // Payment modal state
   const [payFor, setPayFor] = useState<Row | null>(null);
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -839,7 +867,13 @@ export default function RegisterTable({
                 GPS changes are sent to the administrator for approval before they take effect.
               </p>
             )}
+            {gpsErr && (
+              <p className="sub" style={{ color: "var(--danger,#b3261e)", margin: "2px 0 0" }}>{gpsErr}</p>
+            )}
             <div style={{ display: "flex", gap: 8 }}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={pickGpsEdit} disabled={gpsBusy} style={{ alignSelf: "flex-end", whiteSpace: "nowrap" }}>
+                {gpsBusy ? "Locating..." : "Pick GPS Again"}
+              </button>
               <label className="fld" style={{ flex: 1 }}><span className="cap">GPS Latitude</span>
                 <input type="text" inputMode="decimal" placeholder="e.g. 5.123456" value={editForm.latitude} onChange={(e) => setEditForm({ ...editForm, latitude: e.target.value })} /></label>
               <label className="fld" style={{ flex: 1 }}><span className="cap">GPS Longitude</span>
