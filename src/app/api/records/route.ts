@@ -93,11 +93,23 @@ export async function POST(req: NextRequest) {
     const catRaw = body.containerCategory ? String(body.containerCategory).trim() : "";
     const catSet = containerSizeVal === "Wooden" ? ["Small", "Medium", "Large"] : ["CAT A", "CAT B", "CAT C"];
     const containerCategoryVal = catRaw && catSet.includes(catRaw) ? catRaw : null;
-    if (containerSizeVal && !containerCategoryVal)
-      errors.push("Select the container category (CAT A/B/C — or Small/Medium/Large for Wooden)");
-    if (catRaw && !containerCategoryVal)
+    // Offline-captured payloads from before the category field existed carry a
+    // size but no category — accept those (same as legacy DB rows); reject only
+    // a category that was actually sent and doesn't match the container type.
+    if (containerSizeVal && catRaw && !containerCategoryVal)
       errors.push("Container category does not match the container type");
-    if (errors.length) return NextResponse.json({ errors }, { status: 400 });
+    if (errors.length) {
+      // Diagnostic breadcrumb (no customer names printed).
+      console.log(JSON.stringify({ op: "CREATE_REJECTED", council: councilId(), errors,
+        fieldShapes: { telephoneLen: telephone ? String(telephone).length : 0,
+          telephoneHead: telephone ? String(telephone).slice(0, 3) : "", area: electoralArea || "",
+          feeRaw: fee === undefined ? "absent" : String(fee), hasBusinessName: !!String(businessName || "").trim(),
+          hasStreet: !!String(streetName || "").trim(), hasGps: body.latitude != null || body.longitude != null,
+          lat: body.latitude == null ? null : Number(body.latitude), lng: body.longitude == null ? null : Number(body.longitude),
+          containerSize: body.containerSize ?? null, containerCategory: body.containerCategory ?? null,
+          pendingIdShape: /^[A-Za-z0-9._:-]{8,64}$/.test(String(body.pendingId || "")) ? "valid" : "invalid-or-missing" } }));
+      return NextResponse.json({ errors }, { status: 400 });
+    }
 
     // OFFLINE DEDUPE: a retry (lost/duplicate sync) returns the record that already
     // exists. Combined with the (council_id, pending_id) unique index, double entries
