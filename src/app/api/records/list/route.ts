@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, councilId, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
+import { BASIC_RATE_2027 } from "@/lib/frrRates";
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
 
   const records = rows.map((r) => {
     const bopAmt = r.bopFee != null ? Number(r.bopFee) : 0;
-    const totalBilled = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt;
+    const totalBilled = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt + BASIC_RATE_2027;
     const totalPaid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
     const balance = Math.max(0, Number((totalBilled - totalPaid).toFixed(2)));
     const lat = r.latitude ? Number(r.latitude) : null;

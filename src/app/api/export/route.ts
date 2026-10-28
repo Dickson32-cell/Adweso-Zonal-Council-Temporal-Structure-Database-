@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import * as XLSX from "xlsx";
 import { licenseStatus } from "@/lib/license";
 
+import { BASIC_RATE_2027 } from "@/lib/frrRates";
 const GHS = (n: number) => n.toFixed(2);
 
 export async function GET(req: NextRequest) {
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
 
   const records = rows.map((r) => {
     const bopAmt = r.bopFee != null ? Number(r.bopFee) : 0;
-    const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt;
+    const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt + BASIC_RATE_2027;
     const paid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
     const balance = Math.max(0, Number((billed - paid).toFixed(2)));
     const lat = r.latitude ? Number(r.latitude) : null;
@@ -103,7 +104,7 @@ export async function GET(req: NextRequest) {
   const byArea: Record<string, { count: number; billed: number; collected: number; outstanding: number }> = {};
   rows.forEach((r) => {
     const bopAmt = r.bopFee != null ? Number(r.bopFee) : 0;
-    const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt;
+    const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt + BASIC_RATE_2027;
     const paid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
     if (!byArea[r.electoralArea])
       byArea[r.electoralArea] = { count: 0, billed: 0, collected: 0, outstanding: 0 };

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { SignJWT, jwtVerify } from "jose";
 
+import { BASIC_RATE_2027 } from "@/lib/frrRates";
 declare global {
   var prisma: PrismaClient | undefined;
 }
@@ -94,7 +95,7 @@ export async function payerTotals(feePayerId: string) {
     prisma.feePayer.findUnique({ where: { id: feePayerId }, select: { bopFee: true } }),
   ]);
   const bop = bopRow?.bopFee != null ? Number(bopRow.bopFee) : 0;
-  const totalBilled = Number(feeAgg._sum.amount ?? 0) + bop;
+  const totalBilled = Number(feeAgg._sum.amount ?? 0) + bop + BASIC_RATE_2027;
   const totalPaid = payAgg._sum.amount ?? 0;
   const balance = Number(totalBilled) - Number(totalPaid);
   return {

@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { listPending, putPending, deletePending, markPendingError, type PendingRecord } from "@/lib/pendingRecords";
 
-import { structureFee2027, bopFee2027 } from "@/lib/frrRates";
+import { BASIC_RATE_2027, bopFee2027, structureFee2027 } from "@/lib/frrRates";
 const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
 const CONTAINER_TYPES = ["Small", "Medium", "Large", "Double Container", "Wooden"];
 const CATS_ABC = ["CAT A", "CAT B", "CAT C"];
@@ -970,7 +970,7 @@ export default function RegisterTable({
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Container</td><td style={{ padding: "4px 0" }}>{ctrTxt(detail.record.containerSize, detail.record.containerCategory)}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Structure Fee</td><td style={{ padding: "4px 0" }}>GH₵ {Number(detail.record.fee).toFixed(2)}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>BOP Fee</td><td style={{ padding: "4px 0" }}>{detail.record.bopFee != null ? "GH₵ " + detail.record.bopFee.toFixed(2) : "GH₵ 0.00"}</td></tr>
-                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}><b>Total (Fee + BOP)</b></td><td style={{ padding: "4px 0" }}><b>GH₵ {(Number(detail.record.fee) + (detail.record.bopFee != null ? detail.record.bopFee : 0)).toFixed(2)}</b></td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}><b>Total (Fee + BOP + Basic)</b></td><td style={{ padding: "4px 0" }}><b>GH₵ {(Number(detail.record.fee) + (detail.record.bopFee != null ? detail.record.bopFee : 0) + BASIC_RATE_2027).toFixed(2)}</b></td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Registered</td><td style={{ padding: "4px 0" }}>{new Date(detail.record.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Location</td><td style={{ padding: "4px 0" }}>
                   {detail.record.latitude != null && detail.record.longitude != null ? (

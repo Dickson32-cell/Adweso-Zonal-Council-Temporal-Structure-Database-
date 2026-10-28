@@ -54,3 +54,6 @@ export function bopFee2027(type: string): number | null {
   const f = BOP_FEE_2027[type];
   return typeof f === "number" ? f : null;
 }
+
+// The Assembly basic rate (GH₵ 1.00) belongs to every bill — included in totals.
+export const BASIC_RATE_2027 = 1;
