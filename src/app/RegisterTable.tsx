@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { listPending, putPending, deletePending, markPendingError, type PendingRecord } from "@/lib/pendingRecords";
 
-import { structureFee2027 } from "@/lib/frrRates";
+import { structureFee2027, bopFee2027 } from "@/lib/frrRates";
 const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
 const CONTAINER_TYPES = ["Small", "Medium", "Large", "Double Container", "Wooden"];
 const CATS_ABC = ["CAT A", "CAT B", "CAT C"];
@@ -388,7 +388,7 @@ export default function RegisterTable({
       businessType: row.businessType || "",
       containerSize: row.containerSize || "",
     containerCategory: row.containerCategory || "",
-      bopFee: row.bopFee != null ? String(row.bopFee) : "",
+      bopFee: row.bopFee != null ? String(row.bopFee) : String(bopFee2027(row.businessType || "") ?? ""),
       fee: row.fee != null ? String(row.fee) : "",
       longitude: row.longitude != null ? String(row.longitude) : "",
           otherType: "",
@@ -879,7 +879,7 @@ export default function RegisterTable({
               <input type="text" value={editForm.streetName} onChange={(e) => setEditForm({ ...editForm, streetName: e.target.value })} /></label>
               <label className="fld"><span className="cap">Type of Business</span>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <select value={editForm.businessType} onChange={(e) => setEditForm({ ...editForm, businessType: e.target.value })} style={{ flex: 1 }}>
+                  <select value={editForm.businessType} onChange={(e) => { const bt = e.target.value; const b = bopFee2027(bt); setEditForm((f) => ({ ...f, businessType: bt, bopFee: !f.bopFee && b !== null ? String(b) : f.bopFee })); }} style={{ flex: 1 }}>
                     <option value="">—</option>
                     {BIZ_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
                   </select>
