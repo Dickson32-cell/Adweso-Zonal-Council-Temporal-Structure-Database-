@@ -947,10 +947,10 @@ export default function RegisterTable({
               )}
             </h2>
             <p className="sub" style={{ marginBottom: 10 }}><b style={{ fontSize: 16 }}>{detail.record.serialNumber}</b> — {detail.record.name}</p>
-            {smsSendable && detailRow && detailRow.id === detail.record.id && (
+            {smsSendable && detailRow && (
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
-                <button type="button" className="btn btn-green btn-sm" disabled={smsBusy} onClick={() => sendOneSms("THANK_YOU", detail.record)}>Send Thank You SMS</button>
-                <button type="button" className="btn btn-ghost btn-sm" disabled={smsBusy} onClick={() => sendOneSms("BILL_NOTICE", detail.record)}>Send Bill Notice SMS</button>
+                <button type="button" className="btn btn-green btn-sm" disabled={smsBusy} onClick={() => sendOneSms("THANK_YOU", detailRow)}>Send Thank You SMS</button>
+                <button type="button" className="btn btn-ghost btn-sm" disabled={smsBusy} onClick={() => sendOneSms("BILL_NOTICE", detailRow)}>Send Bill Notice SMS</button>
                 {smsNote && <span style={{ fontSize: 12.5 }}>{smsNote}</span>}
               </div>
             )}
