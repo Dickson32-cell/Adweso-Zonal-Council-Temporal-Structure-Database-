@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { listPending, putPending, deletePending, markPendingError, type PendingRecord } from "@/lib/pendingRecords";
 
+import { structureFee2027 } from "@/lib/frrRates";
 const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
 const CONTAINER_TYPES = ["Small", "Medium", "Large", "Double Container", "Wooden"];
 const CATS_ABC = ["CAT A", "CAT B", "CAT C"];
@@ -629,7 +630,7 @@ export default function RegisterTable({
                   </div>
                   <input type="text" placeholder="or type a business type" value={form.otherType} onChange={(e) => setForm({ ...form, otherType: e.target.value })} maxLength={80} /></label>
                   <label className="fld"><span className="cap">Container Type</span>
-                    <select value={form.containerSize} onChange={(e) => setForm({ ...form, containerSize: e.target.value, containerCategory: "" })}>
+                    <select value={form.containerSize} onChange={(e) => { const size = e.target.value; const s = structureFee2027(size); setForm((f) => ({ ...f, containerSize: size, containerCategory: "", fee: !f.fee && s !== null ? String(s) : f.fee })); }}>
                       <option value="">—</option>
                       {CONTAINER_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
