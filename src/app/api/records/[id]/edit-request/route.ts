@@ -89,6 +89,7 @@ export async function POST(
     const pending = await prisma.$transaction(async (tx) => {
       const created = await tx.pendingEdit.create({
         data: {
+          councilId: councilId(),
           feePayerId: id,
           before: before as object,
           after: after as object,
