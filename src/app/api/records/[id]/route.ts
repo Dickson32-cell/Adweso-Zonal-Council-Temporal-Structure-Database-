@@ -40,6 +40,17 @@ export async function PATCH(
     const payer = await prisma.feePayer.findFirst({ where: { id, councilId: councilId() } });
     if (!payer || payer.recordStatus !== "ACTIVE")
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
+    // STAFF RULE: only payment settlement travels PATCH; every field edit
+    // goes through the administrator approval queue (edit-request).
+    if (isStaff) {
+      const fieldKeys = Object.keys(body ?? {}).filter((k) => !["status", "receiptNo"].includes(k));
+      if (body?.status !== "PAID" || fieldKeys.length > 0) {
+        return NextResponse.json(
+          { error: "Staff edits go to the administrator for approval. Use Edit and choose Submit for Approval." },
+          { status: 403 }
+        );
+      }
+    }
     if (isStaff && payer.createdBy && payer.createdBy !== session.sub)
       return NextResponse.json(
         { error: "This entry belongs to another staff member. Only they can edit it." },

@@ -77,7 +77,7 @@ export function permsFor(role: string, adminLevel: string | null): Perms {
   return {
     canViewMoneyTotals: false,
     canCreateRecords: true,
-    canEditRecords: true, // own records only — route-level ownership check
+    canEditRecords: false, // staff edits go to the administrator approval queue
     canDeleteRecords: false,
     canRecordPayments: true,
     canExport: true,
