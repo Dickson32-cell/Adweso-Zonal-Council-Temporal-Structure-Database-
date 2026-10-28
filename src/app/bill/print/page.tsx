@@ -16,9 +16,11 @@ function BatchPrintInner() {
   const [done, setDone] = useState(false);
   const [director, setDirector] = useState("");
   const [dirDraft, setDirDraft] = useState("");
-  const [orient, setOrient] = useState<"portrait" | "landscape">(
-    (window.localStorage.getItem("billOrient") as "portrait" | "landscape") || "portrait"
-  );
+  const [orient, setOrient] = useState<"portrait" | "landscape">("portrait");
+  useEffect(() => {
+    const saved = window.localStorage.getItem("billOrient") as "portrait" | "landscape" | null;
+    if (saved === "portrait" || saved === "landscape") setOrient(saved);
+  }, []);
   function saveOrient(o: "portrait" | "landscape") { setOrient(o); window.localStorage.setItem("billOrient", o); }
 
   useEffect(() => {
