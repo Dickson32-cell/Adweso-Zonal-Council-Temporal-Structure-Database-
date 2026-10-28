@@ -50,6 +50,7 @@ export async function POST(
     const payment = await prisma.$transaction(async (tx) => {
       const created = await tx.payment.create({
         data: {
+          councilId: councilId(),
           feePayerId: id,
           amount: amount.toFixed(2),
           method: "CASH",
@@ -64,6 +65,7 @@ export async function POST(
       }
       await tx.auditLog.create({
         data: {
+          councilId: councilId(),
           userId: session.sub,
           action: "RECORD_PAYMENT",
           entityType: "payment",
