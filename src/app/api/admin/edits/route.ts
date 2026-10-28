@@ -71,6 +71,15 @@ export async function PATCH(req: NextRequest) {
           where: { id: edit.feePayerId },
           data: updateData as Record<string, string>,
         });
+        // keep the ledger in step when an approved edit changes the fee
+        const newFee = updateData["fee"];        if (newFee != null && String(newFee).trim() !== "") {
+          const frows = await tx.fee.findMany({ where: { feePayerId: edit.feePayerId, councilId: councilId() } });
+          const fsum = frows.reduce((s, f) => s + Number(f.amount), 0);
+          if (frows.length === 1 && Math.abs(fsum - Number(newFee)) > 0.005)
+            await tx.fee.update({ where: { id: frows[0].id }, data: { amount: String(Number(newFee).toFixed(2)) } });
+          else if (frows.length === 0)
+            await tx.fee.create({ data: { councilId: councilId(), feePayerId: edit.feePayerId, amount: String(Number(newFee).toFixed(2)), description: "Opening fee (temporal structure)", createdBy: session.sub } });
+        }
       }
       await tx.pendingEdit.update({
         where: { id: editId },

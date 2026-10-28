@@ -27,7 +27,9 @@ function formatDate(iso: string): string {
   return `${day}${suffix} ${month}, ${d.getFullYear()}`;
 }
 
-export default function BillSheet({ data, directorName }: { data: BillData; directorName?: string }) {
+
+// Orientation: @page A5 portrait (default) or landscape; the sheet itself is horizontal.
+export default function BillSheet({ data, directorName, orientation = "portrait" }: { data: BillData; directorName?: string; orientation?: "portrait" | "landscape" }) {
   const { customer, bill } = data;
   const printed = formatDate(data.printedOn);
   return (
@@ -66,7 +68,7 @@ export default function BillSheet({ data, directorName }: { data: BillData; dire
         .stub-sign { text-align: center; font-size: 22px; margin-top: 18px; }
         .stub-logos { text-align: center; font-size: 9px; color: #555; }
         @media print {
-          @page { size: A5 portrait; margin: 8mm; }
+          @page { size: A5 ${orientation}; margin: 8mm; }
           .bill-sheet { max-width: none; border: none; }
           .bill-watermark img { opacity: 0.07; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }

@@ -185,6 +185,17 @@ export async function PATCH(
 
     const updated = await prisma.$transaction(async (tx) => {
       const r = await tx.feePayer.update({ where: { id }, data });
+      // A fee edit rides the ledger: keep the fee row equal to the header fee
+      if (data.fee != null) {
+        const frows = await tx.fee.findMany({ where: { feePayerId: id, councilId: councilId() } });
+        const fsum = frows.reduce((s, f) => s + Number(f.amount), 0);
+        if (Math.abs(fsum - Number(data.fee)) > 0.005) {
+          if (frows.length === 1)
+            await tx.fee.update({ where: { id: frows[0].id }, data: { amount: data.fee } });
+          else if (frows.length === 0)
+            await tx.fee.create({ data: { councilId: councilId(), feePayerId: id, amount: data.fee, description: "Opening fee (temporal structure)", createdBy: session.sub } });
+        }
+      }
       await tx.auditLog.create({
         data: {
           councilId: councilId(),

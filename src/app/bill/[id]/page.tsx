@@ -13,6 +13,10 @@ export default function BillPage() {
   const [err, setErr] = useState("");
   const [director, setDirector] = useState("");
   const [dirDraft, setDirDraft] = useState("");
+  const [orient, setOrient] = useState<"portrait" | "landscape">(
+    (window.localStorage.getItem("billOrient") as "portrait" | "landscape") || "portrait"
+  );
+  function saveOrient(o: "portrait" | "landscape") { setOrient(o); window.localStorage.setItem("billOrient", o); }
 
   useEffect(() => {
     setDirector(window.localStorage.getItem(DIR_KEY) || "");
@@ -46,11 +50,18 @@ export default function BillPage() {
             style={{ padding: "4px 8px", border: "1px solid #bbb", borderRadius: 4, width: 180 }}
           />
         </label>
-        <button className="btn btn-primary" onClick={() => window.print()}>Print bill</button>
+        <button className="btn btn-primary" onClick={() => window.print()}>Print bill</button>{" "}
+          <label style={{ fontSize: 12, marginRight: 8 }}>
+            Orientation:{" "}
+            <select value={orient} onChange={(e) => saveOrient(e.target.value as "portrait" | "landscape")} style={{ padding: "2px 6px" }}>
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </label>
         {" "}
         <button className="btn btn-ghost" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.href = "/"; }}>Back</button>
       </div>
-      <BillSheet data={data} directorName={director} />
+      <BillSheet data={data} directorName={director} orientation={orient} />
     </div>
   );
 }

@@ -16,6 +16,10 @@ function BatchPrintInner() {
   const [done, setDone] = useState(false);
   const [director, setDirector] = useState("");
   const [dirDraft, setDirDraft] = useState("");
+  const [orient, setOrient] = useState<"portrait" | "landscape">(
+    (window.localStorage.getItem("billOrient") as "portrait" | "landscape") || "portrait"
+  );
+  function saveOrient(o: "portrait" | "landscape") { setOrient(o); window.localStorage.setItem("billOrient", o); }
 
   useEffect(() => {
     setDirector(window.localStorage.getItem(DIR_KEY) || "");
@@ -64,14 +68,21 @@ function BatchPrintInner() {
             style={{ padding: "4px 8px", border: "1px solid #bbb", borderRadius: 4, width: 180 }}
           />
         </label>
-        <button className="btn btn-primary" onClick={() => window.print()}>Print {bills.length} bill(s)</button>
+        <button className="btn btn-primary" onClick={() => window.print()}>Print {bills.length} bill(s)</button>{" "}
+          <label style={{ fontSize: 12, marginRight: 8 }}>
+            Orientation:{" "}
+            <select value={orient} onChange={(e) => saveOrient(e.target.value as "portrait" | "landscape")} style={{ padding: "2px 6px" }}>
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </label>
         {" "}
         <button className="btn btn-ghost" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.href = "/"; }}>Back</button>
         {errors > 0 && <span style={{ color: "#a33", marginLeft: 10 }}>{errors} bill(s) could not be loaded</span>}
       </div>
       {bills.map((b) => (
         <div className="bill-page" key={b.customer.id + b.printedOn}>
-          <BillSheet data={b} directorName={director} />
+          <BillSheet data={b} directorName={director} orientation={orient} />
         </div>
       ))}
     </div>
