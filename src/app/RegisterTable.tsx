@@ -158,7 +158,7 @@ export default function RegisterTable({
     record: {
       serialNumber: string; name: string; businessName: string; telephone: string;
       electoralArea: string; streetName: string; businessType: string | null;
-      containerSize: string | null; containerCategory: string | null; bopFee: number | null; recordStatus: string;
+      containerSize: string | null; containerCategory: string | null; bopFee: number | null; recordStatus: string; fee: number;
       latitude: number | null; longitude: number | null;
       createdAt: string;
       fees: { amount: number; createdAt: string }[];
@@ -968,7 +968,9 @@ export default function RegisterTable({
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Street</td><td style={{ padding: "4px 0" }}>{detail.record.streetName || "—"}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Business Type</td><td style={{ padding: "4px 0" }}>{detail.record.businessType || "—"}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Container</td><td style={{ padding: "4px 0" }}>{ctrTxt(detail.record.containerSize, detail.record.containerCategory)}</td></tr>
-                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>BOP Fee</td><td style={{ padding: "4px 0" }}>{detail.record.bopFee != null ? "GH₵ " + detail.record.bopFee.toFixed(2) : "—"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Structure Fee</td><td style={{ padding: "4px 0" }}>GH₵ {Number(detail.record.fee).toFixed(2)}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>BOP Fee</td><td style={{ padding: "4px 0" }}>{detail.record.bopFee != null ? "GH₵ " + detail.record.bopFee.toFixed(2) : "GH₵ 0.00"}</td></tr>
+                <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}><b>Total (Fee + BOP)</b></td><td style={{ padding: "4px 0" }}><b>GH₵ {(Number(detail.record.fee) + (detail.record.bopFee != null ? detail.record.bopFee : 0)).toFixed(2)}</b></td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Registered</td><td style={{ padding: "4px 0" }}>{new Date(detail.record.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td></tr>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Location</td><td style={{ padding: "4px 0" }}>
                   {detail.record.latitude != null && detail.record.longitude != null ? (

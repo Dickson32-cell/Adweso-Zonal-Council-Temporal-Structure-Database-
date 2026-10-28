@@ -22,7 +22,8 @@ export async function GET(
   });
   if (!r) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0);
+  const bopAmt = r.bopFee != null ? Number(r.bopFee) : 0;
+  const billed = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt;
   const paid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
   const totalDue = r.status === "PAID" ? 0 : Math.max(0, Number((billed - paid).toFixed(2)));
 

@@ -81,7 +81,7 @@ export async function generateSerial(area: string): Promise<string> {
 // Money computations — DECIMAL only, never float
 // ---------------------------------------------------------------------------
 export async function payerTotals(feePayerId: string) {
-  const [feeAgg, payAgg] = await Promise.all([
+  const [feeAgg, payAgg, bopRow] = await Promise.all([
     prisma.fee.aggregate({
       where: { feePayerId, councilId: councilId() },
       _sum: { amount: true },
@@ -90,8 +90,11 @@ export async function payerTotals(feePayerId: string) {
       where: { feePayerId, councilId: councilId() },
       _sum: { amount: true },
     }),
+    // BOP fee is billable once entered — include it in all totals
+    prisma.feePayer.findUnique({ where: { id: feePayerId }, select: { bopFee: true } }),
   ]);
-  const totalBilled = feeAgg._sum.amount ?? 0;
+  const bop = bopRow?.bopFee != null ? Number(bopRow.bopFee) : 0;
+  const totalBilled = Number(feeAgg._sum.amount ?? 0) + bop;
   const totalPaid = payAgg._sum.amount ?? 0;
   const balance = Number(totalBilled) - Number(totalPaid);
   return {

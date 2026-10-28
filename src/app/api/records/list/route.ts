@@ -62,7 +62,8 @@ export async function GET(req: NextRequest) {
   );
 
   const records = rows.map((r) => {
-    const totalBilled = r.fees.reduce((s, f) => s + Number(f.amount), 0);
+    const bopAmt = r.bopFee != null ? Number(r.bopFee) : 0;
+    const totalBilled = r.fees.reduce((s, f) => s + Number(f.amount), 0) + bopAmt;
     const totalPaid = r.payments.reduce((s, p) => s + Number(p.amount), 0);
     const balance = Math.max(0, Number((totalBilled - totalPaid).toFixed(2)));
     const lat = r.latitude ? Number(r.latitude) : null;
