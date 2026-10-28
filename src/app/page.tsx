@@ -34,6 +34,7 @@ export default async function HomePage() {
           canEditDirect={perms.canEditRecords}
           canCreate={perms.canCreateRecords}
           canPay={perms.canRecordPayments}
+          smsSendable={councilId() === "adweso" && perms.canManageUsers === true}
           currentUsername={me.username}
         />
         <LicenseGate />

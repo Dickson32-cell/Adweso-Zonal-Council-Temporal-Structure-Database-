@@ -45,6 +45,7 @@ export default function RegisterTable({
   canEditDirect = true,
   canCreate = true,
   canPay = true,
+  smsSendable = false,
   currentUsername = "",
 }: {
   isAdmin?: boolean;
@@ -53,6 +54,7 @@ export default function RegisterTable({
   canEditDirect?: boolean;
   canCreate?: boolean;
   canPay?: boolean;
+  smsSendable?: boolean;
   currentUsername?: string;
 }) {
   const [rows, setRows] = useState<Row[]>([]);
@@ -226,6 +228,28 @@ export default function RegisterTable({
   const [pendingItems, setPendingItems] = useState<PendingRecord[]>([]);
   const [pendingSyncing, setPendingSyncing] = useState(false);
   const pendingSyncingRef = useRef(false);
+  // Adweso SMS pilot: one-tap send at registration time (FULL admins only)
+  const [lastCreated, setLastCreated] = useState<{ id: string; name: string; serialNumber: string } | null>(null);
+  const [smsBusy, setSmsBusy] = useState(false);
+  const [smsNote, setSmsNote] = useState("");
+
+  async function sendOneSms(type: "THANK_YOU" | "BILL_NOTICE", rec: { id: string }) {
+    if (smsBusy) return;
+    setSmsBusy(true); setSmsNote("");
+    try {
+      const res = await fetch("/api/bulk-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, recordId: rec.id }),
+      });
+      const data = await res.json().catch(() => ({} as { error?: string }));
+      if (res.ok) setSmsNote(type === "THANK_YOU" ? "Thank-you message sent (2 credits)." : "Bill notice sent (2 credits).");
+      else if (res.status === 409) setSmsNote("This record already received that message — nothing was double-sent.");
+      else setSmsNote(data.error || `Could not send (${res.status}).`);
+    } catch {
+      setSmsNote("Network problem — nothing went out; try again.");
+    } finally { setSmsBusy(false); }
+  }
 
   async function saveRecord(e: React.FormEvent) {
     e.preventDefault();
@@ -271,6 +295,7 @@ export default function RegisterTable({
     setBusy(false);
     if (!res.ok) { setFormErr(data.errors || [data.error]); return; }
     setFormOk(`Saved — ${data.record.serialNumber} (${data.record.name})` + (gps ? " with GPS location" : ""));
+    if (smsSendable) setLastCreated({ id: data.record.id, name: data.record.name, serialNumber: data.record.serialNumber });
     resetForm();
     load();
     void syncPending();
@@ -551,6 +576,18 @@ export default function RegisterTable({
             <button className="btn btn-ghost btn-sm" onClick={() => window.print()}>Print List</button>
           </div>
         </div>
+
+        {smsSendable && lastCreated && (
+          <div className="card" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+            <span style={{ fontSize: 13 }}>
+              <b style={{ fontSize: 14 }}>{lastCreated.serialNumber}</b> — {lastCreated.name}:
+            </span>
+            <button type="button" className="btn btn-green btn-sm" disabled={smsBusy} onClick={() => sendOneSms("THANK_YOU", lastCreated)}>Send Thank You SMS</button>
+            <button type="button" className="btn btn-ghost btn-sm" disabled={smsBusy} onClick={() => sendOneSms("BILL_NOTICE", lastCreated)}>Send Bill Notice SMS</button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setLastCreated(null); setSmsNote(""); }}>Dismiss</button>
+            {smsNote && <span style={{ fontSize: 12.5 }}>{smsNote}</span>}
+          </div>
+        )}
 
         {showForm && (
           <form onSubmit={saveRecord} className="card" style={{ background: "var(--white)" }}>
@@ -910,6 +947,13 @@ export default function RegisterTable({
               )}
             </h2>
             <p className="sub" style={{ marginBottom: 10 }}><b style={{ fontSize: 16 }}>{detail.record.serialNumber}</b> — {detail.record.name}</p>
+            {smsSendable && detailRow && detailRow.id === detail.record.id && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+                <button type="button" className="btn btn-green btn-sm" disabled={smsBusy} onClick={() => sendOneSms("THANK_YOU", detail.record)}>Send Thank You SMS</button>
+                <button type="button" className="btn btn-ghost btn-sm" disabled={smsBusy} onClick={() => sendOneSms("BILL_NOTICE", detail.record)}>Send Bill Notice SMS</button>
+                {smsNote && <span style={{ fontSize: 12.5 }}>{smsNote}</span>}
+              </div>
+            )}
             <table className="kv" style={{ width: "100%", fontSize: 13.5, borderCollapse: "collapse" }}>
               <tbody>
                 <tr><td className="k" style={{ color: "var(--muted)", padding: "4px 10px 4px 0" }}>Business Name</td><td style={{ padding: "4px 0", fontWeight: 600 }}>{detail.record.businessName || "—"}</td></tr>
