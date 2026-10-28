@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, councilId, audit, getFullUser } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
-const EDITABLE = ["name", "businessName", "telephone", "streetName", "electoralArea", "businessType", "containerSize", "containerCategory", "bopFee"] as const;
+const EDITABLE = ["name", "businessName", "telephone", "streetName", "electoralArea", "businessType", "containerSize", "containerCategory", "bopFee", "fee"] as const;
 const PHONE_RE = /^0\d{9}$/;
 
 export async function POST(
@@ -81,6 +81,8 @@ export async function POST(
       }
       if (f === "bopFee" && !Number.isFinite(Number(incoming.trim())))
         errors.push("BOP fee must be a valid amount in GHS");
+      if (f === "fee" && (!Number.isFinite(Number(incoming.trim())) || Number(incoming.trim()) <= 0))
+        errors.push("Fee must be a positive amount in GHS");
     }
     if (errors.length) return NextResponse.json({ errors }, { status: 400 });
     if (Object.keys(after).length === 0)

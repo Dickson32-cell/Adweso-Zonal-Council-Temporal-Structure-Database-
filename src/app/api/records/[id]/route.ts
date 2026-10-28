@@ -175,6 +175,13 @@ export async function PATCH(
         errors.push("BOP fee must be a positive amount in GHS");
       else data.bopFee = bop.toFixed(2);
     }
+    // Fee edit (admin direct): positive amount only; staff fee edits ride the approval queue
+    if (typeof body.fee === "string" && body.fee.trim()) {
+      const feeNew = Number(body.fee.trim());
+      if (!Number.isFinite(feeNew) || feeNew <= 0)
+        errors.push("Fee must be a positive amount in GHS");
+      else data.fee = feeNew.toFixed(2);
+    }
 
     const updated = await prisma.$transaction(async (tx) => {
       const r = await tx.feePayer.update({ where: { id }, data });

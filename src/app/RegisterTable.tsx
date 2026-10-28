@@ -374,7 +374,7 @@ export default function RegisterTable({
 
   // Edit modal state
   const [editFor, setEditFor] = useState<Row | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "", businessType: "", otherType: "", containerSize: "", containerCategory: "", bopFee: "" });
+  const [editForm, setEditForm] = useState({ name: "", businessName: "", telephone: "", streetName: "", electoralArea: "", latitude: "", longitude: "", businessType: "", otherType: "", containerSize: "", containerCategory: "", bopFee: "", fee: "" });
   const [editErr, setEditErr] = useState<string[]>([]);
   const [editMsg, setEditMsg] = useState("");
   const [editBusy, setEditBusy] = useState(false);
@@ -389,6 +389,7 @@ export default function RegisterTable({
       containerSize: row.containerSize || "",
     containerCategory: row.containerCategory || "",
       bopFee: row.bopFee != null ? String(row.bopFee) : "",
+      fee: row.fee != null ? String(row.fee) : "",
       longitude: row.longitude != null ? String(row.longitude) : "",
           otherType: "",
     });
@@ -886,7 +887,7 @@ export default function RegisterTable({
                 <input type="text" placeholder="or type a business type" value={editForm.otherType} onChange={(e) => setEditForm({ ...editForm, otherType: e.target.value })} maxLength={80} /></label>
                 <div style={{ display: "flex", gap: 8 }}>
                   <label className="fld" style={{ flex: 1 }}><span className="cap">Container Type</span>
-                    <select value={editForm.containerSize} onChange={(e) => setEditForm({ ...editForm, containerSize: e.target.value, containerCategory: "" })}>
+                    <select value={editForm.containerSize} onChange={(e) => { const size = e.target.value; const s = structureFee2027(size); setEditForm((f) => ({ ...f, containerSize: size, containerCategory: "", fee: !f.fee && s !== null ? String(s) : f.fee })); }}>
                       <option value="">—</option>
                       {CONTAINER_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -900,6 +901,10 @@ export default function RegisterTable({
                   <label className="fld" style={{ flex: 1 }}><span className="cap">BOP Fee (GHS)</span>
                     <input type="text" inputMode="decimal" placeholder="e.g. 50" value={editForm.bopFee} onChange={(e) => setEditForm({ ...editForm, bopFee: e.target.value })} /></label>
                 </div>
+                <label className="fld"><span className="cap">Fee (GHS)</span>
+                  <input type="text" inputMode="decimal" placeholder="e.g. 120" value={editForm.fee} onChange={(e) => setEditForm({ ...editForm, fee: e.target.value })} />
+                  <span style={{ display: "block", fontSize: 12, color: "var(--muted)", marginTop: 2 }}>2027 FRR: Wooden 60.68 · Containers/Sealed Metal 120 — picking the structure auto-fills this when empty.</span>
+                </label>
             {!canEditDirect && (
               <p className="sub" style={{ margin: "2px 0 0" }}>
                 GPS changes are sent to the administrator for approval before they take effect.
