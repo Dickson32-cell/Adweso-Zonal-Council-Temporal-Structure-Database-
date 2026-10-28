@@ -27,6 +27,17 @@ type Tx = Prisma.TransactionClient;
 async function allocateSerialAtomic(area: string): Promise<string> {
   const code = areaCode(area);
   if (!code) throw new Error("Unknown area");
+
+  // Released serials first (deleted records re-offered by the office's release queue)
+  const released = await prisma.$queryRawUnsafe<{ serial_number: string }[]>(
+    `UPDATE serial_release SET status = 'USED', used_at = now()
+       WHERE id = (SELECT id FROM serial_release
+                    WHERE council_id = $1 AND electoral_area = $2 AND status = 'AVAILABLE'
+                    ORDER BY number LIMIT 1 FOR UPDATE SKIP LOCKED)
+     RETURNING serial_number`,
+    councilId(), area
+  );
+  if (released.length > 0) return released[0].serial_number;
   const updated = await prisma.serialCounter.update({
     where: { councilId_electoralArea: { councilId: councilId(), electoralArea: area } },
     data: { lastNumber: { increment: 1 } },
