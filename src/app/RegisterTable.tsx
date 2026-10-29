@@ -201,6 +201,18 @@ export default function RegisterTable({
 
   useEffect(() => { load(); }, [load]);
 
+  // MAP FOCUS: the map page hands over a serial via sessionStorage when the
+  // teller presses "Open record" on a pin; once rows land, open that detail.
+  useEffect(() => {
+    const s = window.sessionStorage.getItem("mapFocusSerial");
+    if (!s || rows.length === 0) return;
+    const r = rows.find((x) => x.serialNumber === s);
+    if (r) {
+      window.sessionStorage.removeItem("mapFocusSerial");
+      void openDetail(r);
+    }
+  }, [rows]);
+
   // AUTO-REFRESH: re-fetch the register every 30 seconds so staff see each
   // other's new records and payments without pressing anything. The
   // interval is cleared when the tab is hidden and resumes when visible

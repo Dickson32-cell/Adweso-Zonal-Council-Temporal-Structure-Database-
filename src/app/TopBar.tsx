@@ -38,6 +38,7 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
   const drawerBody = (
     <nav className="drawer-nav" onClick={() => setDrawer(false)}>
       <a href="/" className="drawer-item">Register</a>
+      <a href="/map" className="drawer-item">Map</a>
       {role === "ADMIN" && (
         <>
           {username === "admin" && showMaster && <a href="/master" className="drawer-item">Master</a>}
@@ -80,6 +81,9 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
       {/* Desktop/tablet inline buttons — hidden on phones (drawer replaces them) */}
       <div className="who only-desktop">
         <b>{username}</b> · {role === "ADMIN" ? "Administrator" : "Staff"} &nbsp;{" "}
+        <a href="/map" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
+          Map
+        </a>{" "}
         {role === "ADMIN" && (
           <>
             {username === "admin" && showMaster && (
