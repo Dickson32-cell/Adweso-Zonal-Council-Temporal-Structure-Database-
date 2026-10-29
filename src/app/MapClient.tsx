@@ -36,6 +36,9 @@ export default function MapClient({ isAdmin }: { isAdmin: boolean }) {
 
   const mapRef = useRef<unknown>(null);
   const markersRef = useRef<unknown>(null);
+  const baseRef = useRef<unknown>(null);
+  const labelsRef = useRef<unknown>(null);
+  const [mode, setMode] = useState<"satellite" | "street">("satellite");
 
   useEffect(() => {
     let alive = true;
@@ -89,16 +92,31 @@ export default function MapClient({ isAdmin }: { isAdmin: boolean }) {
         const el = document.getElementById("zc-map") as HTMLDivElement | null;
         if (!el) return;
         const map = L.map(el, { zoomControl: true, attributionControl: true }).setView(KOFORIDUA, 14);
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(map);
         mapRef.current = map;
         markersRef.current = L.layerGroup().addTo(map);
       }
 
-      // Rebuild markers on every filter/rows change.
+      // Base layer follows the Satellite/Street toggle. Satellite (Esri World
+      // Imagery) is the default; labels are drawn on top so towns stay readable.
       const map = mapRef.current as import("leaflet").Map;
+      if (baseRef.current) { map.removeLayer(baseRef.current as import("leaflet").Layer); baseRef.current = null; }
+      if (labelsRef.current) { map.removeLayer(labelsRef.current as import("leaflet").Layer); labelsRef.current = null; }
+      if (mode === "satellite") {
+        const sat = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          maxNativeZoom: 19, maxZoom: 20,
+          attribution: 'Imagery &copy; <a href="https://www.arcgis.com/">Esri</a>, Maxar, Earthstar Geographics',
+        }).addTo(map);
+        const labels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+          maxNativeZoom: 19, maxZoom: 20,
+        }).addTo(map);
+        baseRef.current = sat;
+        labelsRef.current = labels;
+      } else {
+        baseRef.current = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
+      }
       const group = markersRef.current as import("leaflet").LayerGroup;
       group.clearLayers();
 
@@ -155,7 +173,7 @@ export default function MapClient({ isAdmin }: { isAdmin: boolean }) {
       }
     })();
     return () => { cancelled = true; };
-  }, [rows, withGps]);
+  }, [rows, withGps, mode]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -167,7 +185,15 @@ export default function MapClient({ isAdmin }: { isAdmin: boolean }) {
               ? `Plotted ${withGps.length} of ${(rows || []).length}${isAdmin ? "" : ""} · Temporal/containers ${temporalCount} · Properties/shops ${propertyCount}`
               : "Loading records..."}
           </span>
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button type="button" onClick={() => setMode("satellite")} style={{ borderRadius: 8, padding: "6px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer", border: "1px solid " + (mode === "satellite" ? "transparent" : "var(--line, #e5e7eb)"), background: mode === "satellite" ? "#0a3b2a" : "transparent", color: mode === "satellite" ? "#ffffff" : "var(--ink, #111827)" }}>
+                Satellite
+              </button>
+              <button type="button" onClick={() => setMode("street")} style={{ borderRadius: 8, padding: "6px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer", border: "1px solid " + (mode === "street" ? "transparent" : "var(--line, #e5e7eb)"), background: mode === "street" ? "#0a3b2a" : "transparent", color: mode === "street" ? "#ffffff" : "var(--ink, #111827)" }}>
+                Street
+              </button>
+            </div>
             <select className="fld" style={{ padding: "6px 8px" }} value={areaFilter} onChange={(e) => setAreaFilter(e.target.value)} aria-label="Filter by electoral area">
               <option value="">All areas</option>
               {areas.map((a) => (
