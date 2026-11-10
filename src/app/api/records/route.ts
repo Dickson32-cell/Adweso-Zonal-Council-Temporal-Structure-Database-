@@ -12,6 +12,7 @@ import {
 } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { permsFor } from "@/lib/perms";
+import { maybeAutoSmsThankYou } from "@/lib/autoSms";
 import { withRetry } from "@/lib/retry";
 import { assertCanCreate } from "@/lib/license";
 
@@ -202,6 +203,10 @@ export async function POST(req: NextRequest) {
         }),
       "create-record"
     );
+
+    // AUTO SMS — the registrar's phone gets the thank-you without anyone pressing a button.
+    // Fire-and-forget: every failure inside is swallowed; the create response is untouched.
+    void maybeAutoSmsThankYou(record);
 
     return NextResponse.json({
       ok: true,
