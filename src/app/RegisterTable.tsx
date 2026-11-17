@@ -366,7 +366,23 @@ export default function RegisterTable({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "PAID" }),
     });
-    if (res.ok) load();
+    if (res.ok) {
+      await load();
+      if (detail && detailRow && detailRow.id === row.id) await openDetail(detailRow);
+    }
+  }
+
+  async function markUnpaid(row: Row) {
+    if (!confirm(`Mark ${row.name} (${row.serialNumber}) as UNPAID?\nThe record returns to unpaid; payments already recorded stay in the ledger.`)) return;
+    const res = await fetch(`/api/records/${row.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "UNPAID" }),
+    });
+    if (res.ok) {
+      await load();
+      if (detail && detailRow && detailRow.id === row.id) await openDetail(detailRow);
+    }
   }
 
   async function savePayment(e: React.FormEvent) {
@@ -768,6 +784,9 @@ export default function RegisterTable({
                       </>
                     )}
                     {" "}
+                    {isAdmin && r.status === "PAID" && (
+                      <button className="btn btn-ghost btn-sm" onClick={() => markUnpaid(r)}>Mark Unpaid</button>
+                    )}
                     {isAdmin && canDelete && (
                       <button className="btn btn-danger btn-sm" onClick={() => deleteRecord(r)}>Delete</button>
                     )}
@@ -820,6 +839,9 @@ export default function RegisterTable({
                     <button className="btn btn-ghost btn-sm" onClick={() => { setPayFor(r); setPayAmt(""); setPayErr(""); }}>Pay</button>
                     <button className="btn btn-green btn-sm" onClick={() => markPaid(r)}>Mark Paid</button>
                   </>
+                )}
+                {isAdmin && r.status === "PAID" && (
+                  <button className="btn btn-ghost btn-sm" onClick={(e) => { e.stopPropagation(); markUnpaid(r); }}>Mark Unpaid</button>
                 )}
                 {isAdmin && canDelete && (
                   <button className="btn btn-danger btn-sm" onClick={() => deleteRecord(r)}>Delete</button>
@@ -970,6 +992,17 @@ export default function RegisterTable({
                 <button type="button" className="btn btn-green btn-sm" disabled={smsBusy} onClick={() => sendOneSms("THANK_YOU", detailRow)}>Send Thank You SMS</button>
                 <button type="button" className="btn btn-ghost btn-sm" disabled={smsBusy} onClick={() => sendOneSms("BILL_NOTICE", detailRow)}>Send Bill Notice SMS</button>
                 {smsNote && <span style={{ fontSize: 12.5 }}>{smsNote}</span>}
+              </div>
+            )}
+            {isAdmin && detailRow && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+                <span style={{ fontSize: 12.5, color: "var(--muted)" }}>Payment status:</span>
+                {detailRow.status !== "PAID" && (
+                  <button type="button" className="btn btn-green btn-sm" onClick={() => markPaid(detailRow)}>Mark Paid</button>
+                )}
+                {detailRow.status === "PAID" && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => markUnpaid(detailRow)}>Mark Unpaid</button>
+                )}
               </div>
             )}
             <table className="kv" style={{ width: "100%", fontSize: 13.5, borderCollapse: "collapse" }}>
