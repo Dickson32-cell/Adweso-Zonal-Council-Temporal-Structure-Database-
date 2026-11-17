@@ -489,17 +489,21 @@ export default function RegisterTable({
 
   return (
     <>
-      <div className="card">
-        <h2>Temporal Structures Register</h2>
-        <p className="sub">Official fee register — Adweso Zonal Council, New Juaben South Municipal Assembly</p>
+      <div className="page-head">
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <h1 style={{ fontSize: 20, margin: 0, color: "var(--navy)", fontWeight: 800 }}>Register</h1>
+          <p className="sub" style={{ margin: "2px 0 0", fontSize: 12.5 }}>Official fee register — Adweso Zonal Council, New Juaben South Municipal Assembly</p>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
           {pendingCount > 0 && (
-            <div style={{ margin: "8px 0" }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => { listPending().then((x) => { setPendingItems(x); setPendingListOpen(true); }); }}>
-                Pending ({pendingCount}) {pendingSyncing ? "— syncing…" : "— uploads by itself when network returns"}
-              </button>
-            </div>
+            <button className="chip-pending" onClick={() => { listPending().then((x) => { setPendingItems(x); setPendingListOpen(true); }); }}>
+              Pending ({pendingCount}){pendingSyncing ? " — syncing…" : ""}
+            </button>
           )}
-          {pendingListOpen && (
+        </div>
+      </div>
+      <div className="goldline" aria-hidden="true" />
+      {pendingListOpen && (
             <div style={{ position: "fixed", inset: 0, background: "rgba(3,70,39,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 130, padding: 14 }}>
               <div className="card modal-card" style={{ width: 500, maxWidth: "100%", maxHeight: "86vh", overflowY: "auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -528,6 +532,19 @@ export default function RegisterTable({
               </div>
             </div>
           )}
+
+      <div className="card">
+        {/* Grand totals — money administrators only, always on top (Council Ledger look) */}
+        <div className="grand grand-top">
+          <div className="g"><div className="k">RECORDS</div><div className="v">{grand.records}</div></div>
+          {moneyVisible ? (
+            <>
+              <div className="g"><div className="k">TOTAL BILLED</div><div className="v">{GHS(grand.billed)}</div></div>
+              <div className="g"><div className="k">TOTAL COLLECTED</div><div className="v">{GHS(grand.collected)}</div></div>
+              <div className="g"><div className="k">OUTSTANDING</div><div className="v">{GHS(grand.outstanding)}</div></div>
+            </>
+          ) : null}
+        </div>
 
         <div className="filters only-desktop">
           <div className="f">
@@ -558,7 +575,7 @@ export default function RegisterTable({
           {canCreate && <button className="btn btn-primary" onClick={() => { setShowForm((s) => !s); setFormOk(""); }}>New Record</button>}
           <button className="btn btn-ghost" onClick={exportExcel}>Export Excel</button>
           <button className="btn btn-ghost" onClick={() => window.print()}>Print</button>
-          <button className="btn btn-ghost" onClick={printSelected} disabled={sel.size === 0} title="Print bills for ticked clients">
+          <button className="btn btn-gold" onClick={printSelected} disabled={sel.size === 0} title="Print bills for ticked clients">
             Print Bills ({sel.size})
           </button>
           <button className="btn btn-ghost" onClick={printAllFiltered} title="Print a bill for every client in the current filter">
@@ -590,7 +607,7 @@ export default function RegisterTable({
 
         {/* Phones: register actions — print bills & export within thumb reach */}
         <div className="m-actions only-mobile">
-          <button className="btn btn-green" disabled={sel.size === 0} onClick={printSelected}>
+          <button className="btn btn-gold" disabled={sel.size === 0} onClick={printSelected}>
             Print Bills ({sel.size})
           </button>
           <button className="btn btn-ghost" onClick={printAllFiltered}>
@@ -853,18 +870,6 @@ export default function RegisterTable({
           </>
         )}
 
-        {/* Grand totals — money visible to administrators only */}
-        <div className="grand">
-          <div className="tag">GRAND TOTALS</div>
-          <div className="g"><div className="k">RECORDS</div><div className="v">{grand.records}</div></div>
-          {moneyVisible ? (
-            <>
-              <div className="g"><div className="k">TOTAL BILLED</div><div className="v">{GHS(grand.billed)}</div></div>
-              <div className="g"><div className="k">TOTAL COLLECTED</div><div className="v">{GHS(grand.collected)}</div></div>
-              <div className="g"><div className="k">OUTSTANDING</div><div className="v">{GHS(grand.outstanding)}</div></div>
-            </>
-          ) : null}
-        </div>
       </div>
 
       {/* Per-area summary */}

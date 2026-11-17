@@ -412,3 +412,18 @@ html[data-theme="dark"] .topbar .mark { background: #ffffff; color: #034627; }
 @media (min-width: 640px) {
   .topbar > .who:not(.only-desktop) { display: none; }
 }
+
+/* ==== Council Ledger face (Adweso, direction A) - appended layer ==== */
+.topbar { box-shadow: inset 0 -3px 0 var(--gold); }
+.page-head { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 10px; padding: 13px 16px; margin-bottom: 10px; }
+.goldline { height: 3px; background: var(--gold); border-radius: 2px; margin: 10px 0 12px; }
+.chip-pending { background: #fdf3d0; border: 1px solid var(--gold); color: #7a5200; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+html[data-theme="dark"] .chip-pending { background: #3d3212; color: var(--gold); }
+.grand { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; }
+.grand .tag { display: none; }
+.grand-top { margin-bottom: 12px; }
+.grand .g { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; min-width: 150px; flex: 1; }
+.grand .k { font-size: 10px; letter-spacing: 1px; font-weight: 800; color: var(--muted); }
+.grand .v { font-size: 18px; font-weight: 800; color: var(--navy); margin-top: 2px; }
+.btn-gold { background: var(--gold); color: #132019; border: 1px solid var(--gold); font-weight: 800; }
+.btn-gold:disabled { opacity: 0.55; }
