@@ -4,8 +4,8 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { listPending, putPending, deletePending, markPendingError, type PendingRecord } from "@/lib/pendingRecords";
 
-import { BASIC_RATE_2027, bopFee2027, structureFee2027 } from "@/lib/frrRates";
-const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Other"];
+import { BASIC_RATE_2027, bopFee2027, structureFee2027, sizeBop2027 } from "@/lib/frrRates";
+const BIZ_TYPES = ["Retail Shop", "Provision Store", "Table-Top / Open-Stall Trader", "Food Joint / Chop Bar", "Bar / Pub / Spot", "Mobile Food & Drinks", "Tailoring & Fashion", "Hairdressing & Barbering", "Phone / Electronics Repair", "Mobile Money / Banking Agent", "Pharmacy / Chemist", "Metal Works / Welding", "Carpentry / Wood Works", "Auto Repairs / Fitting", "Fabric / Textiles", "Agro Inputs / Farm Produce", "Art & Handicraft", "Electronics Sales", "Cold Storage", "Other"];
 const CONTAINER_TYPES = ["Small", "Medium", "Large", "Double Container", "Wooden"];
 const CATS_ABC = ["CAT A", "CAT B", "CAT C"];
 const CATS_WOOD = ["Small", "Medium", "Large"];
@@ -416,7 +416,13 @@ export default function RegisterTable({
       businessType: row.businessType || "",
       containerSize: row.containerSize || "",
     containerCategory: row.containerCategory || "",
-      bopFee: row.bopFee != null ? String(row.bopFee) : String(bopFee2027(row.businessType || "") ?? ""),
+      bopFee: row.bopFee != null
+        ? String(row.bopFee)
+        : (bopFee2027(row.businessType || "") != null
+          ? String(bopFee2027(row.businessType || ""))
+          : (sizeBop2027(row.businessType || "", String(row.containerSize || "")) != null
+            ? String(sizeBop2027(row.businessType || "", String(row.containerSize || "")))
+            : "")),
       fee: row.fee != null ? String(row.fee) : "",
       longitude: row.longitude != null ? String(row.longitude) : "",
           otherType: "",
@@ -918,7 +924,7 @@ export default function RegisterTable({
               <input type="text" value={editForm.streetName} onChange={(e) => setEditForm({ ...editForm, streetName: e.target.value })} /></label>
               <label className="fld"><span className="cap">Type of Business</span>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <select value={editForm.businessType} onChange={(e) => { const bt = e.target.value; const b = bopFee2027(bt); setEditForm((f) => ({ ...f, businessType: bt, bopFee: !f.bopFee && b !== null ? String(b) : f.bopFee })); }} style={{ flex: 1 }}>
+                  <select value={editForm.businessType} onChange={(e) => { const bt = e.target.value; const b = bopFee2027(bt) != null ? bopFee2027(bt) : sizeBop2027(bt, editForm.containerSize || ""); setEditForm((f) => ({ ...f, businessType: bt, bopFee: !f.bopFee && b !== null ? String(b) : f.bopFee })); }} style={{ flex: 1 }}>
                     <option value="">—</option>
                     {BIZ_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
                   </select>
@@ -926,7 +932,7 @@ export default function RegisterTable({
                 <input type="text" placeholder="or type a business type" value={editForm.otherType} onChange={(e) => setEditForm({ ...editForm, otherType: e.target.value })} maxLength={80} /></label>
                 <div style={{ display: "flex", gap: 8 }}>
                   <label className="fld" style={{ flex: 1 }}><span className="cap">Container Type</span>
-                    <select value={editForm.containerSize} onChange={(e) => { const size = e.target.value; const s = structureFee2027(size); setEditForm((f) => ({ ...f, containerSize: size, containerCategory: "", fee: !f.fee && s !== null ? String(s) : f.fee })); }}>
+                    <select value={editForm.containerSize} onChange={(e) => { const size = e.target.value; setEditForm((f) => { const s = structureFee2027(size); const b = sizeBop2027(f.businessType, size); return { ...f, containerSize: size, containerCategory: "", fee: !f.fee && s !== null ? String(s) : f.fee, bopFee: !f.bopFee && b !== null ? String(b) : f.bopFee }; }); }}>
                       <option value="">—</option>
                       {CONTAINER_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
