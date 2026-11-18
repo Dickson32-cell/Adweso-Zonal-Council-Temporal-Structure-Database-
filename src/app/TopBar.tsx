@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
-export default function TopBar({ username, role, canReviewPasswords, showMaster }: { username: string; role: string; canReviewPasswords?: boolean; showMaster?: boolean }) {
+export default function TopBar({ username, role, canReviewPasswords, showMaster, showAttendance }: { username: string; role: string; canReviewPasswords?: boolean; showMaster?: boolean; showAttendance?: boolean }) {
   const router = useRouter();
   const [pwOpen, setPwOpen] = useState(false);
   const [drawer, setDrawer] = useState(false);
@@ -44,6 +44,7 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
           {username === "admin" && showMaster && <a href="/master" className="drawer-item">Master</a>}
           <a href="/admin/users" className="drawer-item">Staff</a>
           <a href="/admin/edits" className="drawer-item">Edits</a>
+          {showAttendance && <a href="/attendance" className="drawer-item">Attendance</a>}
           {canReviewPasswords && <a href="/admin/passwords" className="drawer-item">Passwords</a>}
         </>
       )}
@@ -97,6 +98,11 @@ export default function TopBar({ username, role, canReviewPasswords, showMaster 
             <a href="/admin/edits" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
               Edits
             </a>{" "}
+            {showAttendance && (
+              <a href="/attendance" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
+                Attendance
+              </a>
+            )}
             {canReviewPasswords && (
               <a href="/admin/passwords" className="btn btn-ghost btn-sm" style={{ color: "#fff", borderColor: "#2c6e4b" }}>
                 Passwords

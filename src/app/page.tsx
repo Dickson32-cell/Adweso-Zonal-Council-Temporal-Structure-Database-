@@ -20,7 +20,7 @@ export default async function HomePage() {
 
   return (
     <div className="shell">
-      <TopBar username={me.username} role={me.role} canReviewPasswords={perms.canReviewPasswords} showMaster={isMasterDeployment()} />
+      <TopBar username={me.username} role={me.role} canReviewPasswords={perms.canReviewPasswords} showMaster={isMasterDeployment()} showAttendance={councilId() === "adweso" && perms.canManageUsers === true} />
       <main className="main">
         {councilId() === "adweso" && perms.canManageUsers === true && (
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>

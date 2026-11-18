@@ -427,3 +427,12 @@ html[data-theme="dark"] .chip-pending { background: #3d3212; color: var(--gold);
 .grand .v { font-size: 18px; font-weight: 800; color: var(--navy); margin-top: 2px; }
 .btn-gold { background: var(--gold); color: #132019; border: 1px solid var(--gold); font-weight: 800; }
 .btn-gold:disabled { opacity: 0.55; }
+
+/* ==== Clerk attendance sheet print (attendance page only) ==== */
+@media print {
+  .noprint { display: none !important; }
+  .print-head-only { display: block !important; margin-bottom: 8px; }
+  body { background: #fff !important; }
+  .tblwrap { overflow: visible !important; }
+  table.tbl { min-width: 0 !important; }
+}
